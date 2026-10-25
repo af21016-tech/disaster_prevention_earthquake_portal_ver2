@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>デザイン検証プレビュー | SFJ Reverse Monotone</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Biz+UDPGOthic:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ========================================================
+           SFJ Reverse Monotone Design System
+           スターフライヤーの洗練された航空機美学（白銀ボディ × 漆黒の機能美）
+           ======================================================== */
+        
+        :root[data-theme="light"] {
+            /* ライトモード：白銀の機体ボディ、スレートグレー、深い漆黒テキスト */
+            --bg-color: #F5F6F8;             /* クリーンでまぶしすぎないエアポートグレー */
+            --surface-color: #FFFFFF;        /* ピュアホワイト */
+            --surface-hover: #F0F2F5;        /* 微かなホバー */
+            --header-bg: rgba(255, 255, 255, 0.92);
+            
+            --text-main: #111418;           /* 引き締まった漆黒タイポグラフィ（高可読性） */
+            --text-sub: #5F6672;            /* 落ち着いたスレートグレー */
+            --border-color: #DDE1E6;        /* 洗練された細い境界線 */
+            --border-card: #E4E7EC;
+
+            /* CUD Palette（白背景で最も視認性が高く、かつ洗練されたトーン） */
+            --cud-orange: #E65100;
+            --cud-blue: #0277BD;
+            --cud-yellow: #B78103;
+            --cud-green: #008744;
+            --cud-purple: #7B1FA2;
+
+            /* シャドウ効果 */
+            --card-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+            --card-shadow-hover: 0 10px 25px rgba(15, 23, 42, 0.10);
+            --tag-bg: #111418;
+            --tag-text: #FFFFFF;
+        }
+
+        :root[data-theme="dark"] {
+            /* 従来のダークモード（比較用） */
+            --bg-color: #050505;
+            --surface-color: #151515;
+            --surface-hover: #1e1e1e;
+            --header-bg: rgba(5, 5, 5, 0.92);
+            
+            --text-main: #EAEAEA;
+            --text-sub: #999999;
+            --border-color: #333333;
+            --border-card: #282828;
+
+            --cud-orange: #ff7b00;
+            --cud-blue: #56B4E9;
+            --cud-yellow: #F0E442;
+            --cud-green: #00E676;
+            --cud-purple: #b366ff;
+
+            --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.7);
+            --tag-bg: #00E676;
+            --tag-text: #000000;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'BIZ UDPGothic', 'Noto Sans JP', sans-serif;
+            letter-spacing: 0.04em;
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            padding-bottom: 80px;
+        }
+
+        /* -----------------------------------------
+           ヘッダーエリア
+           ----------------------------------------- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2.5rem;
+            background: var(--header-bg);
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .logo-area {
+            display: flex;
+            flex-direction: column;
+        }
+        .logo-area .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-area .brand-sub {
+            font-size: 0.72rem;
+            color: var(--text-sub);
+            letter-spacing: 0.15em;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* テーマ切り替えトグルスイッチ */
+        .theme-switcher {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            padding: 4px 8px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .theme-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            font-family: 'BIZ UDPGothic', sans-serif;
+            border-radius: 14px;
+            cursor: pointer;
+            color: var(--text-sub);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .theme-btn.active {
+            background: var(--text-main);
+            color: var(--bg-color);
+        }
+
+        /* -----------------------------------------
+           デモ検証バナー
+           ----------------------------------------- */
+        .preview-banner {
+            max-width: 1200px;
+            margin: 90px auto 1rem;
+            padding: 1.2rem 1.8rem;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--card-shadow);
+        }
+        .preview-banner h2 {
+            font-size: 1.05rem;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+        .preview-banner p {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        /* -----------------------------------------
+           メインコンテンツ（セクション & グリッド）
+           ----------------------------------------- */
+        .content-section {
+            max-width: 1200px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.8rem;
+            margin-bottom: 1.8rem;
+        }
+        .section-header h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+        .section-header .sub-en {
+            margin-left: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            letter-spacing: 0.2em;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* SFJカードスタイル */
+        .sfj-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            padding: 1.8rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            height: 270px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.25s ease;
+            position: relative;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .sfj-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .sfj-card.color-orange:hover { border-color: var(--cud-orange); }
+        .sfj-card.color-yellow:hover { border-color: var(--cud-yellow); }
+        .sfj-card.color-purple:hover { border-color: var(--cud-purple); }
+        .sfj-card.color-blue:hover   { border-color: var(--cud-blue); }
+        .sfj-card.color-green:hover  { border-color: var(--cud-green); }
+
+        .card-icon {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+        .sfj-card h3 {
+            font-size: 1.15rem;
+            font-weight: bold;
+            margin-bottom: 0.6rem;
+            color: var(--text-main);
+        }
+        .sfj-card p {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            line-height: 1.6;
+        }
+
+        .card-tag {
+            margin-top: auto;
+            align-self: flex-start;
+            font-size: 0.7rem;
+            font-family: 'Roboto Mono', monospace;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: var(--surface-hover);
+            border: 1px solid var(--border-color);
+            color: var(--text-sub);
+            font-weight: bold;
+        }
+
+        /* -----------------------------------------
+           UIコンポーネント サンプル検証エリア
+           ----------------------------------------- */
+        .component-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .sample-panel {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+        }
+        .sample-panel h3 {
+            font-size: 1.05rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* サンプルボタン */
+        .sample-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .btn-sample {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        .btn-sample.primary {
+            background: var(--text-main);
+            color: var(--bg-color);
+            border: 1px solid var(--text-main);
+        }
+        .btn-sample.secondary {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+        .btn-sample.secondary:hover {
+            background: var(--surface-hover);
+        }
+
+        /* サンプルクイズ・選択肢カード */
+        .sample-choice-btn {
+            width: 100%;
+            padding: 12px 18px;
+            margin-bottom: 8px;
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--text-main);
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+        }
+        .sample-choice-btn:hover {
+            border-color: var(--cud-orange);
+            background: var(--surface-hover);
+        }
+        .sample-choice-btn.selected {
+            border-color: var(--cud-green);
+            background: rgba(0, 135, 68, 0.08);
+            color: var(--cud-green);
+        }
+
+        /* サンプル避難所バッジ */
+        .shelter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 0.78rem;
+            font-weight: bold;
+            background: rgba(0, 135, 68, 0.1);
+            color: var(--cud-green);
+            border: 1px solid var(--cud-green);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <div class="brand-title">
+                <span>Quake Archive</span>
+                <span style="font-size: 0.7rem; background: var(--tag-bg); color: var(--tag-text); padding: 2px 6px; border-radius: 3px; font-weight: normal; letter-spacing: 0.05em;">
+                    SFJ Design System
+                </span>
+            </div>
+            <div class="brand-sub">Interactive Disaster Simulator</div>
+        </div>
+
+        <div class="header-actions">
+            <!-- テーマ切り替えトグル -->
+            <div class="theme-switcher">
+                <button class="theme-btn active" id="btn-theme-light" onclick="setTheme('light')">
+                    ☀️ ライト (白ベース)
+                </button>
+                <button class="theme-btn" id="btn-theme-dark" onclick="setTheme('dark')">
+                    🌙 ダーク (黒ベース)
+                </button>
+            </div>
+            <a href="index.html" class="btn-sample secondary" style="text-decoration:none; display:inline-block;">✕ ポータルへ戻る</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- 比較解説バナー -->
+        <div class="preview-banner">
+            <div>
+                <h2>✨ 【案1: SFJ Reverse Monotone】デザイン検証用プレビュー</h2>
+                <p>右上のボタンで、現行の「ダーク（黒）」と新提案の「ライト（白銀）」をワンクリックで切り替えて比較できます。</p>
+            </div>
+            <div class="shelter-badge">
+                ✈️ スターフライヤー機体美学
+            </div>
+        </div>
+
+        <!-- ポータルカードの検証 -->
+        <section class="content-section">
+            <div class="section-header">
+                <h2>地震に備える</h2>
+                <span class="sub-en">PREPARE FOR DISASTER</span>
+            </div>
+            
+            <div class="card-grid">
+                <div class="sfj-card color-orange">
+                    <div class="card-icon">⏱️</div>
+                    <h3>サバイバル・クイズ</h3>
+                    <p>災害時の「間違った常識」を打ち砕くタイムアタック訓練。全問正解を目指して挑戦せよ。</p>
+                    <span class="card-tag">QUIZ SIMULATION</span>
+                </div>
+
+                <div class="sfj-card color-yellow">
+                    <div class="card-icon">🎯</div>
+                    <h3>空間シェイクアウト</h3>
+                    <p>直感型サバイバル。自室の家具倒壊リスクや、アリーナでの群衆パニックへの抵抗を疑似体験。</p>
+                    <span class="card-tag">ACTION TRAINING</span>
+                </div>
+
+                <div class="sfj-card color-purple">
+                    <div class="card-icon">📱</div>
+                    <h3>デマ・誤情報 見極め訓練</h3>
+                    <p>災害時に飛び交うフェイクニュース。SNSのタイムラインから真実を見抜き、インフォデミックを防ぐ。</p>
+                    <span class="card-tag">MEDIA LITERACY</span>
+                </div>
+
+                <div class="sfj-card color-blue">
+                    <div class="card-icon">🌊</div>
+                    <h3>複合災害ハザードマップ</h3>
+                    <p>津波、洪水、土砂災害の危険エリアを重ね合わせ、国土地理院データから複合リスクを視覚化。</p>
+                    <span class="card-tag">HAZARD ARCHIVE</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 各コンテンツ内UIの見た目検証 -->
+        <section class="content-section">
+            <div class="section-header">
+                <h2>個別UIコンポーネントの見え方検証</h2>
+                <span class="sub-en">UI COMPONENT PREVIEW</span>
+            </div>
+
+            <div class="component-preview-grid">
+                <!-- クイズ・選択肢カード -->
+                <div class="sample-panel">
+                    <h3>⏱️ クイズ・設問モジュール</h3>
+                    <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:12px;">白背景上での〇✖・選択肢ボタンの発色と可読性：</p>
+                    <button class="sample-choice-btn selected">
+                        <span>⭕ 〇：直ちに頭を保護し揺れが収まるまで待つ</span>
+                        <span style="font-size:0.8rem;">正解判定</span>
+                    </button>
+                    <button class="sample-choice-btn">
+                        <span>❌ ✖：火を消すために台所へ駆け寄る</span>
+                        <span style="font-size:0.8rem;">選択肢</span>
+                    </button>
+                </div>
+
+                <!-- SNSタイムライン・デマ見極め -->
+                <div class="sample-panel">
+                    <h3>📱 デマ見極め SNSポスト</h3>
+                    <div style="background:var(--bg-color); border:1px solid var(--border-color); border-radius:6px; padding:12px; margin-bottom:12px;">
+                        <div style="font-size:0.85rem; font-weight:bold; margin-bottom:4px;">🚨 防災速報アカウント @bousai_official</div>
+                        <div style="font-size:0.85rem; color:var(--text-main); line-height:1.5;">
+                            【訓練情報】大津波警報発令想定。沿岸部の方は直ちに高台または津波避難ビルへ避難してください。
+                        </div>
+                    </div>
+                    <div class="sample-btn-group">
+                        <button class="btn-sample" style="background:var(--cud-orange); color:#fff; border:none;">🔄 拡散する</button>
+                        <button class="btn-sample secondary">🛡️ 拡散しない</button>
+                    </div>
+                </div>
+
+                <!-- ハザードマップ・凡例とバッジ -->
+                <div class="sample-panel">
+                    <h3>🗺️ ハザード凡例・避難所バッジ</h3>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <div style="display:flex; align-items:center; gap:8px; font-size:0.8rem;">
+                            <span style="display:inline-block; width:14px; height:14px; background:#e6550d; border-radius:2px;"></span>
+                            <span>津波浸水想定: 10.0m以上</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; font-size:0.8rem;">
+                            <span style="display:inline-block; width:14px; height:14px; background:#ffe600; border-radius:2px;"></span>
+                            <span>土砂災害警戒区域（土石流・急傾斜地）</span>
+                        </div>
+                        <div style="margin-top:6px;">
+                            <span class="shelter-badge">🏃 指定緊急避難場所（地震・津波対応）</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // テーマ切り替えスクリプト
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            
+            const btnLight = document.getElementById('btn-theme-light');
+            const btnDark = document.getElementById('btn-theme-dark');
+
+            if (theme === 'light') {
+                btnLight.classList.add('active');
+                btnDark.classList.remove('active');
+            } else {
+                btnDark.classList.add('active');
+                btnLight.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -2,14 +2,62 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp; object-src 'none'; base-uri 'self';">
     <title>Quake Interactive Archive | 過去の災害から学ぶ防災シミュレーター</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Biz+UDPGOthic:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
           crossorigin="anonymous" />
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/style.css?v=20261026_fix_3d_hazard">
+    <script>
+        // テーマの初期適用（ページ読み込み時の画面チラつき防止）
+        (function() {
+            var savedTheme = localStorage.getItem('v2_portal_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', savedTheme);
+            }
+        })();
+
+        window.setTheme = function(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', theme);
+            }
+            try {
+                localStorage.setItem('v2_portal_theme', theme);
+            } catch (e) {
+                console.error("Storage error:", e);
+            }
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+                toggleBtn.title = theme === 'dark' ? 'ライトテーマに切り替え' : 'ダークテーマに切り替え';
+            }
+            // テーマ変更イベントを通知
+            document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+        };
+
+        window.toggleTheme = function() {
+            var current = document.documentElement.getAttribute('data-theme') || 'dark';
+            window.setTheme(current === 'dark' ? 'light' : 'dark');
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('v2_portal_theme') || 'dark';
+            window.setTheme(currentTheme);
+
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.toggleTheme();
+                });
+            }
+        });
+    </script>
 </head>
 <body>
 
@@ -19,8 +67,10 @@
             <p>Interactive Disaster Simulator</p>
         </div>
         <div class="header-actions">
-            <button id="btn-post-survey" class="btn-mypage" disabled data-log="トップ画面：事後アンケートボタンをクリック">完了コードが発行できるようになるまで残り 10:00</button>
-            <a href="mypage.html" class="btn-mypage tut-target" data-step="9" data-title="👤 マイページ" data-desc="獲得した実績の確認や各種設定、バグ報告はこちらから行えます。次のボタンを押してマイページに進みましょう。" data-log="トップ画面：MY PAGEリンクをクリック">MY PAGE</a>
+            <!-- テーマ切り替え（単一トグルボタン） -->
+            <button id="btn-theme-toggle" class="btn-theme-toggle" title="テーマ切り替え" aria-label="テーマ切り替え">🌙</button>
+            <button id="btn-post-survey" class="btn-mypage" disabled data-log="トップ画面：事後アンケートボタンをクリック">完了コード発行まで 10:00</button>
+            <a href="mypage.html" class="btn-mypage" data-log="トップ画面：MY PAGEリンクをクリック">MY PAGE</a>
         </div>
     </header>
 
@@ -42,27 +92,30 @@
     <div id="completion-modal" class="modal-overlay">
         <div class="modal-content" style="max-width: 500px;">
             <h2>🎉 タスク完了</h2>
-            <p>お疲れ様でした。以下の完了コードをコピーして、ランサーズのアンケート画面に入力してください。</p>
+            <p style="font-size: 1rem; line-height: 1.5; color: var(--text-main); margin-bottom: 12px;">以下の完了コードを事後アンケートとランサーズの両方に入力してください</p>
             
-            <div id="completion-warning" style="display: none; color: #D55E00; margin: 15px 0; font-size: 0.9rem; border: 1px solid #D55E00; padding: 12px; border-radius: 6px; background: rgba(213, 94, 0, 0.1); text-align: left; line-height: 1.5;">
-                <strong>⚠️ ログ送信の遅延または失敗について:</strong><br>
-                アクセス集中やネットワークの影響により、学習ログの送信に一部失敗、または遅延が発生しました。ただし、完了コードは正常に発行されています。こちらのコードをコピーしてランサーズにご入力ください。
+            <div style="background: var(--surface-hover); border: 1px solid var(--border-color); border-radius: 8px; padding: 18px; margin: 16px 0; font-family: var(--font-mono); font-size: 1.25rem; word-break: break-all; color: var(--cud-yellow); letter-spacing: 0.05em; font-weight: bold; position: relative;">
+                <span id="completion-code-val">User-V2-XXXX...</span>
             </div>
             
-            <div style="background: var(--surface-hover); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin: 20px 0; font-family: var(--font-mono); font-size: 1.25rem; word-break: break-all; color: var(--cud-yellow); letter-spacing: 0.05em; font-weight: bold; position: relative;">
-                <span id="completion-code-val">User-XXXX...</span>
-            </div>
-            
-            <button id="btn-copy-completion" class="btn-primary-modal" style="background: var(--cud-green); color: #000; box-shadow: 0 4px 10px rgba(0, 230, 118, 0.3); margin-bottom: 15px;">
+            <button id="btn-copy-completion" class="btn-primary-modal" style="background: var(--cud-green); color: #000; box-shadow: 0 4px 10px rgba(0, 230, 118, 0.3); margin-bottom: 12px;">
                 📋 完了コードをコピー
             </button>
-            <button id="btn-close-completion" class="btn-mypage" style="width: 100%; border-color: #555; padding: 10px;">
+
+            <button id="btn-download-log-modal" class="btn-primary-modal" style="background: transparent; color: var(--text-main); border: 1px solid var(--border-color); margin-bottom: 6px; font-size: 0.92rem; padding: 10px 16px; box-shadow: none;">
+                📥 【任意】行動ログをダウンロード (.csv)
+            </button>
+            <p style="font-size: 0.74rem; color: var(--text-sub); margin: 0 0 16px; line-height: 1.4;">
+                ※ログの提出は任意です。完了コードのみでも承認されます。
+            </p>
+
+            <button id="btn-close-completion" class="btn-mypage" style="width: 100%; border-color: var(--border-color); padding: 10px;">
                 閉じる
             </button>
         </div>
     </div>
 
-    <div class="hero-map-section tut-target" data-step="1" data-title="🌎 リアルタイム震源モニタ" data-desc="過去24時間以内に世界中で発生した地震（USGSデータ）をリアルタイムで可視化しています。円の色は震源の「深さ」を表しています。">
+    <div class="hero-map-section">
         <div id="leaflet-map"></div>
         <div class="hero-overlay">
             <h2>LIVE SEISMIC DATA</h2>
@@ -78,25 +131,25 @@
             </div>
             
             <div class="card-grid">
-                <a href="quiz.html" class="sfj-card color-orange tut-target" data-step="2" data-title="⏱️ サバイバル・クイズ" data-desc="災害時の「間違った常識」を打ち砕くタイムアタック訓練です。迅速かつ正確な判断力が試されます。" data-log="トップ画面：サバイバル・クイズのカードをクリック">
+                <a href="quiz.html" class="sfj-card color-orange" data-log="トップ画面：サバイバル・クイズのカードをクリック">
                     <div class="card-icon">⏱️</div>
                     <h3>サバイバル・クイズ</h3>
-                    <p>災害時の「間違った常識」を打ち砕くタイムアタック訓練。全問正解してメダルを獲得せよ。</p>
+                    <p>災害時の「間違った常識」を打ち砕くタイムアタック訓練。全問正解を目指して挑戦せよ。</p>
                 </a>
 
-                <a href="shakeout.html" class="sfj-card color-yellow tut-target" data-step="3" data-title="🎯 空間シェイクアウト" data-desc="自室の家具倒壊リスクや、アリーナ等の大規模空間での群衆パニックへの抵抗を疑似体験します。" data-log="トップ画面：空間シェイクアウトのカードをクリック">
+                <a href="shakeout.html" class="sfj-card color-yellow" data-log="トップ画面：空間シェイクアウトのカードをクリック">
                     <div class="card-icon">🎯</div>
                     <h3>空間シェイクアウト</h3>
                     <p>直感型サバイバル。自室の家具倒壊リスクや、アリーナでの群衆パニックへの抵抗を疑似体験。</p>
                 </a>
 
-                <a href="fake_news_quiz.html" class="sfj-card color-purple tut-target" data-step="4" data-title="📱 デマ・誤情報 見極め訓練" data-desc="災害時にSNSで飛び交うフェイクニュース。情報の真偽を見抜き、パニック（インフォデミック）を防ぐリテラシーを鍛えます。" data-log="トップ画面：デマ・誤情報見極め訓練のカードをクリック">
+                <a href="fake_news_quiz.html" class="sfj-card color-purple" data-log="トップ画面：デマ・誤情報見極め訓練のカードをクリック">
                     <div class="card-icon">📱</div>
                     <h3>デマ・誤情報 見極め訓練</h3>
                     <p>災害時に飛び交うフェイクニュース。SNSのタイムラインから真実を見抜き、インフォデミックを防ぐ。</p>
                 </a>
 
-                <a href="hazard-map.html" class="sfj-card color-blue tut-target" data-step="5" data-title="🌊 複合災害ハザードマップ" data-desc="国土地理院のデータを使用し、津波・洪水・土砂災害の危険エリアを重ねて表示します。避難所の位置も確認できます。" data-log="トップ画面：複合災害ハザードマップのカードをクリック">
+                <a href="hazard-map.html" class="sfj-card color-blue" data-log="トップ画面：複合災害ハザードマップのカードをクリック">
                     <div class="card-icon">🌊</div>
                     <h3>複合災害ハザードマップ</h3>
                     <p>津波、洪水、土砂災害の危険エリアを重ね合わせ、国土地理院データから複合リスクを視覚化。</p>
@@ -111,19 +164,19 @@
             </div>
             
             <div class="card-grid">
-                <a href="intensity-map.html" class="sfj-card color-blue tut-target" data-step="6" data-title="🗺️ 過去の巨大地震 震度分布" data-desc="阪神・淡路大震災から能登半島地震まで、日本の歴史的地震の「揺れの広がり（面）」を予報区データで比較できます。" data-log="トップ画面：過去の巨大地震震度分布のカードをクリック">
+                <a href="intensity-map.html" class="sfj-card color-blue" data-log="トップ画面：過去の巨大地震震度分布のカードをクリック">
                     <div class="card-icon">🗺️</div>
                     <h3>過去の巨大地震 震度分布</h3>
                     <p>阪神・淡路大震災から能登半島地震まで、歴史的地震の「揺れの広がり」を予報区データから比較。</p>
                 </a>
 
-                <a href="archive-3d.html" class="sfj-card color-green tut-target" data-step="7" data-title="🌐 震源分布 3Dマップ" data-desc="1995年以降の日本の地震活動を立体的に可視化。地下のプレート構造や、地震の潜行の様子を360度観察できます。" data-log="トップ画面：震源分布3Dマップのカードをクリック">
+                <a href="archive-3d.html" class="sfj-card color-green" data-log="トップ画面：震源分布3Dマップのカードをクリック">
                     <div class="card-icon">🌐</div>
                     <h3>震源分布 3Dマップ</h3>
                     <p>1995年以降の日本の地震活動をThree.jsで立体可視化。地下への潜行やタイムスライスが可能。</p>
                 </a>
 
-                <a href="novel-game.html" class="sfj-card color-green tut-target" data-step="8" data-title="📖 3.11 記憶の追体験" data-desc="極限状態での生存本能と愛他性が激突するストーリー。あなたの「決断」が結末を左右するインタラクティブノベルです。" data-log="トップ画面：3.11記憶の追体験のカードをクリック">
+                <a href="novel-game.html" class="sfj-card color-green" data-log="トップ画面：3.11記憶の追体験のカードをクリック">
                     <div class="card-icon">📖</div>
                     <h3>3.11 記憶の追体験</h3>
                     <p>生存本能と愛他性が激突する極限状態。見知らぬ海沿いの街で、あなたはどのような決断を下すのか。</p>
@@ -135,8 +188,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin="anonymous"></script>
-    <script src="./js/logger.js"></script>
-    <script src="./js/utils.js"></script>
-    <script src="./js/main.js" defer></script>
+    <script src="./js/utils.js?v=20261026_sec_v2"></script>
+    <script src="./js/main.js?v=20261026_3d_pref_v2" defer></script>
 </body>
 </html>

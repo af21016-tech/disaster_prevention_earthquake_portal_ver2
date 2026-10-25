@@ -2,15 +2,44 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp; object-src 'none'; base-uri 'self';">
     <title>空間シェイクアウト | Quake Interactive Archive</title>
     <link href="https://fonts.googleapis.com/css2?family=Biz+UDPGOthic:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/style.css?v=1.1">
+    <link rel="stylesheet" href="./css/style.css?v=20261026_fix_3d_hazard">
     
     <style>
         .shakeout-container { max-width: 800px; margin: 100px auto 2rem; text-align: center; }
+
+        .main-container {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+        }
+        .main-container.bg-alert {
+            border-color: var(--cud-orange);
+            box-shadow: 0 0 20px rgba(255, 123, 0, 0.25);
+        }
+
+        .scene-title {
+            color: var(--text-main);
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .situation-text {
+            color: var(--text-main);
+        }
+        .alert-text {
+            font-weight: bold;
+            color: var(--text-main);
+        }
         
-        .simulation-window { background: #111; border: 2px solid #333; border-radius: 8px; height: 400px; position: relative; overflow: hidden; margin-bottom: 2rem; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .simulation-window { background: var(--surface-color); border: 2px solid var(--border-color); border-radius: 8px; height: 400px; position: relative; overflow: hidden; margin-bottom: 2rem; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: var(--card-shadow); transition: background-color 0.3s ease, border-color 0.3s ease; }
         
         /* 揺れのエフェクト */
         @keyframes earthquake {
@@ -29,7 +58,7 @@
         .shaking { animation: earthquake 0.3s infinite; border-color: var(--cud-orange); }
         
         /* タイマー表示 */
-        .timer-display { font-family: var(--font-mono); font-size: 3.5rem; color: #fff; z-index: 10; text-shadow: 0 0 15px rgba(255,255,255,0.6); font-weight: bold; }
+        .timer-display { font-family: var(--font-mono); font-size: 3.5rem; color: var(--text-main); z-index: 10; font-weight: bold; }
         
         /* アクションボタン */
         .action-area { padding: 2rem; background: var(--surface-color); border-radius: 8px; border: 1px solid var(--border-color); }
@@ -37,25 +66,168 @@
         #btn-action:active { transform: scale(0.95); background: #00c853; }
         #btn-action:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
         
-        .instruction { color: #aaa; margin-top: 15px; font-size: 0.9rem; }
+        .instruction { color: var(--text-sub); margin-top: 15px; font-size: 0.9rem; }
         
-        /* タイマーバーの非表示化 */
+        /* タイマーバー＆視覚的加速演出 */
+        .shakeout-timer-wrapper {
+            max-width: 500px;
+            margin: 1rem auto 1.8rem;
+            text-align: center;
+        }
         .timer-container {
-            display: none !important;
+            width: 100% !important;
+            height: 10px !important;
+            background: rgba(255, 255, 255, 0.15) !important;
+            border-radius: 5px !important;
+            overflow: hidden !important;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+            display: block !important;
+            margin: 12px auto 0 !important;
         }
         .timer-bar {
-            display: none !important;
+            height: 100% !important;
+            width: 100% !important;
+            transform-origin: left !important;
+            display: block !important;
+            border-radius: 5px !important;
+            transition: background 0.2s ease, box-shadow 0.2s ease !important;
+        }
+        
+        /* タイマー緊急パルスアニメーション */
+        @keyframes timer-panic {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        .timer-panic {
+            animation: timer-panic 0.35s infinite ease-in-out !important;
+            display: inline-block !important;
+        }
+
+        /* キーワード強調 */
+        .keyword-danger {
+            color: #FF4D4D;
+            font-weight: bold;
+            background: rgba(255, 77, 77, 0.15);
+            padding: 1px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 77, 77, 0.3);
+        }
+        .keyword-warning {
+            color: #FFBE00;
+            font-weight: bold;
+            background: rgba(255, 190, 0, 0.15);
+            padding: 1px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 190, 0, 0.3);
+        }
+        .phase-badge {
+            display: inline-block;
+            background: rgba(86, 180, 233, 0.15);
+            color: #56B4E9;
+            border: 1px solid rgba(86, 180, 233, 0.5);
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+        }
+    
+        /* モード選択カード */
+        .mode-select-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .mode-card {
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            user-select: none;
+            box-shadow: var(--card-shadow);
+        }
+        .mode-card:hover {
+            border-color: var(--border-card);
+            background: var(--surface-hover);
+        }
+        .mode-card.selected-timed {
+            background: rgba(255, 40, 0, 0.12) !important;
+            border-color: #FF2800 !important;
+            box-shadow: 0 0 15px rgba(255, 40, 0, 0.35) !important;
+        }
+        .mode-card.selected-practice {
+            background: rgba(86, 180, 233, 0.12) !important;
+            border-color: #56B4E9 !important;
+            box-shadow: 0 0 15px rgba(86, 180, 233, 0.35) !important;
+        }
+        @media (max-width: 600px) {
+            .mode-select-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
+    <script>
+        // テーマ初期適用（チラつき防止）
+        (function() {
+            var savedTheme = localStorage.getItem('v2_portal_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', savedTheme);
+            }
+        })();
+
+        window.setTheme = function(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', theme);
+            }
+            try {
+                localStorage.setItem('v2_portal_theme', theme);
+            } catch (e) {
+                console.error("Storage error:", e);
+            }
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+                toggleBtn.title = theme === 'dark' ? 'ライトテーマに切り替え' : 'ダークテーマに切り替え';
+            }
+            // テーマ変更イベントを通知
+            document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+        };
+
+        window.toggleTheme = function() {
+            var current = document.documentElement.getAttribute('data-theme') || 'dark';
+            window.setTheme(current === 'dark' ? 'light' : 'dark');
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('v2_portal_theme') || 'dark';
+            window.setTheme(currentTheme);
+
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.toggleTheme();
+                });
+            }
+        });
+    </script>
 </head>
 <body>
 
     <header>
         <div class="logo-area">
             <span class="tag" style="background: #F0E442; color: #000; font-weight: bold; margin-bottom: 4px; display: inline-block;">Physical Training</span>
-            <h1 style="font-size: 1rem; margin: 0; letter-spacing: 0.1em;">空間シェイクアウト</h1>
+            <h1 style="font-size: 1rem; margin: 0; letter-spacing: 0.1em; color: var(--text-main);">空間シェイクアウト</h1>
         </div>
         <div class="header-actions">
+            <!-- テーマ切り替え（単一トグルボタン） -->
+            <button id="btn-theme-toggle" class="btn-theme-toggle" title="テーマ切り替え" aria-label="テーマ切り替え">🌙</button>
             <a href="index.html" class="btn-back" data-log="シェイクアウト：戻るボタンをクリック">✕ 戻る</a>
         </div>
     </header>
@@ -63,8 +235,8 @@
     <main class="shakeout-container">
         
         <div id="start-screen">
-            <h2 style="color: #fff; margin-bottom: 1rem;">緊急地震速報、受信。</h2>
-            <p style="color: #aaa; margin-bottom: 2rem;">揺れが来るまでに安全な姿勢（DROP, COVER, HOLD ON）をとってください。<br>揺れが収まるまで、下のボタンを「長押し」して身を守り続けてください。</p>
+            <h2 style="color: var(--text-main); margin-bottom: 1rem;">緊急地震速報、受信。</h2>
+            <p style="color: var(--text-sub); margin-bottom: 2rem;">揺れが来るまでに安全な姿勢（DROP, COVER, HOLD ON）をとってください。<br>揺れが収まるまで、下のボタンを「長押し」して身を守り続けてください。</p>
             <button class="btn primary" id="btn-start" style="font-size: 1.2rem; padding: 15px 30px;" data-log="シェイクアウト：訓練を開始するボタンをクリック">訓練を開始する</button>
         </div>
 
@@ -82,7 +254,7 @@
 
         <div id="result-screen" style="display: none; padding: 3rem; background: var(--surface-color); border-radius: 8px; border: 1px solid var(--border-color);">
             <h2 id="result-title" style="font-size: 2rem; margin-bottom: 10px;"></h2>
-            <p id="result-desc" style="color: #aaa; margin-bottom: 2rem; line-height: 1.6;"></p>
+            <p id="result-desc" style="color: var(--text-sub); margin-bottom: 2rem; line-height: 1.6;"></p>
             <div style="display: flex; gap: 10px; justify-content: center;">
                 <a href="index.html" class="btn secondary" data-log="シェイクアウト：ダッシュボードへ戻るリンクをクリック">ダッシュボードへ戻る</a>
                 <button class="btn primary" id="btn-retry" data-log="シェイクアウト：もう一度挑戦するボタンをクリック">もう一度挑戦する</button>
@@ -91,8 +263,7 @@
 
     </main>
 
-    <script src="./js/logger.js"></script>
-    <script src="./js/utils.js"></script>
-    <script src="./js/shakeout.js"></script>
+    <script src="./js/utils.js?v=20261026_sec_v2"></script>
+    <script src="./js/shakeout.js?v=20261016_badge"></script>
 </body>
 </html>

@@ -5,34 +5,116 @@
         "date": "1995年1月17日 05:46",
         "magnitude": "M7.3",
         "depth": "16 km",
+        "lat": 34.5983,
+        "lng": 135.035,
+        "epicenter_name": "大阪湾",
+        "epicenter_detail": "明石海峡東側・淡路島北東沖（野島断層近傍の海上）",
         "description": "淡路島北部から神戸市にかけての活断層が動いた直下型地震。観測史上初めて震度7が適用された。（※当時の震度階級は5強・6弱などの区分がなく、震度5、6、7でした）",
         "points": [
-            {"region": "兵庫県南東部", "intensity": "震度６"},
-            {"region": "兵庫県淡路島", "intensity": "震度６"},
-            {"region": "兵庫県北部", "intensity": "震度５"},
-            {"region": "滋賀県北部", "intensity": "震度５"},
-            {"region": "京都府南部", "intensity": "震度５"},
-            {"region": "兵庫県南西部", "intensity": "震度４"},
-            {"region": "京都府北部", "intensity": "震度４"},
-            {"region": "福井県嶺北", "intensity": "震度４"},
-            {"region": "福井県嶺南", "intensity": "震度４"},
-            {"region": "岐阜県美濃中西部", "intensity": "震度４"},
-            {"region": "三重県北部", "intensity": "震度４"},
-            {"region": "三重県中部", "intensity": "震度４"},
-            {"region": "大阪府北部", "intensity": "震度４"},
-            {"region": "奈良県", "intensity": "震度４"},
-            {"region": "和歌山県北部", "intensity": "震度４"},
-            {"region": "鳥取県東部", "intensity": "震度４"},
-            {"region": "鳥取県西部", "intensity": "震度４"},
-            {"region": "岡山県北部", "intensity": "震度４"},
-            {"region": "岡山県南部", "intensity": "震度４"},
-            {"region": "広島県南部", "intensity": "震度４"},
-            {"region": "広島県南西部", "intensity": "震度４"},
-            {"region": "徳島県北部", "intensity": "震度４"},
-            {"region": "徳島県南部", "intensity": "震度４"},
-            {"region": "香川県東部", "intensity": "震度４"},
-            {"region": "香川県西部", "intensity": "震度４"},
-            {"region": "高知県中部", "intensity": "震度４"}
+            {
+                "region": "兵庫県南東部",
+                "intensity": "震度６"
+            },
+            {
+                "region": "兵庫県淡路島",
+                "intensity": "震度６"
+            },
+            {
+                "region": "兵庫県北部",
+                "intensity": "震度５"
+            },
+            {
+                "region": "滋賀県北部",
+                "intensity": "震度５"
+            },
+            {
+                "region": "京都府南部",
+                "intensity": "震度５"
+            },
+            {
+                "region": "兵庫県南西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "京都府北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "福井県嶺北",
+                "intensity": "震度４"
+            },
+            {
+                "region": "福井県嶺南",
+                "intensity": "震度４"
+            },
+            {
+                "region": "岐阜県美濃中西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "三重県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "三重県中部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "大阪府北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "奈良県",
+                "intensity": "震度４"
+            },
+            {
+                "region": "和歌山県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "鳥取県東部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "鳥取県西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "岡山県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "岡山県南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "広島県南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "広島県南西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "徳島県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "徳島県南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "香川県東部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "香川県西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "高知県中部",
+                "intensity": "震度４"
+            }
         ]
     },
     {
@@ -41,111 +123,398 @@
         "date": "2004年10月23日 17:56",
         "magnitude": "M6.8",
         "depth": "13 km",
+        "lat": 37.2917,
+        "lng": 138.8667,
+        "epicenter_name": "新潟県中越地方",
+        "epicenter_detail": "新潟県長岡市（旧・北魚沼郡川口町北部）",
         "description": "新潟県中越地方を震源とする直下型地震。山間部で大規模な土砂崩れが発生し集落が孤立。車中泊によるエコノミークラス症候群が広く認知される契機となった。",
         "points": [
-            {"region": "新潟県中越", "intensity": "震度７"},
-            {"region": "新潟県下越", "intensity": "震度５弱"},
-            {"region": "新潟県上越", "intensity": "震度５弱"},
-            {"region": "新潟県佐渡", "intensity": "震度４"},
-            {"region": "福島県会津", "intensity": "震度５弱"},
-            {"region": "福島県中通り", "intensity": "震度４"},
-            {"region": "福島県浜通り", "intensity": "震度４"},
-            {"region": "群馬県北部", "intensity": "震度５弱"},
-            {"region": "群馬県南部", "intensity": "震度５弱"},
-            {"region": "埼玉県北部", "intensity": "震度５弱"},
-            {"region": "埼玉県南部", "intensity": "震度４"},
-            {"region": "長野県北部", "intensity": "震度５弱"},
-            {"region": "宮城県南部", "intensity": "震度４"},
-            {"region": "山形県庄内", "intensity": "震度４"},
-            {"region": "山形県村山", "intensity": "震度４"},
-            {"region": "山形県置賜", "intensity": "震度４"},
-            {"region": "茨城県北部", "intensity": "震度４"},
-            {"region": "茨城県南部", "intensity": "震度４"},
-            {"region": "栃木県南部", "intensity": "震度４"},
-            {"region": "千葉県北西部", "intensity": "震度４"},
-            {"region": "東京都２３区", "intensity": "震度４"},
-            {"region": "石川県能登", "intensity": "震度４"},
-            {"region": "山梨県東部・富士五湖", "intensity": "震度４"}
+            {
+                "region": "新潟県中越",
+                "intensity": "震度７"
+            },
+            {
+                "region": "新潟県下越",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "新潟県上越",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "新潟県佐渡",
+                "intensity": "震度４"
+            },
+            {
+                "region": "福島県会津",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "福島県中通り",
+                "intensity": "震度４"
+            },
+            {
+                "region": "福島県浜通り",
+                "intensity": "震度４"
+            },
+            {
+                "region": "群馬県北部",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "群馬県南部",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "埼玉県北部",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "埼玉県南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "長野県北部",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "宮城県南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "山形県庄内",
+                "intensity": "震度４"
+            },
+            {
+                "region": "山形県村山",
+                "intensity": "震度４"
+            },
+            {
+                "region": "山形県置賜",
+                "intensity": "震度４"
+            },
+            {
+                "region": "茨城県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "茨城県南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "栃木県南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "千葉県北西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "東京都２３区",
+                "intensity": "震度４"
+            },
+            {
+                "region": "石川県能登",
+                "intensity": "震度４"
+            },
+            {
+                "region": "山梨県東部・富士五湖",
+                "intensity": "震度４"
+            }
         ]
     },
     {
         "id": "2011-tohoku",
         "name": "2011年 東北地方太平洋沖地震",
         "date": "2011年3月11日 14:46",
-        "magnitude": "Mw 9.0",
+        "magnitude": "M9.0",
         "depth": "24 km",
+        "lat": 38.1033,
+        "lng": 142.86,
+        "epicenter_name": "三陸沖",
+        "epicenter_detail": "牡鹿半島の東南東 約130km沖（日本海溝付近）",
         "description": "日本周辺の観測史上最大の海溝型巨大地震。揺れの範囲が極めて広く、東日本全域に甚大な被害と巨大津波をもたらした。",
         "points": [
-            {"region": "石狩地方北部", "intensity": "震度４"},
-            {"region": "石狩地方南部", "intensity": "震度４"},
-            {"region": "空知地方南部", "intensity": "震度４"},
-            {"region": "渡島地方東部", "intensity": "震度４"},
-            {"region": "渡島地方西部", "intensity": "震度４"},
-            {"region": "檜山地方", "intensity": "震度４"},
-            {"region": "胆振地方中東部", "intensity": "震度４"},
-            {"region": "日高地方西部", "intensity": "震度４"},
-            {"region": "日高地方中部", "intensity": "震度４"},
-            {"region": "日高地方東部", "intensity": "震度４"},
-            {"region": "上川地方南部", "intensity": "震度４"},
-            {"region": "十勝地方北部", "intensity": "震度４"},
-            {"region": "十勝地方中部", "intensity": "震度４"},
-            {"region": "十勝地方南部", "intensity": "震度４"},
-            {"region": "釧路地方中南部", "intensity": "震度４"},
-            {"region": "青森県津軽北部", "intensity": "震度４"},
-            {"region": "青森県津軽南部", "intensity": "震度４"},
-            {"region": "青森県三八上北", "intensity": "震度５強"},
-            {"region": "青森県下北", "intensity": "震度５強"},
-            {"region": "岩手県沿岸北部", "intensity": "震度５強"},
-            {"region": "岩手県沿岸南部", "intensity": "震度６弱"},
-            {"region": "岩手県内陸北部", "intensity": "震度６弱"},
-            {"region": "岩手県内陸南部", "intensity": "震度６弱"},
-            {"region": "宮城県北部", "intensity": "震度７"},
-            {"region": "宮城県中部", "intensity": "震度６強"},
-            {"region": "宮城県南部", "intensity": "震度６強"},
-            {"region": "秋田県沿岸北部", "intensity": "震度５弱"},
-            {"region": "秋田県沿岸南部", "intensity": "震度５強"},
-            {"region": "秋田県内陸北部", "intensity": "震度４"},
-            {"region": "秋田県内陸南部", "intensity": "震度５強"},
-            {"region": "山形県庄内", "intensity": "震度５弱"},
-            {"region": "山形県最上", "intensity": "震度５弱"},
-            {"region": "山形県村山", "intensity": "震度５強"},
-            {"region": "山形県置賜", "intensity": "震度５強"},
-            {"region": "福島県中通り", "intensity": "震度６強"},
-            {"region": "福島県浜通り", "intensity": "震度６強"},
-            {"region": "福島県会津", "intensity": "震度６弱"},
-            {"region": "茨城県北部", "intensity": "震度６強"},
-            {"region": "茨城県南部", "intensity": "震度６強"},
-            {"region": "栃木県北部", "intensity": "震度６強"},
-            {"region": "栃木県南部", "intensity": "震度６強"},
-            {"region": "群馬県北部", "intensity": "震度５強"},
-            {"region": "群馬県南部", "intensity": "震度６弱"},
-            {"region": "埼玉県北部", "intensity": "震度５強"},
-            {"region": "埼玉県南部", "intensity": "震度６弱"},
-            {"region": "埼玉県秩父", "intensity": "震度５弱"},
-            {"region": "千葉県北東部", "intensity": "震度５強"},
-            {"region": "千葉県北西部", "intensity": "震度６弱"},
-            {"region": "千葉県南部", "intensity": "震度５強"},
-            {"region": "東京都２３区", "intensity": "震度５強"},
-            {"region": "東京都多摩東部", "intensity": "震度５強"},
-            {"region": "新島", "intensity": "震度５強"},
-            {"region": "神津島", "intensity": "震度４"},
-            {"region": "神奈川県東部", "intensity": "震度５強"},
-            {"region": "神奈川県西部", "intensity": "震度５強"},
-            {"region": "新潟県上越", "intensity": "震度４"},
-            {"region": "新潟県中越", "intensity": "震度５弱"},
-            {"region": "新潟県下越", "intensity": "震度４"},
-            {"region": "新潟県佐渡", "intensity": "震度４"},
-            {"region": "山梨県東部・富士五湖", "intensity": "震度５強"},
-            {"region": "山梨県中・西部", "intensity": "震度５強"},
-            {"region": "長野県北部", "intensity": "震度４"},
-            {"region": "長野県中部", "intensity": "震度５弱"},
-            {"region": "長野県南部", "intensity": "震度４"},
-            {"region": "岐阜県美濃中西部", "intensity": "震度４"},
-            {"region": "静岡県伊豆", "intensity": "震度４"},
-            {"region": "静岡県東部", "intensity": "震度５弱"},
-            {"region": "静岡県中部", "intensity": "震度４"},
-            {"region": "静岡県西部", "intensity": "震度４"},
-            {"region": "愛知県西部", "intensity": "震度４"}
+            {
+                "region": "石狩地方北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "石狩地方南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "空知地方南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "渡島地方東部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "渡島地方西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "檜山地方",
+                "intensity": "震度４"
+            },
+            {
+                "region": "胆振地方中東部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "日高地方西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "日高地方中部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "日高地方東部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "上川地方南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "十勝地方北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "十勝地方中部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "十勝地方南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "釧路地方中南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "青森県津軽北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "青森県津軽南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "青森県三八上北",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "青森県下北",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "岩手県沿岸北部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "岩手県沿岸南部",
+                "intensity": "震度６弱"
+            },
+            {
+                "region": "岩手県内陸北部",
+                "intensity": "震度６弱"
+            },
+            {
+                "region": "岩手県内陸南部",
+                "intensity": "震度６弱"
+            },
+            {
+                "region": "宮城県北部",
+                "intensity": "震度７"
+            },
+            {
+                "region": "宮城県中部",
+                "intensity": "震度６強"
+            },
+            {
+                "region": "宮城県南部",
+                "intensity": "震度６強"
+            },
+            {
+                "region": "秋田県沿岸北部",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "秋田県沿岸南部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "秋田県内陸北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "秋田県内陸南部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "山形県庄内",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "山形県最上",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "山形県村山",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "山形県置賜",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "福島県中通り",
+                "intensity": "震度６強"
+            },
+            {
+                "region": "福島県浜通り",
+                "intensity": "震度６強"
+            },
+            {
+                "region": "福島県会津",
+                "intensity": "震度６弱"
+            },
+            {
+                "region": "茨城県北部",
+                "intensity": "震度６強"
+            },
+            {
+                "region": "茨城県南部",
+                "intensity": "震度６強"
+            },
+            {
+                "region": "栃木県北部",
+                "intensity": "震度６強"
+            },
+            {
+                "region": "栃木県南部",
+                "intensity": "震度６強"
+            },
+            {
+                "region": "群馬県北部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "群馬県南部",
+                "intensity": "震度６弱"
+            },
+            {
+                "region": "埼玉県北部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "埼玉県南部",
+                "intensity": "震度６弱"
+            },
+            {
+                "region": "埼玉県秩父",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "千葉県北東部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "千葉県北西部",
+                "intensity": "震度６弱"
+            },
+            {
+                "region": "千葉県南部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "東京都２３区",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "東京都多摩東部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "新島",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "神津島",
+                "intensity": "震度４"
+            },
+            {
+                "region": "神奈川県東部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "神奈川県西部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "新潟県上越",
+                "intensity": "震度４"
+            },
+            {
+                "region": "新潟県中越",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "新潟県下越",
+                "intensity": "震度４"
+            },
+            {
+                "region": "新潟県佐渡",
+                "intensity": "震度４"
+            },
+            {
+                "region": "山梨県東部・富士五湖",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "山梨県中・西部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "長野県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "長野県中部",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "長野県南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "岐阜県美濃中西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "静岡県伊豆",
+                "intensity": "震度４"
+            },
+            {
+                "region": "静岡県東部",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "静岡県中部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "静岡県西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "愛知県西部",
+                "intensity": "震度４"
+            }
         ]
     },
     {
@@ -154,27 +523,88 @@
         "date": "2016年4月14日 21:26",
         "magnitude": "M6.5",
         "depth": "11 km",
+        "lat": 32.7417,
+        "lng": 130.8083,
+        "epicenter_name": "熊本県熊本地方",
+        "epicenter_detail": "上益城郡益城町南東部（福原付近／役場のある木山・宮園地区の南約5〜6km・御船町境）",
         "description": "熊本県熊本地方を震源とする地震。局所的に非常に強い揺れを観測した。多くの人がこれを「本震」だと思い込んでしまった。",
         "points": [
-            {"region": "山口県西部", "intensity": "震度４"},
-            {"region": "福岡県福岡", "intensity": "震度４"},
-            {"region": "福岡県北九州", "intensity": "震度４"},
-            {"region": "福岡県筑後", "intensity": "震度４"},
-            {"region": "佐賀県北部", "intensity": "震度４"},
-            {"region": "佐賀県南部", "intensity": "震度４"},
-            {"region": "長崎県南西部", "intensity": "震度４"},
-            {"region": "長崎県島原半島", "intensity": "震度４"},
-            {"region": "熊本県阿蘇", "intensity": "震度５弱"},
-            {"region": "熊本県熊本", "intensity": "震度７"},
-            {"region": "熊本県球磨", "intensity": "震度４"},
-            {"region": "熊本県天草・芦北", "intensity": "震度５弱"},
-            {"region": "大分県中部", "intensity": "震度４"},
-            {"region": "大分県南部", "intensity": "震度４"},
-            {"region": "大分県西部", "intensity": "震度４"},
-            {"region": "宮崎県北部平野部", "intensity": "震度４"},
-            {"region": "宮崎県北部山沿い", "intensity": "震度５弱"},
-            {"region": "宮崎県南部山沿い", "intensity": "震度４"},
-            {"region": "鹿児島県薩摩", "intensity": "震度４"}
+            {
+                "region": "山口県西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "福岡県福岡",
+                "intensity": "震度４"
+            },
+            {
+                "region": "福岡県北九州",
+                "intensity": "震度４"
+            },
+            {
+                "region": "福岡県筑後",
+                "intensity": "震度４"
+            },
+            {
+                "region": "佐賀県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "佐賀県南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "長崎県南西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "長崎県島原半島",
+                "intensity": "震度４"
+            },
+            {
+                "region": "熊本県阿蘇",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "熊本県熊本",
+                "intensity": "震度７"
+            },
+            {
+                "region": "熊本県球磨",
+                "intensity": "震度４"
+            },
+            {
+                "region": "熊本県天草・芦北",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "大分県中部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "大分県南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "大分県西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "宮崎県北部平野部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "宮崎県北部山沿い",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "宮崎県南部山沿い",
+                "intensity": "震度４"
+            },
+            {
+                "region": "鹿児島県薩摩",
+                "intensity": "震度４"
+            }
         ]
     },
     {
@@ -183,43 +613,152 @@
         "date": "2016年4月16日 01:25",
         "magnitude": "M7.3",
         "depth": "12 km",
+        "lat": 32.7533,
+        "lng": 130.7617,
+        "epicenter_name": "熊本県熊本地方",
+        "epicenter_detail": "上益城郡嘉島町・益城町西部（熊本市東区との境界付近）",
         "description": "前震の2日後に発生した、さらに巨大な本震。揺れの範囲が阿蘇や大分方面へ劇的に広がり、前震で傷んでいた家屋が次々と倒壊した。",
         "points": [
-            {"region": "熊本県熊本", "intensity": "震度７"},
-            {"region": "熊本県阿蘇", "intensity": "震度６強"},
-            {"region": "大分県中部", "intensity": "震度６弱"},
-            {"region": "熊本県天草・芦北", "intensity": "震度６弱"},
-            {"region": "大分県西部", "intensity": "震度５強"},
-            {"region": "福岡県筑後", "intensity": "震度５強"},
-            {"region": "佐賀県南部", "intensity": "震度５強"},
-            {"region": "長崎県島原半島", "intensity": "震度５強"},
-            {"region": "宮崎県北部山沿い", "intensity": "震度５強"},
-            {"region": "熊本県球磨", "intensity": "震度５弱"},
-            {"region": "大分県南部", "intensity": "震度５弱"},
-            {"region": "福岡県福岡", "intensity": "震度５弱"},
-            {"region": "福岡県北九州", "intensity": "震度５弱"},
-            {"region": "長崎県南西部", "intensity": "震度５弱"},
-            {"region": "宮崎県北部平野部", "intensity": "震度５弱"},
-            {"region": "愛媛県南予", "intensity": "震度５弱"},
-            {"region": "鹿児島県薩摩", "intensity": "震度５弱"},
-            {"region": "大分県北部", "intensity": "震度４"},
-            {"region": "福岡県筑豊", "intensity": "震度４"},
-            {"region": "佐賀県北部", "intensity": "震度４"},
-            {"region": "長崎県北部", "intensity": "震度４"},
-            {"region": "宮崎県南部平野部", "intensity": "震度４"},
-            {"region": "宮崎県南部山沿い", "intensity": "震度４"},
-            {"region": "愛媛県東予", "intensity": "震度４"},
-            {"region": "愛媛県中予", "intensity": "震度４"},
-            {"region": "鹿児島県甑島", "intensity": "震度４"},
-            {"region": "鳥取県西部", "intensity": "震度４"},
-            {"region": "島根県東部", "intensity": "震度４"},
-            {"region": "島根県西部", "intensity": "震度４"},
-            {"region": "広島県南西部", "intensity": "震度４"},
-            {"region": "高知県西部", "intensity": "震度４"},
-            {"region": "山口県北部", "intensity": "震度４"},
-            {"region": "山口県西部", "intensity": "震度４"},
-            {"region": "山口県東部", "intensity": "震度４"},
-            {"region": "山口県中部", "intensity": "震度４"}
+            {
+                "region": "熊本県熊本",
+                "intensity": "震度７"
+            },
+            {
+                "region": "熊本県阿蘇",
+                "intensity": "震度６強"
+            },
+            {
+                "region": "大分県中部",
+                "intensity": "震度６弱"
+            },
+            {
+                "region": "熊本県天草・芦北",
+                "intensity": "震度６弱"
+            },
+            {
+                "region": "大分県西部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "福岡県筑後",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "佐賀県南部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "長崎県島原半島",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "宮崎県北部山沿い",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "熊本県球磨",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "大分県南部",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "福岡県福岡",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "福岡県北九州",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "長崎県南西部",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "宮崎県北部平野部",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "愛媛県南予",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "鹿児島県薩摩",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "大分県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "福岡県筑豊",
+                "intensity": "震度４"
+            },
+            {
+                "region": "佐賀県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "長崎県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "宮崎県南部平野部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "宮崎県南部山沿い",
+                "intensity": "震度４"
+            },
+            {
+                "region": "愛媛県東予",
+                "intensity": "震度４"
+            },
+            {
+                "region": "愛媛県中予",
+                "intensity": "震度４"
+            },
+            {
+                "region": "鹿児島県甑島",
+                "intensity": "震度４"
+            },
+            {
+                "region": "鳥取県西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "島根県東部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "島根県西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "広島県南西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "高知県西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "山口県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "山口県西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "山口県東部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "山口県中部",
+                "intensity": "震度４"
+            }
         ]
     },
     {
@@ -228,34 +767,116 @@
         "date": "2018年9月6日 03:07",
         "magnitude": "M6.7",
         "depth": "37 km",
+        "lat": 42.69,
+        "lng": 142.0067,
+        "epicenter_name": "胆振地方中東部",
+        "epicenter_detail": "勇払郡厚真町北部（幌内・吉野付近）",
         "description": "北海道で初めて震度7を観測。大規模な土砂崩れが発生したほか、発電所の停止により日本初の「全域ブラックアウト（大規模停電）」を引き起こした。",
         "points": [
-            {"region": "石狩地方北部", "intensity": "震度５弱"},
-            {"region": "石狩地方中部", "intensity": "震度６弱"},
-            {"region": "石狩地方南部", "intensity": "震度６弱"},
-            {"region": "後志地方北部", "intensity": "震度４"},
-            {"region": "後志地方東部", "intensity": "震度４"},
-            {"region": "空知地方北部", "intensity": "震度４"},
-            {"region": "空知地方中部", "intensity": "震度４"},
-            {"region": "空知地方南部", "intensity": "震度５強"},
-            {"region": "渡島地方北部", "intensity": "震度４"},
-            {"region": "渡島地方東部", "intensity": "震度５弱"},
-            {"region": "檜山地方", "intensity": "震度４"},
-            {"region": "胆振地方西部", "intensity": "震度５弱"},
-            {"region": "胆振地方中東部", "intensity": "震度７"},
-            {"region": "日高地方西部", "intensity": "震度６弱"},
-            {"region": "日高地方中部", "intensity": "震度５強"},
-            {"region": "日高地方東部", "intensity": "震度４"},
-            {"region": "上川地方北部", "intensity": "震度４"},
-            {"region": "上川地方中部", "intensity": "震度４"},
-            {"region": "上川地方南部", "intensity": "震度４"},
-            {"region": "留萌地方南部", "intensity": "震度４"},
-            {"region": "十勝地方北部", "intensity": "震度４"},
-            {"region": "十勝地方中部", "intensity": "震度４"},
-            {"region": "十勝地方南部", "intensity": "震度４"},
-            {"region": "釧路地方中南部", "intensity": "震度４"},
-            {"region": "青森県三八上北", "intensity": "震度４"},
-            {"region": "青森県下北", "intensity": "震度４"}
+            {
+                "region": "石狩地方北部",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "石狩地方中部",
+                "intensity": "震度６弱"
+            },
+            {
+                "region": "石狩地方南部",
+                "intensity": "震度６弱"
+            },
+            {
+                "region": "後志地方北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "後志地方東部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "空知地方北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "空知地方中部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "空知地方南部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "渡島地方北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "渡島地方東部",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "檜山地方",
+                "intensity": "震度４"
+            },
+            {
+                "region": "胆振地方西部",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "胆振地方中東部",
+                "intensity": "震度７"
+            },
+            {
+                "region": "日高地方西部",
+                "intensity": "震度６弱"
+            },
+            {
+                "region": "日高地方中部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "日高地方東部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "上川地方北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "上川地方中部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "上川地方南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "留萌地方南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "十勝地方北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "十勝地方中部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "十勝地方南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "釧路地方中南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "青森県三八上北",
+                "intensity": "震度４"
+            },
+            {
+                "region": "青森県下北",
+                "intensity": "震度４"
+            }
         ]
     },
     {
@@ -264,43 +885,152 @@
         "date": "2024年1月1日 16:10",
         "magnitude": "M7.6",
         "depth": "16 km",
+        "lat": 37.495,
+        "lng": 137.27,
+        "epicenter_name": "石川県能登地方",
+        "epicenter_detail": "石川県珠洲市北部（珠洲市役所の北約6.5km）",
         "description": "能登半島北部を震源とする逆断層型地震。半島特有の地形で道路が寸断されて孤立集落が多数発生したほか、大津波と大規模火災が同時発生した。",
         "points": [
-            {"region": "石川県能登", "intensity": "震度７"},
-            {"region": "石川県加賀", "intensity": "震度５強"},
-            {"region": "新潟県中越", "intensity": "震度６弱"},
-            {"region": "新潟県上越", "intensity": "震度５強"},
-            {"region": "新潟県下越", "intensity": "震度５強"},
-            {"region": "新潟県佐渡", "intensity": "震度５強"},
-            {"region": "富山県東部", "intensity": "震度５強"},
-            {"region": "富山県西部", "intensity": "震度５強"},
-            {"region": "福井県嶺北", "intensity": "震度５強"},
-            {"region": "福井県嶺南", "intensity": "震度４"},
-            {"region": "長野県北部", "intensity": "震度５弱"},
-            {"region": "長野県中部", "intensity": "震度４"},
-            {"region": "長野県南部", "intensity": "震度４"},
-            {"region": "岐阜県飛騨", "intensity": "震度５弱"},
-            {"region": "岐阜県美濃東部", "intensity": "震度４"},
-            {"region": "岐阜県美濃中西部", "intensity": "震度４"},
-            {"region": "山形県庄内", "intensity": "震度４"},
-            {"region": "山形県村山", "intensity": "震度４"},
-            {"region": "山形県置賜", "intensity": "震度４"},
-            {"region": "福島県中通り", "intensity": "震度４"},
-            {"region": "福島県会津", "intensity": "震度４"},
-            {"region": "茨城県北部", "intensity": "震度４"},
-            {"region": "栃木県北部", "intensity": "震度４"},
-            {"region": "群馬県北部", "intensity": "震度４"},
-            {"region": "埼玉県北部", "intensity": "震度４"},
-            {"region": "静岡県西部", "intensity": "震度４"},
-            {"region": "愛知県西部", "intensity": "震度４"},
-            {"region": "三重県北部", "intensity": "震度４"},
-            {"region": "滋賀県北部", "intensity": "震度４"},
-            {"region": "滋賀県南部", "intensity": "震度４"},
-            {"region": "京都府南部", "intensity": "震度４"},
-            {"region": "大阪府北部", "intensity": "震度４"},
-            {"region": "兵庫県北部", "intensity": "震度４"},
-            {"region": "奈良県", "intensity": "震度４"},
-            {"region": "鳥取県東部", "intensity": "震度４"}
+            {
+                "region": "石川県能登",
+                "intensity": "震度７"
+            },
+            {
+                "region": "石川県加賀",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "新潟県中越",
+                "intensity": "震度６弱"
+            },
+            {
+                "region": "新潟県上越",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "新潟県下越",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "新潟県佐渡",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "富山県東部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "富山県西部",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "福井県嶺北",
+                "intensity": "震度５強"
+            },
+            {
+                "region": "福井県嶺南",
+                "intensity": "震度４"
+            },
+            {
+                "region": "長野県北部",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "長野県中部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "長野県南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "岐阜県飛騨",
+                "intensity": "震度５弱"
+            },
+            {
+                "region": "岐阜県美濃東部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "岐阜県美濃中西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "山形県庄内",
+                "intensity": "震度４"
+            },
+            {
+                "region": "山形県村山",
+                "intensity": "震度４"
+            },
+            {
+                "region": "山形県置賜",
+                "intensity": "震度４"
+            },
+            {
+                "region": "福島県中通り",
+                "intensity": "震度４"
+            },
+            {
+                "region": "福島県会津",
+                "intensity": "震度４"
+            },
+            {
+                "region": "茨城県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "栃木県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "群馬県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "埼玉県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "静岡県西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "愛知県西部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "三重県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "滋賀県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "滋賀県南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "京都府南部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "大阪府北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "兵庫県北部",
+                "intensity": "震度４"
+            },
+            {
+                "region": "奈良県",
+                "intensity": "震度４"
+            },
+            {
+                "region": "鳥取県東部",
+                "intensity": "震度４"
+            }
         ]
     }
 ]

@@ -1,25 +1,53 @@
 /* =========================================
-   Design System: SFJ Premium Dark (CUD Compatible)
+   Design System: SFJ Dual Theme (Dark / Light)
    ========================================= */
-:root {
-    /* Base Colors - 漆黒とダークグレーによるプレミアム感 */
+
+/* --- 1. ダークテーマ（デフォルト） --- */
+:root, :root[data-theme="dark"], body[data-theme="dark"] {
     --bg-color: #050505;
     --surface-color: #151515;
     --surface-hover: #1e1e1e;
+    --header-bg: rgba(5, 5, 5, 0.92);
     
-    /* Text Colors - 白内障等でも見やすい高コントラスト */
     --text-main: #EAEAEA;
     --text-sub: #999999;
     --border-color: #333333;
+    --border-card: #282828;
 
-    /* CUD Palette - 暗闇で光るLED（ネオン）のようなアクセント */
     --cud-orange: #ff7b00;
     --cud-blue: #56B4E9;
     --cud-yellow: #F0E442;
     --cud-green: #00E676;
     --cud-purple: #b366ff;
     
-    /* Typography - Pフォントによる美しい文字組み */
+    --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.7);
+
+    --font-sans: 'BIZ UDPGothic', 'Noto Sans JP', sans-serif;
+    --font-mono: 'Roboto Mono', monospace;
+}
+
+/* --- 2. ライトテーマ（白銀ボディ × 漆黒テキスト） --- */
+:root[data-theme="light"], body[data-theme="light"] {
+    --bg-color: #F5F6F8;
+    --surface-color: #FFFFFF;
+    --surface-hover: #F0F2F5;
+    --header-bg: rgba(255, 255, 255, 0.95);
+    
+    --text-main: #111418;
+    --text-sub: #5F6672;
+    --border-color: #DDE1E6;
+    --border-card: #E4E7EC;
+
+    --cud-orange: #E65100;
+    --cud-blue: #0277BD;
+    --cud-yellow: #B78103;
+    --cud-green: #008744;
+    --cud-purple: #7B1FA2;
+
+    --card-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    --card-shadow-hover: 0 10px 25px rgba(15, 23, 42, 0.12);
+
     --font-sans: 'BIZ UDPGothic', 'Noto Sans JP', sans-serif;
     --font-mono: 'Roboto Mono', monospace;
 }
@@ -31,10 +59,11 @@ body {
     background-color: var(--bg-color);
     color: var(--text-main);
     font-family: var(--font-sans);
-    letter-spacing: 0.05em; /* 高級感を出すための字間調整 */
+    letter-spacing: 0.05em;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     padding-bottom: 80px; 
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 a { text-decoration: none; color: inherit; }
@@ -47,32 +76,63 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
-    background: rgba(5, 5, 5, 0.9);
+    background: var(--header-bg);
     position: fixed;
     top: 0; left: 0; width: 100%;
     z-index: 2000;
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .logo-area h1 {
     font-size: 1.2rem;
     font-weight: 700;
     letter-spacing: 0.15em;
-    color: #FFF;
+    color: var(--text-main);
     text-transform: uppercase;
+    transition: color 0.3s ease;
 }
 
 .logo-area p {
     font-size: 0.7rem;
     color: var(--text-sub);
     letter-spacing: 0.1em;
+    transition: color 0.3s ease;
 }
 
 .header-actions {
     display: flex;
     align-items: center;
     gap: 15px;
+}
+
+/* 単一トグル式テーマ切替アイコンボタン */
+.btn-theme-toggle {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    padding: 0;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.btn-theme-toggle:hover {
+    background: var(--surface-hover);
+    border-color: var(--cud-yellow);
+    transform: scale(1.06);
+}
+.btn-theme-toggle:active {
+    transform: scale(0.95);
 }
 
 .user-id-badge {
@@ -85,18 +145,18 @@ header {
     border: 1px solid var(--border-color);
 }
 
-/* ★修正：マイページボタンと戻るボタンのスタイルを共通化し確実にクリック可能に */
+/* マイページボタンと戻るボタン */
 .btn-mypage, .btn-back {
     background: transparent;
     color: var(--text-main);
-    border: 1px solid var(--text-main);
+    border: 1px solid var(--border-color);
     padding: 6px 12px;
     font-size: 0.8rem;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
     letter-spacing: 0.1em;
-    display: inline-block; /* ★重要：クリック領域を確実に確保 */
+    display: inline-block;
     text-decoration: none;
 }
 
@@ -115,38 +175,42 @@ header {
     transform: none !important;
 }
 
+:root[data-theme="light"] .btn-mypage:disabled,
+body[data-theme="light"] .btn-mypage:disabled {
+    background: #E5E7EB !important;
+    border-color: #D1D5DB !important;
+    color: #9CA3AF !important;
+}
+
 #btn-post-survey {
     font-size: 0.95rem;
     font-weight: bold;
+    white-space: nowrap;
 }
 
 /* -----------------------------------------
    Hero Map Section (横幅と縦横比の最適化)
    ----------------------------------------- */
 .hero-map-section {
-    /* 左右の余白を確保し、他のセクションと幅を揃える */
     width: calc(100% - 4rem); 
     max-width: 1136px; 
-    
-    /* アスペクト比を美しく保つための高さ設定 */
     height: 55vh; 
     min-height: 400px;
     max-height: 600px;
-    
-    /* ヘッダーを避けて中央に配置 */
     margin: 100px auto 3rem; 
-    
     position: relative;
     border: 1px solid var(--border-color);
-    border-radius: 8px; /* 他のカードと同じ角丸 */
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* わずかな影でモニターの画面感を強調 */
+    box-shadow: var(--card-shadow);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 #leaflet-map {
     width: 100%;
     height: 100%;
-    background: #000;
+    background: var(--surface-color);
+    transition: background-color 0.3s ease;
 }
 
 .hero-overlay {
@@ -154,25 +218,65 @@ header {
     top: 20px;
     left: 20px;
     z-index: 1000;
-    background: rgba(15, 15, 15, 0.85);
+    background: var(--header-bg);
     border: 1px solid var(--border-color);
     padding: 1rem 1.5rem;
     border-radius: 8px;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(8px);
     pointer-events: none;
+    box-shadow: var(--card-shadow);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .hero-overlay h2 {
-    color: #FFF;
+    color: var(--text-main);
     font-size: 1.2rem;
     letter-spacing: 0.1em;
     margin-bottom: 4px;
+    transition: color 0.3s ease;
 }
 
 .hero-overlay p {
     font-size: 0.8rem;
     color: var(--cud-blue);
     font-weight: bold;
+}
+
+/* テーマ連動 震源深さ凡例 */
+.quake-legend {
+    background: var(--header-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    backdrop-filter: blur(8px);
+    box-shadow: var(--card-shadow);
+    line-height: 1.5;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+.quake-legend h4 {
+    margin: 0 0 6px 0;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 4px;
+}
+.quake-legend .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    color: var(--text-sub);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+}
+.quake-legend .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
 }
 
 /* -----------------------------------------
@@ -190,13 +294,15 @@ header {
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 0.8rem;
     margin-bottom: 2rem;
+    transition: border-color 0.3s ease;
 }
 
 .section-header h2 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #FFF;
+    color: var(--text-main);
     letter-spacing: 0.1em;
+    transition: color 0.3s ease;
 }
 
 .section-header .sub-en {
@@ -212,35 +318,35 @@ header {
    ----------------------------------------- */
 .card-grid {
     display: grid;
-    /* 画面幅に合わせて自動折り返し、最小幅260px */
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 1.5rem;
 }
 
 .sfj-card {
     background: var(--surface-color);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-card);
     border-radius: 6px;
     padding: 1.8rem 1.5rem;
     display: flex;
     flex-direction: column;
-    height: 280px; /* すべて同じ高さに統一 */
+    height: 280px;
+    box-shadow: var(--card-shadow);
     transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
     overflow: hidden;
 }
 
-/* ホバー時の美しい発光エフェクト */
 .sfj-card:hover {
     background: var(--surface-hover);
     transform: translateY(-4px);
+    box-shadow: var(--card-shadow-hover);
 }
-.sfj-card.color-orange:hover { border-color: var(--cud-orange); box-shadow: 0 0 20px rgba(255, 123, 0, 0.15); }
-.sfj-card.color-blue:hover { border-color: var(--cud-blue); box-shadow: 0 0 20px rgba(86, 180, 233, 0.15); }
-.sfj-card.color-green:hover { border-color: var(--cud-green); box-shadow: 0 0 20px rgba(0, 230, 118, 0.15); }
-.sfj-card.color-purple:hover { border-color: var(--cud-purple); box-shadow: 0 0 20px rgba(179, 102, 255, 0.15); }
-.sfj-card.color-yellow:hover { border-color: var(--cud-yellow); box-shadow: 0 0 20px rgba(240, 228, 66, 0.15); }
+.sfj-card.color-orange:hover { border-color: var(--cud-orange); }
+.sfj-card.color-blue:hover { border-color: var(--cud-blue); }
+.sfj-card.color-green:hover { border-color: var(--cud-green); }
+.sfj-card.color-purple:hover { border-color: var(--cud-purple); }
+.sfj-card.color-yellow:hover { border-color: var(--cud-yellow); }
 
 .card-icon {
     font-size: 2.2rem;
@@ -251,17 +357,19 @@ header {
 
 .sfj-card h3 {
     font-size: 1.1rem;
-    color: #FFF;
+    color: var(--text-main);
     margin-bottom: 0.8rem;
     line-height: 1.4;
     letter-spacing: 0.05em;
+    transition: color 0.3s ease;
 }
 
 .sfj-card p {
     font-size: 0.8rem;
     color: var(--text-sub);
     line-height: 1.6;
-    flex-grow: 1; /* テキストエリアを伸ばして、下の矢印を底辺に押し付ける */
+    flex-grow: 1;
+    transition: color 0.3s ease;
 }
 
 .card-action {
@@ -279,9 +387,9 @@ header {
     font-size: 0.65rem;
     padding: 2px 6px;
     border-radius: 3px;
-    background: #222;
-    color: #888;
-    border: 1px solid #444;
+    background: var(--surface-hover);
+    color: var(--text-sub);
+    border: 1px solid var(--border-color);
 }
 
 /* 個別のアクセントカラー */
@@ -292,15 +400,68 @@ header {
 .color-yellow .card-action span:last-child { color: var(--cud-yellow); }
 
 /* -----------------------------------------
-   Mobile Optimization (スマホ用の余白調整)
+   Mobile Optimization (スマホ用の余白・ヘッダー2段組調整)
    ----------------------------------------- */
 @media (max-width: 768px) {
-    header { padding: 0.8rem 1rem; }
+    header { 
+        padding: 0.5rem 0.8rem; 
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .logo-area {
+        display: flex;
+        align-items: center;
+    }
+    .logo-area h1 {
+        font-size: 0.92rem;
+        letter-spacing: 0.05em;
+        margin: 0;
+        white-space: nowrap;
+    }
+    .logo-area p {
+        display: none;
+    }
+
+    .header-actions {
+        display: contents; /* 子要素を直接headerのflexアイテムにする */
+    }
+
+    .btn-theme-toggle {
+        order: 2;
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    a.btn-mypage[href="mypage.html"] {
+        order: 3;
+        padding: 5px 10px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+        border-color: var(--border-color);
+    }
+
+    #btn-post-survey {
+        order: 4;
+        width: 100%;
+        margin-top: 6px;
+        text-align: center;
+        font-size: 0.74rem;
+        padding: 6px 10px;
+        white-space: nowrap;
+        font-family: var(--font-mono);
+        letter-spacing: 0.05em;
+    }
     
     .hero-map-section { 
-        width: calc(100% - 2rem); /* スマホは左右1remの余白に縮小 */
+        width: calc(100% - 1.5rem);
         height: 45vh; 
-        margin-top: 80px; 
+        margin-top: 92px; /* 2段組（タイトル段 + タイマー段）の高さに最適化 */
     }
     
     .content-section { padding: 0 1rem; margin: 2rem auto; }
@@ -312,58 +473,55 @@ header {
 /* =========================================
    SFJ Tutorial Spotlight System
    ========================================= */
-/* 背景を暗くするオーバーレイ */
 .tut-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85); /* 漆黒半透明 */
+    background: rgba(0, 0, 0, 0.85);
     z-index: 3000;
-    display: none; /* 初期は非表示 */
+    display: none;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
-/* スポットライトが当たる要素を最前面に出し、光らせる */
 .tut-highlight {
     position: relative;
     z-index: 3001 !important;
-    box-shadow: 0 0 0 4px #00E676, 0 0 30px rgba(0, 230, 118, 0.6) !important; /* セーフティグリーンで発光 */
+    box-shadow: 0 0 0 4px #00E676, 0 0 30px rgba(0, 230, 118, 0.6) !important;
     background: var(--surface-color);
     border-radius: 8px;
-    pointer-events: none; /* チュートリアル中の誤クリック防止 */
+    pointer-events: none;
 }
 
-/* ツールチップ（説明ボックス）完全版 */
 .tut-tooltip {
     position: absolute;
-    z-index: 10000; /* ★Leafletマップに負けないように10000に変更 */
-    background: rgba(15, 15, 15, 0.95);
-    border: 1px solid #00E676;
+    z-index: 10000;
+    background: var(--surface-color);
+    border: 1px solid var(--cud-green);
     border-radius: 8px;
     width: 320px;
-    max-width: 90vw; /* ★スマホ画面等で絶対に画面幅を超えないようにする防波堤 */
+    max-width: 90vw;
     padding: 1.5rem;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.9); /* 影を濃くして浮き上がらせる */
+    box-shadow: var(--card-shadow-hover);
     backdrop-filter: blur(8px);
     display: none;
     opacity: 0;
     transition: opacity 0.3s ease, top 0.4s ease, left 0.4s ease;
-    word-wrap: break-word; /* ★文字切れ防止 */
-    box-sizing: border-box; /* ★パディングを含めた幅計算 */
+    word-wrap: break-word;
+    box-sizing: border-box;
 }
 
 .tut-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 8px;
     margin-bottom: 12px;
 }
 
 .tut-step-counter {
     font-family: var(--font-mono);
-    color: #56B4E9;
+    color: var(--cud-blue);
     font-size: 0.8rem;
     font-weight: bold;
 }
@@ -371,21 +529,21 @@ header {
 .tut-close {
     background: none;
     border: none;
-    color: #888;
+    color: var(--text-sub);
     cursor: pointer;
     font-size: 1rem;
 }
-.tut-close:hover { color: #fff; }
+.tut-close:hover { color: var(--text-main); }
 
 .tut-title {
-    color: #00E676;
+    color: var(--cud-green);
     font-size: 1.1rem;
     margin: 0 0 10px 0;
     letter-spacing: 0.05em;
 }
 
 .tut-desc {
-    color: #EAEAEA;
+    color: var(--text-main);
     font-size: 0.85rem;
     line-height: 1.6;
     margin: 0 0 20px 0;
@@ -401,55 +559,54 @@ header {
     display: none; 
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.7);
     z-index: 9999; 
     align-items: center; 
     justify-content: center;
+    backdrop-filter: blur(4px);
 }
 
-/* モーダルの中身（ダークテーマ＆CUD配慮） */
 .modal-content {
-    background: #1a1a1a; /* サイト全体のダークテーマに合わせる */
-    color: #ffffff; /* 白背景に白文字になるバグを防ぐため明示的に白を指定 */
+    background: var(--surface-color);
+    color: var(--text-main);
     padding: 40px 30px;
-    border: 2px solid #444;
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     text-align: center;
     max-width: 90%;
     width: 450px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    box-shadow: var(--card-shadow-hover);
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .modal-content h2 {
-    color: #FFD12A; /* CUDの推奨「黄色」に近い、見やすいアクセントカラー */
+    color: var(--cud-yellow);
     margin-bottom: 20px;
     font-size: 1.5rem;
 }
 
 .modal-content p {
     line-height: 1.6;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     margin-bottom: 15px;
-    color: #eeeeee;
+    color: var(--text-sub);
 }
 
-/* 色覚多様性に配慮した警告ブロック */
 .warning-text {
-    color: #FF8400; /* CUD推奨のオレンジ。暗い背景でも沈まない */
+    color: var(--cud-orange);
     font-size: 1rem;
     font-weight: bold;
-    background: rgba(255, 132, 0, 0.1); /* 薄い背景色でブロックを強調 */
+    background: rgba(255, 132, 0, 0.1);
     padding: 15px;
     border-radius: 8px;
     margin-bottom: 25px;
-    border-left: 6px solid #FF8400; /* 色だけでなく「線」という形状でも警告を示す */
-    text-align: left; /* 読みやすさのために左揃え */
+    border-left: 6px solid var(--cud-orange);
+    text-align: left;
     line-height: 1.5;
 }
 
-/* CUDブルーを採用した視認性の高いボタン */
 .btn-primary-modal {
-    background-color: #005AFF; 
+    background-color: var(--cud-blue); 
     color: #ffffff;
     padding: 15px 30px;
     border: none;
@@ -467,10 +624,6 @@ header {
     transform: scale(0.98);
 }
 
-/* =========================================
-   My Page Promo Card & Shakeout Utility Classes
-   ========================================= */
-
 /* マイページ誘導用の共通カード */
 .mypage-promo-card {
     margin-top: 30px;
@@ -479,7 +632,7 @@ header {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    box-shadow: var(--card-shadow);
 }
 
 .mypage-promo-card h3 {
@@ -523,9 +676,9 @@ header {
     padding: 20px;
     font-size: 1.2rem;
     font-weight: bold;
-    background: #1a1a1a;
-    color: #fff;
-    border: 2px solid #555;
+    background: var(--surface-color);
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -537,10 +690,10 @@ header {
 .shakeout-setup-btn {
     flex: 1 1 40%;
     padding: 15px;
-    background: #111;
-    border: 2px solid #444;
+    background: var(--surface-color);
+    border: 2px solid var(--border-color);
     border-radius: 8px;
-    color: #fff;
+    color: var(--text-main);
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
@@ -565,9 +718,9 @@ header {
     margin-bottom: 12px;
     font-size: 1.2rem;
     font-weight: bold;
-    background: #111;
-    color: #fff;
-    border: 2px solid #444;
+    background: var(--surface-color);
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -576,33 +729,38 @@ header {
     border-color: var(--cud-yellow);
 }
 
-/* =========================================
-   Shared Progress Bars & Timer Bars
-   ========================================= */
-
-/* 進行状況バーおよびタイマーバーの共通外枠 */
+/* Shared Progress Bars & Timer Bars */
 .progress-bar, .timer-container {
     width: 100%;
     height: 8px;
-    background: #222;
+    background: var(--surface-color);
     border-radius: 4px;
     margin-bottom: 20px;
     overflow: hidden;
-    border: 1px solid #333;
+    border: 1px solid var(--border-color);
 }
 
-/* 進行状況バーおよびタイマーバーの共通中身 */
 .progress-fill, .timer-bar {
     height: 100%;
     width: 0%;
     transition: width 0.3s ease;
-    background: var(--cud-green); /* デフォルトの安全色 */
+    background: var(--cud-green);
 }
 
-/* タイマーバー独自の調整（transformによる極めて滑らかなアニメーション用） */
 .timer-bar {
     width: 100%;
     transform-origin: left;
     transition: transform 0.1s linear;
 }
-
+
+
+/* =========================================
+   複合災害ハザードマップ：テーマ連動タイルスタイル
+   ========================================= */
+/* ダークテーマ時の国土地理院淡色地図の反転フィルター（漆黒ダークマップ化） */
+:root[data-theme="dark"] .dark-gsi-tiles {
+    filter: invert(100%) hue-rotate(180deg) brightness(85%) contrast(90%) !important;
+}
+:root[data-theme="light"] .dark-gsi-tiles {
+    filter: none !important;
+}

@@ -2,23 +2,32 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp; object-src 'none'; base-uri 'self';">
     <title>過去の巨大地震 震度分布 | Quake Interactive Archive</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Biz+UDPGOthic:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
           crossorigin="anonymous" />
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/style.css?v=20261026_fix_3d_hazard">
     
     <style>
-        body, html { margin: 0; padding: 0; height: 100dvh; overflow: hidden; background-color: #050505; }
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100dvh; 
+            overflow: hidden; 
+            background-color: var(--bg-color); 
+            color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
         
-        /* ★修正：margin計算を廃止し、絶対配置で画面内に完全に収める */
+        /* メインレイアウト（絶対配置） */
         .dashboard-main { 
             position: absolute;
             top: 70px; /* ヘッダーの高さ */
-            bottom: 0; /* 下にピタリと合わせる */
+            bottom: 0; 
             left: 0;
             right: 0;
             display: flex; 
@@ -27,96 +36,668 @@
         /* 左側リストパネル（PC基本設定） */
         .eq-list-panel {
             width: 350px;
-            background: #111;
-            border-right: 1px solid #333;
+            background: var(--surface-color);
+            border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             overflow-y: auto;
             z-index: 10;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* ボトムシート用ヘッダー・詳細（PC時は完全非表示） */
+        .sheet-header,
+        .sheet-detail-body {
+            display: none;
+        }
+
+        .eq-list-scroll-area {
+            flex: 1;
+            overflow-y: auto;
         }
 
         /* マップエリア */
         .map-area { flex: 1; position: relative; }
-        #intensity-map { width: 100%; height: 100%; }
+        #intensity-map { 
+            width: 100%; 
+            height: 100%; 
+            background: var(--surface-color);
+        }
 
         /* リストアイテムのスタイル */
         .eq-card {
             padding: 1.2rem;
-            border-bottom: 1px solid #222;
+            border-bottom: 1px solid var(--border-color);
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s ease;
+            background: var(--surface-color);
         }
-        .eq-card:hover { background: #1a1a1a; }
-        .eq-card.active { border-left: 4px solid #56B4E9; background: #1a1a1a; }
-        .eq-date { font-family: 'Roboto Mono'; font-size: 0.8rem; color: #888; }
-        .eq-name { font-weight: bold; margin: 4px 0; color: #eee; }
+        .eq-card:hover { 
+            background: var(--surface-hover); 
+        }
+        .eq-card.active { 
+            border-left: 4px solid var(--cud-blue); 
+            background: var(--surface-hover); 
+        }
+        .eq-date { 
+            font-family: var(--font-mono); 
+            font-size: 0.8rem; 
+            color: var(--text-sub); 
+        }
+        .eq-name { 
+            font-weight: bold; 
+            margin: 4px 0; 
+            color: var(--text-main); 
+            font-size: 1rem;
+        }
+        .eq-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.8rem;
+        }
 
-        /* 凡例 */
+        /* 凡例ラッパー（PC基本設定） */
+        .intensity-legend-container {
+            position: relative;
+        }
+        .legend-toggle-btn {
+            display: none; /* PC時はボタン非表示 */
+        }
         .intensity-legend {
-            background: rgba(15, 15, 15, 0.9);
-            padding: 10px;
-            border: 1px solid #333;
-            border-radius: 4px;
-            color: #fff;
+            background: var(--header-bg);
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(8px);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
-        .legend-row { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; margin-bottom: 3px; }
-        .legend-color { width: 14px; height: 14px; border-radius: 2px; }
+        .intensity-legend h4 {
+            margin-top: 0; 
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+            color: var(--text-main);
+        }
+        .legend-row { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 0.78rem; 
+            margin-bottom: 3px; 
+            color: var(--text-main);
+        }
+        .legend-color { 
+            width: 14px; 
+            height: 14px; 
+            border-radius: 2px; 
+            flex-shrink: 0;
+            border: 1px solid rgba(0,0,0,0.15);
+        }
 
-        /* ★スマートフォン向けレスポンシブ設定 */
+        /* 地震概要オーバーレイ（PC用・テーマ連動・震源情報統合） */
+        #eq-info-overlay {
+            position: absolute; 
+            top: 20px; 
+            left: 20px; 
+            z-index: 1000; 
+            background: var(--header-bg); 
+            border: 1px solid var(--border-color); 
+            padding: 1.1rem; 
+            border-radius: 10px; 
+            backdrop-filter: blur(10px); 
+            max-width: 320px; 
+            display: none;
+            box-shadow: var(--card-shadow);
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        #eq-info-overlay.box-highlight {
+            border-color: #FF2800 !important;
+            box-shadow: 0 0 20px rgba(255, 40, 0, 0.55) !important;
+            animation: overlayPulse 1.2s ease-in-out;
+        }
+        @keyframes overlayPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.025); }
+        }
+        #info-title {
+            margin: 0 0 10px 0; 
+            font-size: 1.05rem; 
+            color: var(--text-main);
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        /* 震源情報ボックス（公式震央地名のみですっきり統合） */
+        .info-epicenter-box {
+            background: var(--surface-hover);
+            border: 1px solid rgba(255, 40, 0, 0.25);
+            border-radius: 6px;
+            padding: 9px 12px;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+        }
+        .epicenter-box-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        .epicenter-icon-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--cud-orange, #E69F00);
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .epicenter-mag-badge {
+            font-family: var(--font-mono, monospace);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #FF2800;
+            background: rgba(255, 40, 0, 0.12);
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+        .epicenter-name-text {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+        .epicenter-meta-grid {
+            display: flex;
+            gap: 14px;
+            font-size: 0.76rem;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 6px;
+            color: var(--text-sub);
+        }
+        .epicenter-meta-grid .meta-label {
+            font-weight: 700;
+            margin-right: 2px;
+        }
+        .epicenter-meta-grid .meta-val {
+            color: var(--text-main);
+            font-family: var(--font-mono, monospace);
+        }
+
+        #info-desc {
+            margin: 0; 
+            font-size: 0.8rem; 
+            color: var(--text-sub); 
+            line-height: 1.55;
+        }
+
+        /* 震源地マーカーと波紋アニメーション */
+        .epicenter-div-icon {
+            background: transparent;
+            border: none;
+        }
+        .epicenter-marker-wrap {
+            position: relative;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .epicenter-icon {
+            font-size: 22px;
+            line-height: 1;
+            z-index: 2;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
+            user-select: none;
+            transform-origin: center;
+            animation: epicenterBounce 2s ease-in-out infinite;
+        }
+        .epicenter-pulse-ring {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(255, 40, 0, 0.6);
+            border: 2px solid #FF2800;
+            box-shadow: 0 0 10px rgba(255, 40, 0, 0.8);
+            z-index: 1;
+            animation: epicenterPulse 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+            pointer-events: none;
+        }
+        @keyframes epicenterPulse {
+            0% {
+                transform: scale(0.6);
+                opacity: 0.9;
+            }
+            70% {
+                transform: scale(2.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(3.2);
+                opacity: 0;
+            }
+        }
+        @keyframes epicenterBounce {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.18);
+            }
+        }
+
+        /* ========================================================
+           スマートフォン向けレスポンシブ設定
+           ======================================================== */
         @media screen and (max-width: 768px) {
             .dashboard-main {
-                flex-direction: column; 
+                display: block; 
+                position: absolute;
+                top: 70px;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                overflow: hidden;
             }
+
+            /* 地図を画面全体の全高に開放 */
             .map-area {
-                order: 1; 
-                flex: 0 0 50%; /* 地図を上半分に */
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
                 width: 100%;
+                height: 100%;
+                z-index: 1;
             }
-            .eq-list-panel {
-                order: 2; 
-                width: 100%;
-                flex: 0 0 50%; /* リストを下半分に */
-                border-right: none;
-                border-top: 2px solid #333;
-                padding-bottom: 30px; /* ★スマホ下部のホームバーに隠れないよう余白を追加 */
+
+            /* ★スマホ時はヘッダー裏への潜り込み・誤タップ防止のためズームボタン（＋／−）を完全非表示 */
+            .leaflet-control-zoom {
+                display: none !important;
             }
+
+            /* 地図の上に被さっていたPC用情報カードは完全非表示 */
             #eq-info-overlay {
-                max-width: 220px !important;
-                padding: 10px !important;
-                top: 10px !important;
-                left: 10px !important;
+                display: none !important;
             }
-            #info-title {
-                font-size: 1rem !important;
-                margin-bottom: 5px !important;
+
+            /* ★スマホ用：震度凡例のトグル開閉式ミニボタン */
+            .intensity-legend-container {
+                position: absolute !important;
+                bottom: 96px !important;
+                right: 12px !important;
+                z-index: 1000 !important;
             }
-            #info-desc {
+            .legend-toggle-btn {
+                display: flex !important;
+                align-items: center;
+                gap: 5px;
+                background: var(--header-bg);
+                border: 1px solid var(--border-color);
+                color: var(--text-main);
+                font-size: 0.74rem;
+                font-weight: 700;
+                padding: 6px 12px;
+                border-radius: 20px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+                backdrop-filter: blur(8px);
+                cursor: pointer;
+                user-select: none;
+                transition: all 0.2s ease;
+            }
+            .legend-toggle-btn:active {
+                transform: scale(0.95);
+            }
+            .legend-toggle-btn.is-active {
+                border-color: var(--cud-orange);
+                color: var(--cud-orange);
+                background: var(--surface-hover);
+            }
+            /* 初期状態は非表示（開閉トグル） */
+            .intensity-legend-container .intensity-legend {
+                display: none;
+            }
+            .intensity-legend-container.is-open .intensity-legend {
+                display: block !important;
+                position: absolute;
+                bottom: 38px;
+                right: 0;
+                min-width: 145px;
+                max-width: 170px;
+                padding: 8px 12px !important;
+                border-radius: 10px;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+                animation: legendPopup 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            @keyframes legendPopup {
+                from { opacity: 0; transform: translateY(8px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .intensity-legend h4 {
                 font-size: 0.75rem !important;
-                line-height: 1.4 !important;
+                margin-bottom: 4px !important;
+                padding-bottom: 2px !important;
+            }
+            .legend-row {
+                font-size: 0.7rem !important;
+                gap: 6px !important;
+                margin-bottom: 2px !important;
+            }
+            .legend-color {
+                width: 11px !important;
+                height: 11px !important;
+            }
+
+            /* リストパネルを画面下部の「ボトムシート」に切り替え */
+            .eq-list-panel {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 72vh;
+                max-height: 72vh;
+                border-radius: 18px 18px 0 0;
+                box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.5);
+                z-index: 2000;
+                border-right: none;
+                border-top: 2px solid var(--border-color);
+                /* 初期（縮小）状態：ナビ＋ボタン（約84px）だけが見える */
+                transform: translateY(calc(100% - 84px));
+                transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                background: var(--surface-color);
+            }
+
+            /* シート展開状態 */
+            .eq-list-panel.sheet-expanded {
+                transform: translateY(0);
+            }
+
+            /* ボトムシートヘッダー（ナビ操作バー） */
+            .sheet-header {
+                display: block;
+                padding: 6px 14px 8px 14px;
+                background: var(--surface-color);
+                border-bottom: 1px solid var(--border-color);
+                user-select: none;
+                flex-shrink: 0;
+            }
+            .sheet-drag-handle {
+                width: 36px;
+                height: 4px;
+                background: var(--border-color);
+                border-radius: 2px;
+                margin: 0 auto 6px auto;
+                cursor: pointer;
+            }
+            .sheet-nav-bar {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 6px;
+            }
+            .sheet-nav-btn {
+                width: 38px;
+                height: 38px;
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: var(--surface-hover);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                color: var(--text-main);
+                font-size: 0.82rem;
+                cursor: pointer;
+                transition: all 0.15s ease;
+            }
+            .sheet-nav-btn:active {
+                background: var(--border-color);
+                transform: scale(0.92);
+            }
+            .sheet-summary-center {
+                flex: 1;
+                min-width: 0;
+                cursor: pointer;
+            }
+            .sheet-summary-top {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                overflow: hidden;
+            }
+            .sheet-index-badge {
+                font-family: var(--font-mono, monospace);
+                font-size: 0.7rem;
+                font-weight: 700;
+                color: var(--text-main);
+                background: var(--surface-hover);
+                border: 1px solid var(--border-color);
+                padding: 1px 5px;
+                border-radius: 8px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .sheet-title-text {
+                font-size: 0.9rem;
+                font-weight: 700;
+                color: var(--text-main);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                flex: 1;
+            }
+            .sheet-mag-text {
+                font-family: var(--font-mono, monospace);
+                font-size: 0.82rem;
+                font-weight: 700;
+                color: #FF2800;
+                background: rgba(255, 40, 0, 0.12);
+                padding: 1px 5px;
+                border-radius: 4px;
+                flex-shrink: 0;
+            }
+            .sheet-subinfo-text {
+                font-size: 0.74rem;
+                color: var(--text-sub);
+                margin-top: 1px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /* 一覧展開ボタン */
+            .btn-sheet-expand {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                padding: 5px 0;
+                background: var(--surface-hover);
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                color: var(--cud-blue, #0072B2);
+                font-size: 0.75rem;
+                font-weight: 700;
+                cursor: pointer;
+                transition: background-color 0.2s ease;
+            }
+            .btn-sheet-expand:active {
+                background: var(--border-color);
+            }
+            .sheet-toggle-icon {
+                font-size: 0.68rem;
+                transition: transform 0.3s ease;
+                display: inline-block;
+            }
+            .eq-list-panel.sheet-expanded .sheet-toggle-icon {
+                transform: rotate(180deg);
+            }
+
+            /* ボトムシート展開時の詳細解説エリア */
+            .sheet-detail-body {
+                display: block;
+                padding: 12px 16px;
+                background: var(--surface-hover);
+                border-bottom: 1px solid var(--border-color);
+                flex-shrink: 0;
+            }
+            .sheet-desc-text {
+                margin: 0;
+                font-size: 0.8rem;
+                color: var(--text-sub);
+                line-height: 1.55;
+            }
+            .sheet-divider {
+                font-size: 0.72rem;
+                font-weight: 700;
+                color: var(--cud-blue, #0072B2);
+                margin-top: 10px;
+                letter-spacing: 0.05em;
+            }
+
+            .eq-list-scroll-area {
+                flex: 1;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 20px;
+            }
+            .eq-card {
+                padding: 1rem 1.2rem;
             }
         }
     </style>
+    <script>
+        // テーマ初期適用（チラつき防止）
+        (function() {
+            var savedTheme = localStorage.getItem('v2_portal_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', savedTheme);
+            }
+        })();
+
+        window.setTheme = function(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', theme);
+            }
+            try {
+                localStorage.setItem('v2_portal_theme', theme);
+            } catch (e) {
+                console.error("Storage error:", e);
+            }
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+                toggleBtn.title = theme === 'dark' ? 'ライトテーマに切り替え' : 'ダークテーマに切り替え';
+            }
+            // テーマ変更イベントを通知
+            document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+        };
+
+        window.toggleTheme = function() {
+            var current = document.documentElement.getAttribute('data-theme') || 'dark';
+            window.setTheme(current === 'dark' ? 'light' : 'dark');
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('v2_portal_theme') || 'dark';
+            window.setTheme(currentTheme);
+
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.toggleTheme();
+                });
+            }
+        });
+    </script>
 </head>
 <body>
 
     <header>
         <div class="logo-area">
             <span class="tag" style="background: #56B4E9; color: #000; font-weight: bold; margin-bottom: 4px; display: inline-block;">Intensity Archive</span>
-            <h1 style="font-size: 1rem; margin: 0; letter-spacing: 0.1em;">過去の巨大地震 震度分布</h1>
+            <h1 style="font-size: 1rem; margin: 0; letter-spacing: 0.1em; color: var(--text-main);">過去の巨大地震 震度分布</h1>
         </div>
         <div class="header-actions">
+            <!-- テーマ切り替え（単一トグルボタン） -->
+            <button id="btn-theme-toggle" class="btn-theme-toggle" title="テーマ切り替え" aria-label="テーマ切り替え">🌙</button>
             <a href="index.html" class="btn-back" data-log="震度分布マップ：戻るボタンをクリック">✕ 戻る</a>
         </div>
     </header>
 
     <main class="dashboard-main">
-        <div class="eq-list-panel" id="eq-list-container">
+        <!-- 左側リストパネル（スマホ時はボトムシートとして機能） -->
+        <div class="eq-list-panel" id="eq-list-panel">
+            <!-- ★スマホ専用ボトムシートヘッダー（PC時は非表示） -->
+            <div class="sheet-header" id="sheet-header">
+                <div class="sheet-drag-handle" id="sheet-drag-handle"></div>
+                
+                <!-- ナビゲーションバー（◀ 地震情報 ▶） -->
+                <div class="sheet-nav-bar">
+                    <button type="button" class="sheet-nav-btn" id="btn-prev-eq" title="前の地震へ" aria-label="前の地震へ">◀</button>
+                    
+                    <div class="sheet-summary-center" id="sheet-summary-center" title="タップして詳細・一覧を展開">
+                        <div class="sheet-summary-top">
+                            <span id="sheet-index" class="sheet-index-badge">7 / 7</span>
+                            <span id="sheet-title" class="sheet-title-text">-</span>
+                            <span id="sheet-mag" class="sheet-mag-text">-</span>
+                        </div>
+                        <div id="sheet-subinfo" class="sheet-subinfo-text">-</div>
+                    </div>
+                    
+                    <button type="button" class="sheet-nav-btn" id="btn-next-eq" title="次の地震へ" aria-label="次の地震へ">▶</button>
+                </div>
+
+                <!-- 明確なアクションボタン -->
+                <button type="button" class="btn-sheet-expand" id="btn-sheet-expand">
+                    <span>過去の巨大地震一覧（全7件）</span>
+                    <span id="sheet-toggle-icon" class="sheet-toggle-icon">▲</span>
+                </button>
             </div>
-        <div class="map-area">
+
+            <!-- ★スマホ専用詳細ボディ（PC時は非表示、シート展開時に表示） -->
+            <div class="sheet-detail-body" id="sheet-detail-body">
+                <p id="sheet-desc" class="sheet-desc-text"></p>
+                <div class="sheet-divider">▼ 過去の巨大地震を選択</div>
+            </div>
+
+            <!-- 地震カードリストコンテナ -->
+            <div class="eq-list-scroll-area" id="eq-list-container">
+            </div>
+        </div>
+
+        <div class="map-area" id="map-area-container">
             <div id="intensity-map"></div>
-            <div id="eq-info-overlay" style="position: absolute; top: 20px; left: 20px; z-index: 1000; background: rgba(15, 15, 15, 0.85); border: 1px solid #333; padding: 1rem; border-radius: 8px; backdrop-filter: blur(5px); max-width: 300px; display: none;">
-                <h2 id="info-title" style="margin: 0 0 10px 0; font-size: 1.2rem; color: #fff;"></h2>
-                <p id="info-desc" style="margin: 0; font-size: 0.85rem; color: #ccc; line-height: 1.6;"></p>
+            <!-- PC用地震概要オーバーレイ（スマホ時はCSSで非表示） -->
+            <div id="eq-info-overlay">
+                <h2 id="info-title"></h2>
+                <div id="info-epicenter-box" class="info-epicenter-box">
+                    <div class="epicenter-box-header">
+                        <span class="epicenter-icon-badge">💥 震源情報</span>
+                        <span id="info-magnitude" class="epicenter-mag-badge"></span>
+                    </div>
+                    <div id="info-epicenter-name" class="epicenter-name-text"></div>
+                    <div class="epicenter-meta-grid">
+                        <div><span class="meta-label">深さ:</span> <span id="info-depth" class="meta-val"></span></div>
+                        <div><span class="meta-label">日時:</span> <span id="info-date" class="meta-val"></span></div>
+                    </div>
+                </div>
+                <p id="info-desc"></p>
             </div>
         </div>
     </main>
@@ -124,8 +705,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin="anonymous"></script>
-    <script src="./js/logger.js"></script>
-    <script src="./js/utils.js"></script>
-    <script src="./js/intensity_map.js"></script>
+    <script src="./js/utils.js?v=20261026_sec_v2"></script>
+    <script src="./js/intensity_map.js?v=20261025_v2_storage"></script>
 </body>
 </html>

@@ -2,101 +2,304 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp; object-src 'none'; base-uri 'self';">
     <title>3D震源分布アーカイブ | Quake Interactive Archive</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Biz+UDPGOthic:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/style.css?v=20261026_fix_3d_hazard">
     
     <style>
-        body, html { margin: 0; padding: 0; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; background-color: #050505; }
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100dvh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            background-color: var(--bg-color); 
+            color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
         
         /* 3Dマップ表示エリア */
         .dashboard-main { 
             flex: 1; 
             display: flex; 
             position: relative; 
-            margin-top: 60px; /* ヘッダー分下げる */
+            margin-top: 65px; /* ヘッダー分下げる */
         }
         #map-3d-full { width: 100%; height: 100%; }
 
-        /* タイムスライサーUI（SFJ風に調整） */
+        /* 上部フロートボタン：はじめの位置に戻る（タイムスライサーから独立配置） */
+        .btn-reset-float {
+            position: absolute;
+            top: 18px;
+            left: 16px;
+            z-index: 1000;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--header-bg);
+            border: 1px solid var(--cud-green);
+            color: var(--cud-green);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            font-family: var(--font-sans);
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        :root[data-theme="light"] .btn-reset-float,
+        body[data-theme="light"] .btn-reset-float {
+            background: rgba(255, 255, 255, 0.92);
+            color: #008744;
+            border-color: #008744;
+            box-shadow: 0 3px 10px rgba(0, 135, 68, 0.2);
+        }
+        .btn-reset-float:hover {
+            background: var(--surface-hover);
+            transform: translateY(-1px);
+        }
+        .btn-reset-float:active {
+            transform: scale(0.96);
+        }
+
+        /* タイムスライサーUI（SFJデザインシステム連動） */
         #time-slicer-ui {
             position: absolute;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             width: 90%;
-            max-width: 800px;
-            background: rgba(15, 15, 15, 0.9);
-            border: 1px solid #333;
+            max-width: 620px;
+            background: var(--header-bg);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 1.5rem;
+            padding: 1.1rem 1.4rem;
             z-index: 1000;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--card-shadow);
             display: none;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .slider-container { display: flex; align-items: center; gap: 15px; margin-bottom: 1rem; }
-        input[type=range] { flex: 1; accent-color: #56B4E9; }
+        .slicer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+        }
+        #label-start {
+            font-family: 'Roboto Mono', monospace;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+        }
+        #label-current {
+            font-family: 'Roboto Mono', monospace;
+            color: var(--cud-blue);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
 
-        .slicer-controls { display: flex; justify-content: center; gap: 10px; }
+        .slider-container { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            margin-bottom: 0.75rem; 
+        }
+        input[type=range] { 
+            flex: 1; 
+            accent-color: var(--cud-blue); 
+            cursor: pointer;
+        }
+
+        .slicer-controls { 
+            display: flex; 
+            justify-content: center; 
+            gap: 10px; 
+            flex-wrap: wrap; 
+        }
         .btn-slicer {
-            background: transparent;
-            border: 1px solid #555;
-            color: #fff;
-            padding: 6px 12px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 16px;
             cursor: pointer;
             border-radius: 4px;
             font-size: 0.8rem;
+            font-weight: 500;
+            font-family: var(--font-sans);
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
         }
-        .btn-slicer:hover { border-color: #fff; }
+        .btn-slicer:hover { 
+            background: var(--surface-hover); 
+            border-color: var(--text-main); 
+        }
 
-        /* ★追加：国土数値情報の著作権（出典）表記 */
+        /* 国土数値情報の著作権（出典）表記（テーマ連動） */
         .map-attribution {
             position: absolute;
             bottom: 10px;
             right: 10px;
             z-index: 1000;
             font-size: 0.7rem;
-            color: #aaa;
-            background: rgba(0, 0, 0, 0.6);
+            color: var(--text-sub);
+            background: var(--header-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(6px);
             padding: 4px 8px;
             border-radius: 4px;
-            pointer-events: auto; /* リンクをクリックできるようにする */
+            pointer-events: auto;
+            transition: all 0.3s ease;
         }
         .map-attribution a {
-            color: #56B4E9;
+            color: var(--cud-blue);
             text-decoration: none;
+            font-weight: bold;
         }
         .map-attribution a:hover {
             text-decoration: underline;
         }
+
+        /* ★スマホ表示時：専有高さを最小化し3Dマップの視界を最大確保 */
+        @media (max-width: 768px) {
+            .dashboard-main {
+                margin-top: 74px; /* スマホ用ヘッダー高さ（ロゴ+タグ+パディング）に合わせる */
+            }
+
+            .btn-reset-float {
+                top: 18px; /* ヘッダー下端から十分な余白を確保して下に配置 */
+                left: 12px;
+                padding: 6px 12px;
+                font-size: 0.76rem;
+                gap: 5px;
+            }
+
+            #time-slicer-ui {
+                bottom: 38px; /* 出典表示の上に綺麗に配置 */
+                width: calc(100% - 24px);
+                max-width: 480px;
+                padding: 0.65rem 0.9rem;
+                border-radius: 10px;
+            }
+
+            .slicer-header {
+                margin-bottom: 4px;
+            }
+            #label-start {
+                font-size: 0.8rem;
+            }
+            #label-current {
+                font-size: 1.05rem;
+            }
+
+            .slider-container {
+                margin-bottom: 0.4rem;
+            }
+
+            .slicer-controls {
+                gap: 8px;
+                flex-wrap: nowrap;
+            }
+            .btn-slicer {
+                flex: 1;
+                text-align: center;
+                padding: 6px 10px;
+                font-size: 0.76rem;
+            }
+
+            .map-attribution {
+                font-size: 0.62rem;
+                padding: 2px 6px;
+                bottom: 8px;
+                right: 8px;
+            }
+        }
     </style>
+    <script>
+        // テーマ初期適用（チラつき防止）
+        (function() {
+            var savedTheme = localStorage.getItem('v2_portal_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', savedTheme);
+            }
+        })();
+
+        window.setTheme = function(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', theme);
+            }
+            try {
+                localStorage.setItem('v2_portal_theme', theme);
+            } catch (e) {
+                console.error("Storage error:", e);
+            }
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+                toggleBtn.title = theme === 'dark' ? 'ライトテーマに切り替え' : 'ダークテーマに切り替え';
+            }
+            // テーマ変更イベントを通知
+            document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+        };
+
+        window.toggleTheme = function() {
+            var current = document.documentElement.getAttribute('data-theme') || 'dark';
+            window.setTheme(current === 'dark' ? 'light' : 'dark');
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('v2_portal_theme') || 'dark';
+            window.setTheme(currentTheme);
+
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.toggleTheme();
+                });
+            }
+        });
+    </script>
 </head>
 <body>
 
     <header>
         <div class="logo-area">
             <span class="tag" style="background: #00E676; color: #000; font-weight: bold; margin-bottom: 4px; display: inline-block;">3D Archive</span>
-            <h1 style="font-size: 1rem; margin: 0; letter-spacing: 0.1em;">震源分布 3Dマップ</h1>
+            <h1 style="font-size: 1rem; margin: 0; letter-spacing: 0.1em; color: var(--text-main);">震源分布 3Dマップ</h1>
         </div>
         <div class="header-actions">
+            <!-- テーマ切り替え（単一トグルボタン） -->
+            <button id="btn-theme-toggle" class="btn-theme-toggle" title="テーマ切り替え" aria-label="テーマ切り替え">🌙</button>
             <a href="index.html" class="btn-back" data-log="3Dマップ：戻るボタンをクリック">✕ 戻る</a>
         </div>
     </header>
 
     <main class="dashboard-main">
         <div id="map-3d-full"></div>
+
+        <!-- 上部フロート：はじめの位置に戻るボタン -->
+        <button id="btn-reset-view" class="btn-reset-float" data-log="3Dマップ：初期位置に戻るボタンをクリック">
+            <span>🔄</span> はじめの位置に戻る
+        </button>
         
         <div class="map-attribution">
             都道府県境情報出典：<a href="https://nlftp.mlit.go.jp/ksj/" target="_blank" rel="noopener noreferrer" data-log="3Dマップ：国土数値情報リンクをクリック">国土数値情報（国土交通省）</a>を加工して作成
         </div>
         
         <div id="time-slicer-ui">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <span id="label-start" style="font-family: 'Roboto Mono'; color: #888;">1995年</span>
-                <span id="label-current" style="font-family: 'Roboto Mono'; color: #56B4E9; font-weight: bold; font-size: 1.2rem;">全期間</span>
+            <div class="slicer-header">
+                <span id="label-start">1995年</span>
+                <span id="label-current">全期間</span>
             </div>
             <div class="slider-container">
                 <input type="range" id="time-slider" min="0" max="100" value="100">
@@ -116,8 +319,7 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js" 
             integrity="sha256-ArtK3nEPPmBzKeN6IfCYvDrHDrbjPa+KZeefTbeF57I=" 
             crossorigin="anonymous"></script>
-    <script src="./js/logger.js"></script>
-    <script src="./js/utils.js"></script>
-    <script src="./js/main.js"></script>
+    <script src="./js/utils.js?v=20261026_sec_v2"></script>
+    <script src="./js/main.js?v=20261026_3d_pref_v2"></script>
 </body>
 </html>

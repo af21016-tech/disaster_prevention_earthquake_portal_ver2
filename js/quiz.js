@@ -8,12 +8,32 @@ let userReviewData = [];
 let questionStartTime = 0; 
 
 const QUESTIONS_PER_PLAY = 10; 
-const TIME_LIMIT = 10.0;
-let timeLeft = TIME_LIMIT;
+const STAGE_TIME_LIMITS = [12.0, 10.0, 10.0]; // 初級: 12秒, 中級: 10秒, 上級: 10秒
+let currentTimeLimit = 10.0;
+let timeLeft = 10.0;
 let timerInterval = null;
+let isPracticeMode = false; // true: 制限時間なし（練習モード）, false: 制限時間あり（本番モード）
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ★修正：3つのボタンそれぞれのイベントリスナー
+    // モード選択ボタンの制御
+    const cardTimed = document.getElementById('quiz-mode-timed');
+    const cardPractice = document.getElementById('quiz-mode-practice');
+
+    if (cardTimed && cardPractice) {
+        cardTimed.addEventListener('click', () => {
+            isPracticeMode = false;
+            cardTimed.classList.add('selected-timed');
+            cardPractice.classList.remove('selected-practice');
+        });
+
+        cardPractice.addEventListener('click', () => {
+            isPracticeMode = true;
+            cardPractice.classList.add('selected-practice');
+            cardTimed.classList.remove('selected-timed');
+        });
+    }
+
+    // 3つのステージボタンそれぞれのイベントリスナー
     const btnStage0 = document.getElementById('btn-start-stage0');
     if (btnStage0) btnStage0.addEventListener('click', () => {
         document.getElementById('start-screen').style.display = 'none';
@@ -43,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const btnRetry = document.getElementById('btn-retry');
     if (btnRetry) btnRetry.addEventListener('click', () => {
-        // もう一度挑戦する場合は、スタート画面（レベル選択）に戻す
         document.getElementById('result-screen').style.display = 'none';
         document.getElementById('start-screen').style.display = 'block';
     });
@@ -66,6 +85,7 @@ function initQuiz(stageIndex) {
 
 function startStage(stageIndex) {
     currentStageIndex = stageIndex;
+    currentTimeLimit = STAGE_TIME_LIMITS[currentStageIndex] !== undefined ? STAGE_TIME_LIMITS[currentStageIndex] : 10.0;
     
     let pool = [];
     if (Array.isArray(quizData)) {
@@ -127,22 +147,12 @@ function loadQuestion() {
         const btn = document.createElement('button');
         btn.className = 'choice-btn';
         
-        let textColor = "#eaeaea"; 
-        let hoverColor = "#ff7b00"; 
-        
         if (text === "〇") {
-            textColor = "#FF2800"; 
-            hoverColor = "#FF2800";
+            btn.style.color = '#FF2800'; // CUD赤
         } else if (text === "✖") {
-            textColor = "#56B4E9"; 
-            hoverColor = "#56B4E9";
+            btn.style.color = '#56B4E9'; // CUD青
         }
         
-        btn.style.cssText = `text-align: left; padding: 1.2rem 2rem; font-size: 1.3rem; font-weight: bold; border-radius: 8px; background: #111; border: 2px solid #444; color: ${textColor}; cursor: pointer; transition: 0.2s; width: 100%; margin-bottom: 12px;`;
-        
-        btn.onmouseover = () => { btn.style.background = '#222'; btn.style.borderColor = hoverColor; };
-        btn.onmouseout = () => { btn.style.background = '#111'; btn.style.borderColor = '#444'; };
-
         btn.innerText = text;
         btn.onclick = () => checkAnswer(index, text, btn);
         choicesContainer.appendChild(btn);
@@ -160,7 +170,14 @@ function loadQuestion() {
 
 function startTimer() {
     clearInterval(timerInterval);
-    timeLeft = TIME_LIMIT;
+    
+    if (isPracticeMode) {
+        // 練習モード：タイマーカウントダウンを行わず、無制限表示にする
+        updatePracticeUI();
+        return;
+    }
+
+    timeLeft = currentTimeLimit;
     updateTimerUI();
 
     timerInterval = setInterval(() => {
@@ -174,6 +191,22 @@ function startTimer() {
     }, 100);
 }
 
+function updatePracticeUI() {
+    const scoreCounter = document.getElementById('score-counter');
+    if (scoreCounter) {
+        scoreCounter.innerText = `スコア: ${correctCount}点`;
+        scoreCounter.style.color = '#888';
+    }
+    const timerLabel = document.getElementById('timer-label');
+    if (timerLabel) timerLabel.innerText = "訓練モード";
+    
+    const timerDisplay = document.getElementById('timer-display');
+    if (timerDisplay) {
+        timerDisplay.innerHTML = `<span style="color:var(--cud-green); font-size:2.8rem;">🟢 練習（時間無制限）</span>`;
+        timerDisplay.style.textShadow = '0 0 15px rgba(0, 230, 118, 0.4)';
+    }
+}
+
 function updateTimerUI() {
     const scoreCounter = document.getElementById('score-counter');
     if (scoreCounter) {
@@ -181,6 +214,9 @@ function updateTimerUI() {
         scoreCounter.style.color = '#888';
         scoreCounter.style.fontWeight = 'normal';
     }
+    const timerLabel = document.getElementById('timer-label');
+    if (timerLabel) timerLabel.innerText = "残り時間";
+
     const timerDisplay = document.getElementById('timer-display');
     if (timerDisplay) {
         timerDisplay.innerText = `${Math.max(0, timeLeft).toFixed(1)}秒`;
@@ -188,8 +224,8 @@ function updateTimerUI() {
             timerDisplay.style.color = '#FF2800'; 
             timerDisplay.style.textShadow = '0 0 20px rgba(255, 40, 0, 0.8)';
         } else {
-            timerDisplay.style.color = '#fff';
-            timerDisplay.style.textShadow = '0 0 15px rgba(255, 255, 255, 0.5)';
+            timerDisplay.style.color = 'var(--text-main)';
+            timerDisplay.style.textShadow = 'none';
         }
     }
 }
@@ -230,12 +266,6 @@ function processAnswer(userIndex, choiceText, btnElement) {
         }
     }
 
-    const timeTaken = (Date.now() - questionStartTime) / 1000;
-    let resultLabel = isCorrect ? "⭕正解" : "❌不正解";
-    if (typeof logUserAction === 'function') {
-        logUserAction('quiz_answer', `【${resultLabel}】 Q: ${qData.q.substring(0, 15)}... / 選択: ${choiceText} (タイム: ${timeTaken.toFixed(2)}秒)`);
-    }
-
     userReviewData.push({ q: qData.q, userAnswer: choiceText, isCorrect: isCorrect, exp: qData.exp });
 
     const choicesContainer = document.getElementById('choices');
@@ -252,13 +282,13 @@ function processAnswer(userIndex, choiceText, btnElement) {
     
     if (userIndex === null) {
         if(fb) fb.className = "feedback-box incorrect";
-        if(rm) { rm.innerText = "⏳ 逃げ遅れ（時間切れ）"; rm.style.color = "#D55E00"; }
-        if(expText) expText.innerHTML = `<strong style="color:#D55E00;">【判断が遅れると命を落とします】</strong><br>${qData.exp || "時間内に判断する訓練が必要です。"}`;
+        if(rm) { rm.innerText = "⏳ 逃げ遅れ（時間切れ）"; rm.style.color = "var(--cud-orange)"; }
+        if(expText) expText.innerHTML = `<strong style="color:var(--cud-orange);">【判断が遅れると命を落とします】</strong><br>${qData.exp || "時間内に判断する訓練が必要です。"}`;
     } else if (isCorrect) {
-        if(rm) { rm.innerText = "⭕ 正解！"; rm.style.color = "#00E676"; }
+        if(rm) { rm.innerText = "⭕ 正解！"; rm.style.color = "var(--cud-green)"; }
         if(expText) expText.innerHTML = qData.exp || "正しい判断です。";
     } else {
-        if(rm) { rm.innerText = "❌ 不正解..."; rm.style.color = "#D55E00"; }
+        if(rm) { rm.innerText = "❌ 不正解..."; rm.style.color = "var(--cud-orange)"; }
         if(expText) expText.innerHTML = qData.exp || "間違った判断は命を危険に晒します。";
     }
     
@@ -283,36 +313,29 @@ function showResultScreen() {
     document.getElementById('result-screen').style.display = 'block';
 
     const stage = quizData[currentStageIndex];
-    document.getElementById('final-score').innerText = `${correctCount} / ${currentStageQuestions.length}`;
+    const modeBadge = isPracticeMode 
+        ? `<div style="font-size:0.9rem; color:var(--cud-green); margin-bottom:8px; font-weight:bold;">🟢 練習モード完了（時間無制限）</div>`
+        : `<div style="font-size:0.9rem; color:var(--cud-orange); margin-bottom:8px; font-weight:bold;">🔥 本番タイムアタック完了</div>`;
 
-    // ★GASへの正答率ログ送信
-    const accuracy = Math.round((correctCount / currentStageQuestions.length) * 100);
-    if (typeof logUserAction === 'function') {
-        const stageName = stage ? stage.stageName : "サバイバルクイズ";
-        logUserAction('quiz_result', `【最終結果:${stageName}】正答率: ${accuracy}% (${correctCount}問正解 / 全${currentStageQuestions.length}問)`);
-    }
-
-    const medalNotification = document.getElementById('medal-container');
+    document.getElementById('final-score').innerHTML = `${modeBadge}${correctCount} / ${currentStageQuestions.length}`;
     const resultMsg = document.getElementById('result-message');
-    const resultMedalIcon = document.getElementById('result-medal-icon');
 
     if (correctCount === currentStageQuestions.length) {
-        if(medalNotification) medalNotification.style.display = 'block';
-        if(resultMsg) resultMsg.innerText = `見事な判断力です。メダルを獲得しました。`;
-        
-        let earnedMedals = JSON.parse(localStorage.getItem('quake_medals')) || [];
-        const medalId = stage ? stage.medalId : "survival_basic";
-        const medalEmoji = stage ? stage.medal : "🥇";
-        
-        if(resultMedalIcon) resultMedalIcon.innerText = medalEmoji;
-
-        if (!earnedMedals.includes(medalId)) {
-            earnedMedals.push(medalId);
-            localStorage.setItem('quake_medals', JSON.stringify(earnedMedals));
-        }
+        if(resultMsg) resultMsg.innerText = isPracticeMode 
+            ? "全問正解です！しっかり理解できています。次は本番タイムアタックに挑戦してみましょう！"
+            : "全問正解です！見事な判断力でした。緊迫した状況でも冷静に行動できる力があります。";
     } else {
-        if(medalNotification) medalNotification.style.display = 'none';
-        if(resultMsg) resultMsg.innerText = "全問正解でのみメダルが授与されます。間違えた問題を復習して再挑戦しましょう。";
+        if(resultMsg) resultMsg.innerText = "間違えた問題の解説をよく復習し、繰り返し訓練して正しい判断を身につけましょう。";
+    }
+
+    // 本番モード（制限時間あり）かつ正答率80%以上でバッジ獲得
+    const totalQ = currentStageQuestions.length;
+    if (!isPracticeMode && totalQ > 0 && (correctCount / totalQ) >= 0.8) {
+        if (typeof unlockBadge === 'function') {
+            if (currentStageIndex === 0) unlockBadge('quiz_stage0');
+            else if (currentStageIndex === 1) unlockBadge('quiz_stage1');
+            else if (currentStageIndex === 2) unlockBadge('quiz_stage2');
+        }
     }
 
     // クイズ結果画面のHTMLに、マイページへのデカデカとしたボタンを挿入する

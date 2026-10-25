@@ -2,29 +2,26 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp; object-src 'none'; base-uri 'self';">
     <title>学習記録 / 設定 | Quake Interactive Archive</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Biz+UDPGOthic:wght@400;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/style.css">
-    
+    <link rel="stylesheet" href="./css/style.css?v=20261026_fix_3d_hazard">
     <style>
-        body, html { margin: 0; padding: 0; background-color: #111111; color: #ffffff; min-height: 100vh; }
-        
+        body, html { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; }
         .live-header {
             position: fixed;
             top: 0; left: 0; width: 100%;
             z-index: 2000;
             padding: 1rem 2rem;
-            background: rgba(26, 26, 26, 0.95);
+            background: var(--header-bg);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid #333333;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .live-header h1 { font-size: 1.25rem; margin: 0; }
-
+        .live-header h1 { font-size: 1.25rem; margin: 0; color: var(--text-main); }
         .mypage-container {
             max-width: 900px;
             margin: 100px auto 0;
@@ -35,32 +32,152 @@
             gap: 2.5rem;
             padding-bottom: 100px;
         }
-        
-        .section-title { font-size: 1.1rem; color: #888; border-bottom: 1px solid #333; padding-bottom: 0.5rem; margin-bottom: 1.5rem; letter-spacing: 0.1em; }
-
-        /* ユーザーIDカード */
-        .user-card { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 2rem; display: flex; align-items: center; gap: 2rem; }
-        .user-avatar { width: 64px; height: 64px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-        .user-info h2 { margin: 0; font-family: 'Roboto Mono', monospace; font-size: 1.5rem; color: #fff; }
-        .user-info p { margin: 5px 0 0 0; color: #888; font-size: 0.85rem; }
-
-        /* 実績リスト */
-        .medal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
-        .medal-item { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 1rem; text-align: center; opacity: 0.3; filter: grayscale(1); transition: 0.3s; }
-        .medal-item.unlocked { opacity: 1; filter: grayscale(0); border-color: #F0E442; box-shadow: 0 0 15px rgba(240,228,66,0.1); }
-        .medal-icon { font-size: 2rem; margin-bottom: 0.5rem; }
-        .medal-name { font-size: 0.75rem; color: #ccc; }
-
-        /* 設定・協力カード共通 */
-        .tech-card { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; }
-        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 1.5rem; border-bottom: 1px solid #222; }
+        .section-title { font-size: 1.1rem; color: var(--text-sub); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem; letter-spacing: 0.1em; }
+                /* 設定・協力カード共通 */
+        .tech-card { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; box-shadow: var(--card-shadow); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border-color); }
         .setting-item:last-child { border-bottom: none; }
-        .setting-info h4 { margin: 0; font-size: 1rem; color: #fff; }
-        .setting-info p { margin: 5px 0 0 0; font-size: 0.8rem; color: #888; line-height: 1.4; }
-
+        .setting-info h4 { margin: 0; font-size: 1rem; color: var(--text-main); }
+        .setting-info p { margin: 5px 0 0 0; font-size: 0.8rem; color: var(--text-sub); line-height: 1.4; }
         /* トースト通知 */
-        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #00E676; color: #000; padding: 10px 20px; border-radius: 4px; font-weight: bold; font-size: 0.9rem; z-index: 10000; display: none; }
-
+        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #00E676; color: #000; padding: 10px 20px; border-radius: 4px; font-weight: bold; font-size: 0.9rem; z-index: 10000; display: none; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+        /* 獲得実績（バッジシステム） */
+        .badge-progress-wrapper {
+            background: var(--surface-hover);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            height: 10px;
+            overflow: hidden;
+            width: 100%;
+        }
+        .badge-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cud-blue), var(--cud-green));
+            transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .master-banner {
+            background: linear-gradient(135deg, rgba(230, 159, 0, 0.15) 0%, rgba(255, 123, 0, 0.08) 100%);
+            border: 2px solid #E69F00;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 4px 20px rgba(230, 159, 0, 0.25);
+            animation: masterPulse 3s infinite ease-in-out;
+        }
+        @keyframes masterPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(230, 159, 0, 0.25); }
+            50% { box-shadow: 0 4px 30px rgba(230, 159, 0, 0.45); }
+        }
+        .master-banner-icon { font-size: 3.2rem; line-height: 1; filter: drop-shadow(0 0 10px rgba(230, 159, 0, 0.6)); flex-shrink: 0; }
+        .master-banner-badge { font-size: 0.75rem; font-weight: bold; color: #E69F00; letter-spacing: 0.15em; font-family: var(--font-mono); }
+        .master-banner-title { margin: 2px 0 6px 0; font-size: 1.35rem; color: var(--text-main); font-weight: bold; }
+        .master-banner-desc { margin: 0; font-size: 0.88rem; color: var(--text-sub); line-height: 1.5; }
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+        .badge-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.4rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        /* 獲得済みバッジ */
+        .badge-card.unlocked {
+            border-color: var(--cud-green);
+            background: var(--surface-color);
+        }
+        .badge-card.unlocked:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 230, 118, 0.2);
+        }
+        .badge-card.unlocked .badge-icon {
+            font-size: 2.8rem;
+            margin-bottom: 0.6rem;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+            transition: transform 0.3s ease;
+        }
+        .badge-card.unlocked:hover .badge-icon {
+            transform: scale(1.1);
+        }
+        .badge-card.unlocked .badge-name {
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+        .badge-card.unlocked .badge-category {
+            font-size: 0.72rem;
+            color: var(--cud-green);
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .badge-card.unlocked .badge-desc {
+            font-size: 0.82rem;
+            color: var(--text-sub);
+            line-height: 1.45;
+            margin-bottom: 12px;
+        }
+        .badge-card.unlocked .badge-status-tag {
+            font-size: 0.75rem;
+            font-weight: bold;
+            background: rgba(0, 230, 118, 0.12);
+            color: var(--cud-green);
+            border: 1px solid var(--cud-green);
+            padding: 3px 12px;
+            border-radius: 12px;
+            margin-top: auto;
+        }
+        /* 未獲得バッジ */
+        .badge-card.locked {
+            border: 1px dashed var(--border-color);
+            background: var(--surface-color);
+            opacity: 0.75;
+        }
+        .badge-card.locked .badge-icon {
+            font-size: 2.8rem;
+            margin-bottom: 0.6rem;
+            filter: grayscale(100%);
+            opacity: 0.25;
+        }
+        .badge-card.locked .badge-name {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--text-sub);
+            margin-bottom: 4px;
+        }
+        .badge-card.locked .badge-category {
+            font-size: 0.72rem;
+            color: var(--text-sub);
+            margin-bottom: 8px;
+        }
+        .badge-card.locked .badge-desc {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+        .badge-card.locked .badge-status-tag {
+            font-size: 0.75rem;
+            font-weight: normal;
+            background: var(--surface-hover);
+            color: var(--text-sub);
+            border: 1px solid var(--border-color);
+            padding: 3px 12px;
+            border-radius: 12px;
+            margin-top: auto;
+        }
         /* レスポンシブ対応 */
         @media (max-width: 768px) {
             .live-header {
@@ -71,32 +188,107 @@
                 padding: 1rem;
                 gap: 1.5rem;
             }
+            .user-card {
+                padding: 1.2rem;
+                gap: 1.2rem;
+            }
+            .master-banner {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.8rem;
+                padding: 1.2rem;
+            }
+            .badge-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
+    <script>
+        // テーマ初期適用（チラつき防止）
+        (function() {
+            var savedTheme = localStorage.getItem('v2_portal_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', savedTheme);
+            }
+        })();
+        window.setTheme = function(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', theme);
+            }
+            try {
+                localStorage.setItem('v2_portal_theme', theme);
+            } catch (e) {
+                console.error("Storage error:", e);
+            }
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+                toggleBtn.title = theme === 'dark' ? 'ライトテーマに切り替え' : 'ダークテーマに切り替え';
+            }
+            // テーマ変更イベントを通知
+            document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+        };
+        window.toggleTheme = function() {
+            var current = document.documentElement.getAttribute('data-theme') || 'dark';
+            window.setTheme(current === 'dark' ? 'light' : 'dark');
+        };
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('v2_portal_theme') || 'dark';
+            window.setTheme(currentTheme);
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.toggleTheme();
+                });
+            }
+        });
+    </script>
 </head>
 <body>
-
     <header class="live-header">
         <div>
-            <span class="tag" style="background: #FFF; color: #000; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; border: none; font-weight: bold;">USER PROFILE</span>
+            <span class="tag" style="background: var(--surface-hover); color: var(--text-main); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-bottom: 4px; display: inline-block;">USER PROFILE</span>
             <h1>学習記録 / 設定</h1>
         </div>
         <div class="header-actions">
+            <!-- テーマ切り替え（単一トグルボタン） -->
+            <button id="btn-theme-toggle" class="btn-theme-toggle" title="テーマ切り替え" aria-label="テーマ切り替え">🌙</button>
             <a href="index.html" class="btn-back" data-log="マイページ：戻るボタンをクリック">✕ ダッシュボードに戻る</a>
         </div>
     </header>
-
     <main class="mypage-container">
-        
-        <section class="tut-target" data-step="1" data-title="🏅 獲得した実績" data-desc="シミュレーターのプレイやクイズ結果に応じて、獲得したメダルがここにアンロックされて表示されます。">
-            <h2 class="section-title">獲得した実績 (Achievements)</h2>
-            <div id="my-badge-list"></div>
+        <!-- 獲得実績（バッジ）セクション -->
+        <section>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+                <h2 class="section-title" style="margin: 0; border: none; padding: 0;">獲得実績 (Achievements)</h2>
+                <div id="badge-summary-text" style="font-family: var(--font-mono); font-size: 0.95rem; color: var(--cud-green); font-weight: bold;">
+                    獲得状況: 0 / 9
+                </div>
+            </div>
+            <!-- マスター達成バナー（全バッジ獲得時のみ表示） -->
+            <div id="master-badge-banner" class="master-banner" style="display: none;">
+                <div class="master-banner-icon">👑</div>
+                <div class="master-banner-content">
+                    <div class="master-banner-badge">SPECIAL MASTER ACHIEVEMENT</div>
+                    <h3 class="master-banner-title">総合防災マスター (Quake Archive Master)</h3>
+                    <p class="master-banner-desc">全ての防災訓練・アーカイブを探求し、真の防災力を身につけた達人として認定されました。</p>
+                </div>
+            </div>
+            <!-- 進捗バー -->
+            <div class="badge-progress-wrapper" style="margin-bottom: 1.5rem;">
+                <div id="badge-progress-fill" class="badge-progress-fill" style="width: 0%;"></div>
+            </div>
+            <!-- 9つのバッジグリッド -->
+            <div id="badge-grid" class="badge-grid">
+                <!-- JavaScriptで動的生成されます -->
+            </div>
         </section>
-
         <section>
             <h2 class="section-title">システム設定 (Settings)</h2>
             <div class="tech-card">
-                
                 <div class="setting-item">
                     <div class="setting-info">
                         <h4>チュートリアルの再確認</h4>
@@ -104,8 +296,7 @@
                     </div>
                     <button class="btn secondary btn-small" id="btn-replay-tutorial" data-log="マイページ：チュートリアル再生ボタンをクリック">再生する</button>
                 </div>
-
-                <div class="setting-item tut-target" data-step="2" data-title="🐛 バグ報告 / フィードバック" data-desc="システムの不具合や使いにくい点などを、専用のGoogleフォームから報告することができます。">
+                <div class="setting-item tut-target" data-step="1" data-title="🐛 バグ報告 / フィードバック" data-desc="システムの不具合や使いにくい点などを、専用のGoogleフォームから報告することができます。">
                     <div class="setting-info">
                         <h4>バグ報告 / フィードバック</h4>
                         <p>システムの不具合や、操作しづらい点などがあれば、こちらからご報告をお願いします。</p>
@@ -118,22 +309,27 @@
                        報告フォームを開く
                     </a>
                 </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>行動ログのダウンロード (.csv)</h4>
+                        <p id="log-download-desc">実験での操作ログをCSV形式で保存します（※10分間の学習完了後に利用可能になります）。</p>
+                    </div>
+                    <button class="btn secondary btn-small" id="btn-download-log-mypage" disabled data-log="マイページ：行動ログダウンロードボタンをクリック">
+                        CSVを保存
+                    </button>
+                </div>
 
-                <div class="setting-item tut-target" data-step="3" data-title="⚠️ 学習データの初期化" data-desc="獲得した実績（メダル）や学習履歴をリセットして、最初からやり直すことができます。">
+                <div class="setting-item tut-target" data-step="2" data-title="⚠️ 学習データの初期化" data-desc="学習履歴をリセットして、最初からやり直すことができます。">
                     <div class="setting-info">
                         <h4 style="color: #D55E00;">学習データの初期化</h4>
-                        <p>獲得した実績やクイズの履歴をすべて消去します。（※ユーザーIDは保持されます）</p>
+                        <p>学習履歴をすべて消去します。（※ユーザーIDは保持されます）</p>
                     </div>
                     <button class="btn secondary btn-small" style="color: #D55E00; border-color: rgba(213,94,0,0.5);" id="btn-reset-data" data-log="マイページ：データ初期化ボタンをクリック">データを消去</button>
                 </div>
-                
             </div>
         </section>
-
     </main>
-
     <div id="toast"></div>
-
     <div id="tut-overlay" class="tut-overlay"></div>
     <div id="tut-tooltip" class="tut-tooltip">
         <div class="tut-header">
@@ -147,9 +343,7 @@
             <button id="tut-next" class="btn-mypage" style="background: #00E676; color: #000; border: none;" data-log="マイページ：チュートリアル次へボタンをクリック">NEXT ▶</button>
         </div>
     </div>
-
-    <script src="./js/logger.js"></script>
-    <script src="./js/utils.js"></script>
-    <script src="./js/mypage.js"></script>
+    <script src="./js/utils.js?v=20261026_sec_v2"></script>
+    <script src="./js/mypage.js?v=20261026_sec_v2"></script>
 </body>
 </html>

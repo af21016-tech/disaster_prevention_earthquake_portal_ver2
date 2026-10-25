@@ -2,37 +2,147 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp; object-src 'none'; base-uri 'self';">
     <title>3.11 記憶の追体験 | Quake Interactive Archive</title>
     <link href="https://fonts.googleapis.com/css2?family=Biz+UDPGOthic:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/style.css?v=20261026_fix_3d_hazard">
     
     <style>
-        body { background-color: #000; color: #fff; overflow: hidden; }
-        .game-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; }
-        .bg-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; transition: background-image 1s ease-in-out; }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2; }
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            overflow: hidden; 
+            margin: 0; 
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .game-container { 
+            position: relative; 
+            width: 100vw; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-end; 
+            background-color: var(--bg-color);
+            transition: background-color 0.5s ease;
+        }
+        .bg-layer { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-size: cover; 
+            background-position: center; 
+            z-index: 1; 
+            transition: background-image 1s ease-in-out; 
+        }
+        .overlay { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.4); 
+            z-index: 2; 
+        }
+        :root[data-theme="light"] .overlay,
+        html[data-theme="light"] .overlay,
+        body[data-theme="light"] .overlay {
+            background: rgba(255,255,255,0.2);
+        }
         
-        .message-box { position: relative; z-index: 10; background: rgba(15, 15, 15, 0.9); border: 1px solid #333; border-radius: 8px; margin: 0 2rem 2rem 2rem; padding: 2rem; min-height: 150px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
-        .speaker-name { font-weight: bold; color: var(--cud-blue); margin-bottom: 10px; font-size: 1.1rem; letter-spacing: 0.1em; }
-        .message-text { font-size: 1.1rem; line-height: 1.8; letter-spacing: 0.05em; }
+        .message-box { 
+            position: relative; 
+            z-index: 10; 
+            background: var(--header-bg); 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            margin: 0 2rem 2rem 2rem; 
+            padding: 2rem; 
+            min-height: 150px; 
+            box-shadow: var(--card-shadow); 
+            backdrop-filter: blur(10px); 
+            color: var(--text-main);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .speaker-name { 
+            font-weight: bold; 
+            color: var(--cud-blue); 
+            margin-bottom: 10px; 
+            font-size: 1.1rem; 
+            letter-spacing: 0.1em; 
+        }
+        .message-text { 
+            font-size: 1.15rem; 
+            line-height: 1.9; 
+            letter-spacing: 0.05em; 
+            color: var(--text-main);
+        }
         
-        .choice-container { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); z-index: 20; display: flex; flex-direction: column; gap: 15px; width: 80%; max-width: 600px; display: none; }
-        .choice-btn { background: rgba(15, 15, 15, 0.95); border: 1px solid var(--cud-orange); color: var(--cud-orange); padding: 15px 20px; font-size: 1.1rem; border-radius: 8px; cursor: pointer; transition: 0.3s; text-align: left; }
-        .choice-btn:hover { background: var(--cud-orange); color: #000; }
+        .choice-container { 
+            position: absolute; 
+            top: 40%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            z-index: 20; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            width: 85%; 
+            max-width: 680px; 
+            display: none; 
+        }
+        .choice-btn { 
+            background: var(--surface-color); 
+            border: 1px solid var(--cud-orange); 
+            color: var(--cud-orange); 
+            padding: 16px 22px; 
+            font-size: 1.1rem; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            text-align: left; 
+            line-height: 1.5; 
+            box-shadow: var(--card-shadow); 
+            font-family: var(--font-sans);
+            font-weight: 500;
+        }
+        .choice-btn:hover { 
+            background: var(--cud-orange); 
+            color: #fff; 
+            box-shadow: 0 4px 15px rgba(230, 81, 0, 0.3);
+        }
         
-        #start-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; background: #050505; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        #start-screen { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 100; 
+            background: var(--bg-color); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center; 
+            padding: 95px 2rem 2rem; 
+            box-sizing: border-box;
+            overflow-y: auto;
+            transition: background-color 0.3s ease;
+        }
 
         /* 同意ボタン用スタイル */
         .menu-btn {
-            background: rgba(15, 15, 15, 0.95);
+            background: var(--surface-color);
             border: 1px solid var(--cud-orange);
             color: var(--cud-orange);
             padding: 15px 30px;
             font-size: 1.1rem;
             border-radius: 8px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.2s ease;
             text-align: center;
             display: inline-flex;
             align-items: center;
@@ -42,43 +152,157 @@
             letter-spacing: 0.05em;
             box-sizing: border-box;
             min-width: 220px;
+            font-family: var(--font-sans);
+            box-shadow: var(--card-shadow);
         }
         .menu-btn:hover:not(:disabled) {
             background: var(--cud-orange);
-            color: #000;
+            color: #fff;
         }
         .menu-btn:disabled {
-            border-color: #555;
-            color: #666;
+            border-color: var(--border-color);
+            color: var(--text-sub);
             cursor: not-allowed;
-            background: #111;
+            background: var(--surface-hover);
             opacity: 0.6;
+            box-shadow: none;
+        }
+
+        /* 結果画面（スクロール可能モーダル） */
+        .result-container {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 120;
+            background: var(--bg-color);
+            overflow-y: auto;
+            padding: 5rem 1.5rem 3rem;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease;
+        }
+        .result-content {
+            max-width: 760px;
+            margin: 0 auto;
+            text-align: left;
+            color: var(--text-main);
+        }
+        .result-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .result-card h3 {
+            margin-top: 0;
+            color: var(--cud-blue);
+            font-size: 1.15rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
+        }
+        .user-choice-badge {
+            display: inline-block;
+            background: rgba(230, 81, 0, 0.1);
+            border: 1px solid var(--cud-orange);
+            color: var(--cud-orange);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 0.8rem;
+        }
+        .history-fact {
+            background: var(--surface-hover);
+            border-left: 3px solid var(--cud-blue);
+            padding: 12px 16px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-main);
         }
     </style>
+    <script>
+        // テーマ初期適用（チラつき防止）
+        (function() {
+            var savedTheme = localStorage.getItem('v2_portal_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', savedTheme);
+            }
+        })();
+
+        window.setTheme = function(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', theme);
+            }
+            try {
+                localStorage.setItem('v2_portal_theme', theme);
+            } catch (e) {
+                console.error("Storage error:", e);
+            }
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+                toggleBtn.title = theme === 'dark' ? 'ライトテーマに切り替え' : 'ダークテーマに切り替え';
+            }
+            // テーマ変更イベントを通知
+            document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+        };
+
+        window.toggleTheme = function() {
+            var current = document.documentElement.getAttribute('data-theme') || 'dark';
+            window.setTheme(current === 'dark' ? 'light' : 'dark');
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('v2_portal_theme') || 'dark';
+            window.setTheme(currentTheme);
+
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.toggleTheme();
+                });
+            }
+        });
+    </script>
 </head>
 <body>
 
-    <header style="background: transparent; border: none; z-index: 50;">
-        <div class="logo-area"></div>
+    <header style="z-index: 150;">
+        <div class="logo-area">
+            <span class="tag" style="background: var(--cud-green); color: #000; font-weight: bold; margin-bottom: 4px; display: inline-block;">Story Archive</span>
+            <h1 style="font-size: 1rem; margin: 0; letter-spacing: 0.1em; color: var(--text-main);">3.11 記憶の追体験</h1>
+        </div>
         <div class="header-actions">
-            <a href="index.html" class="btn-back" data-log="ノベルゲーム：戻るボタンをクリック">✕ 戻る</a>
+            <!-- テーマ切り替え（単一トグルボタン） -->
+            <button id="btn-theme-toggle" class="btn-theme-toggle" title="テーマ切り替え" aria-label="テーマ切り替え">🌙</button>
+            <a href="index.html" class="btn-back" data-log="ノベルゲーム：戻るボタンをクリック">✕ 中断して戻る</a>
         </div>
     </header>
 
-    <div id="start-screen" style="display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; box-sizing: border-box;">
-        <div style="max-width: 650px; width: 100%; display: flex; flex-direction: column; align-items: center;">
-            <h1 style="font-size: 2.5rem; letter-spacing: 0.2em; margin-bottom: 1.5rem; color: #fff; text-align: center;">3.11<br>記憶の追体験</h1>
-            <p style="color: #aaa; margin-bottom: 1.5rem; line-height: 1.8; text-align: center;">あの時、あなたならどう動いたか。<br>生存本能と愛他性が交錯する、インタラクティブ・ノベル。</p>
+    <div id="start-screen">
+        <div style="max-width: 700px; width: 100%; display: flex; flex-direction: column; align-items: center; margin: auto 0;">
+            <h1 style="font-size: 2.2rem; letter-spacing: 0.12em; margin-bottom: 1.2rem; color: var(--text-main); text-align: center; white-space: nowrap;">3.11 記憶の追体験</h1>
+            <p style="color: var(--text-sub); margin-bottom: 1.5rem; line-height: 1.8; text-align: center;">あの時、あなたならどう動いたか。<br>生存本能と思いやりの葛藤をたどる、インタラクティブ・アーカイブ。</p>
             
             <!-- プレイ前の注意事項 -->
-            <div style="background: rgba(255, 123, 0, 0.08); border-left: 4px solid var(--cud-orange); padding: 1.25rem; border-radius: 6px; text-align: left; margin-bottom: 1.5rem; font-size: 0.85rem; line-height: 1.6; color: #EAEAEA; width: 100%; box-sizing: border-box;">
+            <div style="background: rgba(255, 123, 0, 0.08); border-left: 4px solid var(--cud-orange); padding: 1.25rem; border-radius: 6px; text-align: left; margin-bottom: 1.5rem; font-size: 0.85rem; line-height: 1.6; color: var(--text-main); width: 100%; box-sizing: border-box; border: 1px solid var(--border-color); border-left-width: 4px;">
                 <strong style="color: var(--cud-orange); font-size: 0.95rem; display: block; margin-bottom: 6px;">⚠️ プレイ前の注意事項（心理的影響について）</strong>
-                本コンテンツには、東日本大震災における津波被害や、避難行動時の緊迫した描写・精神的選択肢が含まれています。<br>
-                これらにより、過去の記憶が呼び起こされ精神的なストレス（フラッシュバックやPTSDなど）を覚えるおそれがある方は、プレイをお控えいただくか、十分にご注意ください。プレイ中に体調に異変や不安を感じた場合は、速やかにプレイを中止し、画面右上の「戻る」ボタンより退出してください。
+                本コンテンツには、東日本大震災における津波警報や避難行動時の緊迫した意思決定描写が含まれています。<br>
+                これらにより精神的なストレス（不安やフラッシュバックなど）を覚えるおそれがある方は、プレイをお控えいただくか十分ご注意ください。プレイ中に体調の異変や不安を感じた場合は、速やかに画面右上の「✕ 中断して戻る」ボタンより退出してください。
             </div>
 
             <!-- 同意チェックボックス (Active Consent) -->
-            <div style="margin-bottom: 2rem; display: flex; align-items: center; justify-content: flex-start; width: 100%; gap: 10px; font-size: 0.95rem; color: #EAEAEA; box-sizing: border-box;">
+            <div style="margin-bottom: 2rem; display: flex; align-items: center; justify-content: flex-start; width: 100%; gap: 10px; font-size: 0.95rem; color: var(--text-main); box-sizing: border-box;">
                 <input type="checkbox" id="consent-checkbox" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--cud-orange);" data-log="ノベルゲーム：同意チェックボックスをクリック">
                 <label for="consent-checkbox" style="cursor: pointer; user-select: none;">私は上記の注意事項を確認し、同意した上でプレイします。</label>
             </div>
@@ -87,16 +311,22 @@
                 <a href="index.html" class="menu-btn" data-log="ノベルゲーム：プレイを中止して戻るボタンをクリック">プレイを中止して戻る</a>
                 <button class="menu-btn" id="btn-start" disabled data-log="ノベルゲーム：物語を開始するボタンをクリック">物語を開始する</button>
             </div>
+
+            <!-- PTSD配慮：描写をスキップして教訓ダイジェストを確認するボタン -->
+            <div style="margin-top: 16px; text-align: center; width: 100%;">
+                <button type="button" id="btn-skip-lesson" class="btn secondary" style="font-size: 0.88rem; padding: 8px 16px; border-color: var(--border-color); color: var(--text-sub); border-radius: 6px; cursor: pointer;" data-log="ノベルゲーム：教訓ダイジェスト（描写スキップ）をクリック">
+                    🕊️ 緊迫した描写をスキップして教訓のみ確認する（PTSD配慮）
+                </button>
+            </div>
         </div>
     </div>
 
     <div class="game-container" id="game-ui" style="display: none;">
-        <div class="bg-layer" id="bg-image" style="background-color: #222;"></div>
+        <div class="bg-layer" id="bg-image"></div>
         <div class="overlay"></div>
         
         <div class="choice-container" id="choices">
-            <button class="btn secondary choice-btn" id="choice-1" data-log="ノベルゲーム：選択肢1をクリック">選択肢1</button>
-            <button class="btn secondary choice-btn" id="choice-2" data-log="ノベルゲーム：選択肢2をクリック">選択肢2</button>
+            <!-- 選択肢ボタンが動的生成されます -->
         </div>
 
         <div class="message-box" id="msg-box">
@@ -106,16 +336,50 @@
                 <button class="btn primary" id="btn-next" data-log="ノベルゲーム：次へボタンをクリック">次へ</button>
             </div>
         </div>
-        
-        <div id="result-box" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; text-align: center;">
-            <h2 style="color: #00E676; font-size: 2rem; margin-bottom: 1rem;">SCENARIO CLEARED</h2>
-            <p id="ending-text" style="color: #fff; margin-bottom: 2rem; line-height: 1.8;"></p>
-            <a href="index.html" class="btn secondary" data-log="ノベルゲーム：ダッシュボードへ戻るリンクをクリック">ダッシュボードへ戻る</a>
+    </div>
+
+    <!-- 結果画面（史実検証リフレクション ＆ 家族へのメッセージ） -->
+    <div class="result-container" id="result-box">
+        <div class="result-content">
+            <h2 style="color: var(--cud-green); font-size: 2rem; margin-bottom: 0.5rem; text-align: center;">SCENARIO COMPLETED</h2>
+            <p style="color: var(--text-sub); text-align: center; margin-bottom: 2.5rem; font-family: var(--font-mono);">3.11 選択の記録と史実の検証</p>
+
+            <div id="reflection-list">
+                <!-- 選択肢ごとの史実検証カードが動的生成されます -->
+            </div>
+
+            <!-- 心理的デブリーフィング（心の着陸） -->
+            <div class="result-card">
+                <h3 style="color: var(--cud-green);">【追体験を終えたあなたへ】</h3>
+                <p style="font-size: 0.95rem; line-height: 1.8; color: var(--text-main); margin: 0;">
+                    物語の中で選んだ決断に、胸が締め付けられたり、迷ったりした瞬間があったかもしれません。<br>
+                    その心の痛みは、あなたが「命の重み」を真剣に受け止めた証拠です。<br>
+                    災害現場において、机の上の完璧な正解など存在しません。恐怖に竦むことも、誰かを助けたいと願うことも、すべて人間として自然で尊い感情です。自分を責める必要は一切ありません。
+                </p>
+            </div>
+
+            <!-- 現実への持ち帰りアクション（家族へのメッセージ） -->
+            <div class="result-card" style="border: 2px solid var(--cud-orange); background: rgba(255, 123, 0, 0.06);">
+                <h3 style="color: var(--cud-orange); font-size: 1.25rem;">📱 今日の終わりに、大切な人へメッセージを届けてください</h3>
+                <p style="font-size: 1rem; line-height: 1.8; color: var(--text-main); margin-bottom: 1.2rem;">
+                    東日本大震災の記録が教えてくれた最大の教訓——それは、<strong>「平時の約束」がなければ、人は海へ向かって走ってしまう</strong>ということです。<br>
+                    この画面を閉じたら、大切な家族やパートナーに、一通だけLINEやメールを送ってみてください。
+                </p>
+                <div style="background: var(--surface-color); border: 1px dashed var(--cud-orange); padding: 14px 18px; border-radius: 6px; font-weight: bold; color: var(--cud-orange); font-size: 1.1rem; text-align: center; margin-bottom: 1.2rem; box-shadow: var(--card-shadow);">
+                    「もし大地震が来たら、お互い絶対に探しに戻らず、高台の〇〇で会おうね」
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-sub); margin: 0; line-height: 1.6;">
+                    その一行の約束こそが、未来のあなたと、あなたの大切な人の命を救う最強の防災です。
+                </p>
+            </div>
+
+            <div style="text-align: center; margin-top: 2.5rem; margin-bottom: 2rem;">
+                <a href="index.html" class="btn secondary" style="padding: 14px 32px; font-size: 1.05rem;" data-log="ノベルゲーム：ダッシュボードへ戻るリンクをクリック">ダッシュボードへ戻る</a>
+            </div>
         </div>
     </div>
 
-    <script src="./js/logger.js?v=20260614_2"></script>
-    <script src="./js/utils.js?v=20260614_2"></script>
-    <script src="./js/novel_game.js?v=20260614_2"></script>
+    <script src="./js/utils.js?v=20261026_sec_v2"></script>
+    <script src="./js/novel_game.js?v=20261016_badge"></script>
 </body>
 </html>

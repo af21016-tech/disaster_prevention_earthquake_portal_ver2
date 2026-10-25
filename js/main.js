@@ -77,14 +77,58 @@ function initializeRecentQuakeMap(containerId) {
     };
     fullscreenControl.addTo(map);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        // ★修正：「 | 出典：USGS (アメリカ地質調査所)」を追加（リンク付き）
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | 出典：<a href="https://earthquake.usgs.gov/" target="_blank" rel="noopener noreferrer">USGS (アメリカ地質調査所)</a>',
-        subdomains: 'abcd',
-        maxZoom: 10,
-        bounds: worldBounds,         
-        noWrap: true                 
-    }).addTo(map);
+    // --- テーマ連動ベースマップレイヤー管理 (Esri Canvas) ---
+    const darkBaseLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '&copy; <a href="https://www.esri.com/" target="_blank" rel="noopener noreferrer">Esri</a> | 出典：<a href="https://earthquake.usgs.gov/" target="_blank" rel="noopener noreferrer">USGS (アメリカ地質調査所)</a>',
+        maxZoom: 16,
+        bounds: worldBounds,
+        noWrap: true
+    });
+
+    const darkRefLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 16,
+        bounds: worldBounds,
+        noWrap: true,
+        opacity: 0.85
+    });
+
+    const lightBaseLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '&copy; <a href="https://www.esri.com/" target="_blank" rel="noopener noreferrer">Esri</a> | 出典：<a href="https://earthquake.usgs.gov/" target="_blank" rel="noopener noreferrer">USGS (アメリカ地質調査所)</a>',
+        maxZoom: 16,
+        bounds: worldBounds,
+        noWrap: true
+    });
+
+    const lightRefLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 16,
+        bounds: worldBounds,
+        noWrap: true,
+        opacity: 0.85
+    });
+
+    // レイヤー切り替え関数
+    function applyMapTheme(theme) {
+        if (theme === 'light') {
+            if (map.hasLayer(darkBaseLayer)) map.removeLayer(darkBaseLayer);
+            if (map.hasLayer(darkRefLayer)) map.removeLayer(darkRefLayer);
+            if (!map.hasLayer(lightBaseLayer)) lightBaseLayer.addTo(map);
+            if (!map.hasLayer(lightRefLayer)) lightRefLayer.addTo(map);
+        } else {
+            if (map.hasLayer(lightBaseLayer)) map.removeLayer(lightBaseLayer);
+            if (map.hasLayer(lightRefLayer)) map.removeLayer(lightRefLayer);
+            if (!map.hasLayer(darkBaseLayer)) darkBaseLayer.addTo(map);
+            if (!map.hasLayer(darkRefLayer)) darkRefLayer.addTo(map);
+        }
+    }
+
+    // 初期テーマの適用
+    const initialTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('v2_portal_theme') || 'dark';
+    applyMapTheme(initialTheme);
+
+    // テーマ切り替えイベントをリッスンして即時切り替え
+    document.addEventListener('themechange', (e) => {
+        applyMapTheme(e.detail && e.detail.theme ? e.detail.theme : 'dark');
+    });
 
     const usgsUrl = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson';
 
@@ -107,7 +151,7 @@ function initializeRecentQuakeMap(containerId) {
                 onEachFeature: function (feature, layer) {
                     if (feature.properties && feature.properties.place) {
                         const time = new Date(feature.properties.time).toLocaleString('ja-JP');
-                        const placeEscaped = feature.properties.place.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+                        const placeEscaped = typeof escapeHTML === 'function' ? escapeHTML(feature.properties.place) : feature.properties.place.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
                         layer.bindPopup(`
                             <strong style="font-family: var(--font-sans); font-size: 1.1rem; color: #333;">M ${feature.properties.mag.toFixed(1)}</strong><br>
                             <span style="font-size:0.8rem; color: #666;">深さ: ${feature.geometry.coordinates[2].toFixed(1)} km</span><br>
@@ -118,18 +162,16 @@ function initializeRecentQuakeMap(containerId) {
                 }
             }).addTo(map);
 
-            // ★ 修正点：isFullScreen（全画面のみ）の条件を外し、常に凡例を表示するように変更
+            // ★ 修正点：テーマ連動凡例パネル（.quake-legendクラスを適用）
             const legend = L.control({ position: 'bottomright' });
             legend.onAdd = function () {
-                const div = L.DomUtil.create('div', 'info legend');
+                const div = L.DomUtil.create('div', 'quake-legend');
                 div.innerHTML = `
-                    <div style="margin-bottom: 12px; background: rgba(20,20,20,0.9); color: #fff; padding: 10px; border-radius: 6px; border: 1px solid #444;">
-                        <h4 style="margin: 0 0 8px 0; font-size: 0.9rem; border-bottom: 1px solid #555; padding-bottom: 4px;">震源の深さ</h4>
-                        <div style="display:flex; align-items:center; gap:8px; font-size:0.8rem; margin-bottom:4px;"><span style="width:12px; height:12px; border-radius:50%; background:#D55E00;"></span> 0 - 33 km (浅い)</div>
-                        <div style="display:flex; align-items:center; gap:8px; font-size:0.8rem; margin-bottom:4px;"><span style="width:12px; height:12px; border-radius:50%; background:#E69F00;"></span> 33 - 70 km</div>
-                        <div style="display:flex; align-items:center; gap:8px; font-size:0.8rem; margin-bottom:4px;"><span style="width:12px; height:12px; border-radius:50%; background:#56B4E9;"></span> 70 - 150 km</div>
-                        <div style="display:flex; align-items:center; gap:8px; font-size:0.8rem;"><span style="width:12px; height:12px; border-radius:50%; background:#0072B2;"></span> 150 km以上 (深い)</div>
-                    </div>
+                    <h4>震源の深さ</h4>
+                    <div class="legend-row"><span class="legend-dot" style="background:#D55E00;"></span> 0 - 33 km (浅い)</div>
+                    <div class="legend-row"><span class="legend-dot" style="background:#E69F00;"></span> 33 - 70 km</div>
+                    <div class="legend-row"><span class="legend-dot" style="background:#56B4E9;"></span> 70 - 150 km</div>
+                    <div class="legend-row"><span class="legend-dot" style="background:#0072B2;"></span> 150 km以上 (深い)</div>
                 `;
                 return div;
             };
@@ -152,7 +194,6 @@ function initializeArchive3DMap(containerId) {
     const slicerUI = document.getElementById('time-slicer-ui'); 
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color('#050505'); 
 
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 1000);
     camera.position.set(0, 80, 140); 
@@ -172,8 +213,49 @@ function initializeArchive3DMap(containerId) {
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.5;
 
-    const gridHelper = new THREE.GridHelper(150, 30, 0x333333, 0x111111);
-    scene.add(gridHelper);
+    let gridHelper = null;
+    let coastlineLines = null;
+    let lineMaterial = null;
+    let prefLines = null;
+    let prefLineMaterial = null;
+
+    // 3Dシーンのテーマ適用関数
+    function apply3DSceneTheme(theme) {
+        const isLight = theme === 'light';
+        // 1. 背景色（ダーク: #050505 / ライト: #F5F6F8）
+        scene.background = new THREE.Color(isLight ? '#F5F6F8' : '#050505');
+
+        // 2. グリッドの再生成（ダーク: 0x333333, 0x111111 / ライト: 0xC8CDD4, 0xDFE3E8）
+        if (gridHelper) scene.remove(gridHelper);
+        gridHelper = new THREE.GridHelper(
+            150, 
+            30, 
+            isLight ? 0x9AA2AF : 0x333333, 
+            isLight ? 0xD0D5DD : 0x111111
+        );
+        scene.add(gridHelper);
+
+        // 3. 日本列島海岸線マテリアル（ダーク: 0xE8F4F8 / ライト: 0x111418）
+        if (lineMaterial) {
+            lineMaterial.color.setHex(isLight ? 0x111418 : 0xE8F4F8);
+            lineMaterial.opacity = isLight ? 0.95 : 0.9;
+        }
+
+        // 4. 都道府県境マテリアル（ダーク: CUD鮮明シアン 0x00E5FF / ライト: CUD深緑 0x008744）
+        if (prefLineMaterial) {
+            prefLineMaterial.color.setHex(isLight ? 0x008744 : 0x00E5FF);
+            prefLineMaterial.opacity = isLight ? 0.75 : 0.85;
+        }
+    }
+
+    // 初期テーマの適用
+    const currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('v2_portal_theme') || 'dark';
+    apply3DSceneTheme(currentTheme);
+
+    // テーマ切り替えイベントの受信
+    document.addEventListener('themechange', (e) => {
+        apply3DSceneTheme(e.detail && e.detail.theme ? e.detail.theme : 'dark');
+    });
 
     let rawEarthquakeData = [];
     let particlesMesh = null;
@@ -182,9 +264,10 @@ function initializeArchive3DMap(containerId) {
 
     Promise.all([
         fetch('./assets/japan_eq_archive.geojson').then(res => res.json()),
-        fetch('https://raw.githubusercontent.com/dataofjapan/land/master/japan.geojson').then(res => res.json())
+        fetch('./assets/japan_coastline.geojson').then(res => { if (!res.ok) throw new Error('Failed to load japan_coastline.geojson'); return res.json(); }),
+        fetch('./assets/prefectures_light.geojson').then(res => { if (!res.ok) throw new Error('Failed to load prefectures_light.geojson'); return res.json(); })
     ])
-    .then(([eqData, coastlineData]) => {
+    .then(([eqData, coastlineData, prefData]) => {
         if (placeholder) placeholder.style.display = 'none';
 
         rawEarthquakeData = eqData.features.sort((a, b) => a.properties.time - b.properties.time);
@@ -211,10 +294,84 @@ function initializeArchive3DMap(containerId) {
         });
 
         if (lineVertices.length > 0) {
+            // 視認性向上のため、中心線＋微小オフセット重層線（疑似太線化）＋鮮明なシアン/白のネオン発光マテリアル
+            const boldVertices = [];
+            const offset = 0.08; // X, Z 平面でのオフセット幅
+
+            for (let i = 0; i < lineVertices.length; i += 6) {
+                const x1 = lineVertices[i], y1 = lineVertices[i+1], z1 = lineVertices[i+2];
+                const x2 = lineVertices[i+3], y2 = lineVertices[i+4], z2 = lineVertices[i+5];
+
+                // 1. メインの中心線
+                boldVertices.push(x1, y1, z1, x2, y2, z2);
+
+                // 2. 水平・垂直方向のマルチパス線（線幅を肉太にする）
+                boldVertices.push(x1 + offset, y1, z1, x2 + offset, y2, z2);
+                boldVertices.push(x1 - offset, y1, z1, x2 - offset, y2, z2);
+                boldVertices.push(x1, y1, z1 + offset, x2, y2, z2 + offset);
+                boldVertices.push(x1, y1, z1 - offset, x2, y2, z2 - offset);
+
+                // 3. 斜めオフセット（角の隙間を埋める）
+                boldVertices.push(x1 + offset, y1, z1 + offset, x2 + offset, y2, z2 + offset);
+                boldVertices.push(x1 - offset, y1, z1 - offset, x2 - offset, y2, z2 - offset);
+            }
+
             const lineGeometry = new THREE.BufferGeometry();
-            lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(lineVertices, 3));
-            const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.15 });
-            scene.add(new THREE.LineSegments(lineGeometry, lineMaterial));
+            lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(boldVertices, 3));
+            
+            // テーマに応じた初期色（ライト: 漆黒 0x111418 / ダーク: アイシーホワイト 0xE8F4F8）
+            const isInitLight = (document.documentElement.getAttribute('data-theme') || localStorage.getItem('v2_portal_theme')) === 'light';
+            lineMaterial = new THREE.LineBasicMaterial({ 
+                color: isInitLight ? 0x111418 : 0xE8F4F8, 
+                transparent: true, 
+                opacity: isInitLight ? 0.95 : 0.9 
+            });
+            coastlineLines = new THREE.LineSegments(lineGeometry, lineMaterial);
+            scene.add(coastlineLines);
+        }
+
+        // --- 都道府県境の3D描画（Zファイティング防止のため y=0.03 に微小浮上、視認性の高いデュアルパス線） ---
+        if (prefData && prefData.features) {
+            const prefLineVertices = [];
+            prefData.features.forEach(feature => {
+                if (!feature.geometry) return;
+                const type = feature.geometry.type;
+                const coords = feature.geometry.coordinates;
+
+                const processRing = (ring) => {
+                    for (let i = 0; i < ring.length - 1; i++) {
+                        const lon1 = ring[i][0]; const lat1 = ring[i][1];
+                        const lon2 = ring[i+1][0]; const lat2 = ring[i+1][1];
+                        if (lon1 < 120 || lon1 > 155 || lat1 < 20 || lat1 > 50) continue;
+                        const x1 = (lon1 - centerLon) * 6; const z1 = -(lat1 - centerLat) * 7.5;
+                        const x2 = (lon2 - centerLon) * 6; const z2 = -(lat2 - centerLat) * 7.5;
+                        const yElev = 0.03; // 地面グリッドとの干渉を防ぐ微小オフセット
+                        // メイン線
+                        prefLineVertices.push(x1, yElev, z1, x2, yElev, z2);
+                        // 視認性向上の微小デュアルパス
+                        const prefOff = 0.04;
+                        prefLineVertices.push(x1 + prefOff, yElev, z1, x2 + prefOff, yElev, z2);
+                        prefLineVertices.push(x1, yElev, z1 + prefOff, x2, yElev, z2 + prefOff);
+                    }
+                };
+
+                if (type === 'Polygon') coords.forEach(ring => processRing(ring));
+                else if (type === 'MultiPolygon') coords.forEach(polygon => polygon.forEach(ring => processRing(ring)));
+            });
+
+            if (prefLineVertices.length > 0) {
+                const prefGeometry = new THREE.BufferGeometry();
+                prefGeometry.setAttribute('position', new THREE.Float32BufferAttribute(prefLineVertices, 3));
+                
+                const isInitLight = (document.documentElement.getAttribute('data-theme') || localStorage.getItem('v2_portal_theme')) === 'light';
+                prefLineMaterial = new THREE.LineBasicMaterial({
+                    color: isInitLight ? 0x008744 : 0x00E5FF,
+                    transparent: true,
+                    opacity: isInitLight ? 0.75 : 0.85
+                });
+                prefLines = new THREE.LineSegments(prefGeometry, prefLineMaterial);
+                scene.add(prefLines);
+            }
         }
 
         function updateParticles(maxTimestamp) {
@@ -240,8 +397,9 @@ function initializeArchive3DMap(containerId) {
             geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
             geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
+            // 震源プロット（粒子サイズ）を 0.8 から 1.3 に拡大し、より明瞭に視認できるように調整
             const material = new THREE.PointsMaterial({
-                size: 0.8, vertexColors: true, transparent: true, opacity: 0.8, sizeAttenuation: true
+                size: 1.3, vertexColors: true, transparent: true, opacity: 0.85, sizeAttenuation: true
             });
             particlesMesh = new THREE.Points(geometry, material);
             scene.add(particlesMesh);
@@ -323,6 +481,19 @@ function initializeArchive3DMap(containerId) {
                 updateSliderUI(maxTime);
                 labelCurrent.innerText = '全期間';
             });
+
+            // 「はじめの位置に戻る」ボタン
+            const btnResetView = document.getElementById('btn-reset-view');
+            if (btnResetView) {
+                btnResetView.addEventListener('click', () => {
+                    pausePlayback();
+                    // カメラの初期座標 (0, 80, 140) にリセット
+                    camera.position.set(0, 80, 140);
+                    controls.target.set(0, 0, 0);
+                    controls.update();
+                    controls.autoRotate = true; // 自動回転を再開
+                });
+            }
         }
 
         controls.addEventListener('start', () => { controls.autoRotate = false; });
@@ -345,7 +516,7 @@ function initializeArchive3DMap(containerId) {
 }
 
 // ==========================================
-// SFJ Tutorial Spotlight Logic & Onboarding (完全修正版)
+// SFJ Tutorial Spotlight Logic & Onboarding (全6ステップ折衷案: バッジ連携・スマート集約型)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const btnTutorial = document.getElementById('btn-tutorial'); 
@@ -357,18 +528,59 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (!overlay || !tooltip) return;
 
-    const targets = Array.from(document.querySelectorAll('.tut-target'))
-                         .sort((a, b) => parseInt(a.dataset.step) - parseInt(b.dataset.step));
+    // 全6ステップの定義
+    const tutorialSteps = [
+        {
+            type: 'center',
+            title: '🌐 実験へようこそ',
+            desc: `このシステムは、過去の巨大地震データや防災行動についてインタラクティブに学ぶためのシミュレーターです。<br><br>
+まずはシステムの基本的な使い方と、実験の進め方についてご案内します。`
+        },
+        {
+            targetId: 'btn-post-survey',
+            title: '⏱️ 10分間の探索とタイマー',
+            desc: `・画面右上に学習タイマーが表示されています。<br>
+・どの訓練やアーカイブを見ても時間は累積されますが、<strong>30秒間操作がないとタイマーは一時停止</strong>します。<br>
+・直感的に「面白そう」「役に立ちそう」と思うものを中心に、<strong>10分間</strong>自由にサイト内を探索・プレイしてください。`
+        },
+        {
+            targetSelector: '.content-section',
+            title: '📚 多彩な防災訓練 ＆ 過去のアーカイブ',
+            desc: `・<strong>地震に備える訓練</strong>：サバイバルクイズ、空間シェイクアウト、デマ見極め、ハザードマップの4種。<br>
+・<strong>過去を知るアーカイブ</strong>：震度分布図、3D震源マップ、3.11記憶の追体験の3種。<br>
+興味のあるコンテンツから自由に学習を進めていただけます。`
+        },
+        {
+            targetSelector: 'a.btn-mypage[href="mypage.html"]',
+            title: '🏆 防災バッジを獲得しよう！',
+            desc: `・各訓練のクリアやアーカイブの探索を行うと、条件に応じて<strong>全9種類の防災バッジ</strong>を獲得できます！<br>
+・獲得状況や進捗は、右上の「<strong>MY PAGE</strong>」からいつでも確認できます。ぜひコンプリートを目指してみてください！`
+        },
+        {
+            type: 'center',
+            title: '🎉 実験の終了手順',
+            desc: `・10分が経過すると、右上のボタンが「<strong>完了コードを発行する</strong>」に点灯します。<br>
+・発行された完了コードは、<strong>事後アンケートとランサーズの両方に入力</strong>してください。<br>
+・※完了画面およびマイページから、任意で学習ログ（CSV）のダウンロードも可能です。`
+        },
+        {
+            type: 'center',
+            title: '🚀 実験スタート！',
+            desc: `事前説明は以上となります。<br><br>
+「<strong>FINISH ✔</strong>」をクリックして、興味のあるコンテンツから自由に学習を開始してください！<br><br>
+<span style="font-size:0.8rem; color:var(--text-sub);">※この説明は「MY PAGE」の「チュートリアルを再生する」からいつでも再確認できます。</span>`
+        }
+    ];
 
     let currentStep = 0;
 
     // チュートリアルを開始する関数
     function startTutorial() {
-        console.log("--- チュートリアルを開始します ---");
+        console.log("--- チュートリアルを開始します（全6ステップ） ---");
         currentStep = 0;
         
         // リプレイ中のみ「✕」ボタンを表示し、初回オンボーディング時は非表示にする
-        const isReplay = localStorage.getItem('is_replaying_tutorial') === 'true';
+        const isReplay = localStorage.getItem('v2_is_replaying_tutorial') === 'true';
         if (btnClose) {
             btnClose.style.display = isReplay ? 'block' : 'none';
         }
@@ -382,7 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showStep(currentStep);
     }
 
-    // チュートリアルを閉じる関数
+    // チュートリアルを閉じる関数（マイページへのリダイレクトは行わず、トップ画面にとどまる）
     function closeTutorial() {
         overlay.style.opacity = '0';
         tooltip.style.opacity = '0';
@@ -392,50 +604,33 @@ document.addEventListener('DOMContentLoaded', () => {
             tooltip.style.display = 'none';
         }, 300);
         
-        localStorage.setItem('tutorialCompleted', 'true');
-        localStorage.removeItem('is_replaying_tutorial'); // リプレイフラグを消去
+        localStorage.setItem('v2_tutorialCompleted', 'true');
+        localStorage.removeItem('v2_is_replaying_tutorial'); // リプレイフラグを消去
+        localStorage.removeItem('v2_start_tutorial_now');
         console.log("チュートリアル完了フラグを保存しました。");
     }
 
     // オンボーディング・チュートリアル制御
-    const isTutorialDone = localStorage.getItem('tutorialCompleted');
+    const isTutorialDone = localStorage.getItem('v2_tutorialCompleted');
 
     if (!isTutorialDone || isTutorialDone !== 'true') {
         startTutorial();
-    } else if (localStorage.getItem('start_tutorial_now') === 'true') {
-        localStorage.removeItem('start_tutorial_now');
+    } else if (localStorage.getItem('v2_start_tutorial_now') === 'true') {
+        localStorage.removeItem('v2_start_tutorial_now');
         startTutorial();
     }
 
     // ボタンのイベントリスナー設定
     if (btnTutorial) btnTutorial.addEventListener('click', startTutorial);
     btnClose.addEventListener('click', closeTutorial);
-    // overlay.addEventListener('click', closeTutorial); // 背景クリックでの終了を無効化
 
     btnNext.addEventListener('click', () => {
-        const totalSteps = targets.length + 3;
-        if (currentStep < totalSteps - 1) {
+        if (currentStep < tutorialSteps.length - 1) {
             currentStep++;
             showStep(currentStep);
         } else {
-            // 最後のステップでNEXTを押した時、マイページに遷移する
-            const currentTarget = targets[currentStep - 3];
-            if (currentTarget && currentTarget.getAttribute('href') === 'mypage.html') {
-                // マイページ遷移時はリプレイフラグを削除せず、非表示化のみ行う
-                overlay.style.opacity = '0';
-                tooltip.style.opacity = '0';
-                clearHighlight();
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                    tooltip.style.display = 'none';
-                }, 300);
-                
-                localStorage.setItem('tutorialCompleted', 'true');
-                localStorage.setItem('start_mypage_tutorial', 'true');
-                window.location.href = 'mypage.html';
-            } else {
-                closeTutorial();
-            }
+            // STEP 6 (最後) で FINISH を押した場合はトップ画面で学習開始
+            closeTutorial();
         }
     });
 
@@ -446,80 +641,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ★ 座標計算および吹き出し表示を行う関数
+    // 座標計算および吹き出し表示を行う関数
     function showStep(index) {
         clearHighlight();
         
-        // 幅指定のリセット（第0、1、2ステップでの横幅変更を他のステップに引き継がないため）
-        tooltip.style.width = '';
+        const stepData = tutorialSteps[index];
+        if (!stepData) return;
+
+        // 幅設定（レスポンシブ対応: 最大480px、幅狭端末では90vw）
+        tooltip.style.width = 'min(480px, 90vw)';
         
-        const totalSteps = targets.length + 3;
-        document.querySelector('.tut-step-counter').innerText = `STEP ${index + 1} / ${totalSteps}`;
+        const counterEl = document.querySelector('.tut-step-counter');
+        if (counterEl) {
+            counterEl.innerText = `STEP ${index + 1} / ${tutorialSteps.length}`;
+        }
         btnPrev.style.visibility = index === 0 ? 'hidden' : 'visible';
-        btnNext.innerText = index === totalSteps - 1 ? 'FINISH ✔' : 'NEXT ▶';
+        btnNext.innerText = index === tutorialSteps.length - 1 ? 'FINISH ✔' : 'NEXT ▶';
 
-        if (index === 0) {
-            // ステップ0: ようこそメッセージと実験概要
-            tooltip.style.width = '480px'; // 横幅を広げて縦長による見切れを防ぐ
-            document.getElementById('tut-title').innerText = "🌐 実験へようこそ";
-            document.getElementById('tut-desc').innerHTML = `
-                このシステムは、過去の巨大地震データや防災行動についてインタラクティブに学ぶためのシミュレーターです。<br><br>
-                まずはシステムの基本的な使い方と、実験の進め方についてご案内します。
-            `;
+        document.getElementById('tut-title').innerText = stepData.title;
+        document.getElementById('tut-desc').innerHTML = stepData.desc;
 
-            // ツールチップを画面中央に固定表示
-            setTimeout(() => {
-                tooltip.style.position = 'fixed';
-                tooltip.style.top = '50%';
-                tooltip.style.left = '50%';
-                tooltip.style.transform = 'translate(-50%, -50%)';
-            }, 50);
+        if (stepData.type === 'center') {
+            // 中央配置
+            tooltip.style.position = 'fixed';
+            tooltip.style.top = '50%';
+            tooltip.style.left = '50%';
+            tooltip.style.transform = 'translate(-50%, -50%)';
             return;
         }
 
-        if (index === 1) {
-            // ステップ1: 実験の進め方とタイマー
-            tooltip.style.width = '480px';
-            document.getElementById('tut-title').innerText = "⏱️ 実験の進め方とタイマー";
-            document.getElementById('tut-desc').innerHTML = `
-                ・画面右上には学習タイマーが表示されています。<br>
-                ・<strong>30秒間操作がないとタイマーは一時停止</strong>しますのでご注意ください。<br>
-                ・あなたが直感的に「面白そう」「役に立ちそう」と思うものを中心に、<strong>10分間</strong>自由にサイト内を探索・プレイしてください。
-            `;
-
-            // ツールチップを画面中央に固定表示
-            setTimeout(() => {
-                tooltip.style.position = 'fixed';
-                tooltip.style.top = '50%';
-                tooltip.style.left = '50%';
-                tooltip.style.transform = 'translate(-50%, -50%)';
-            }, 50);
-            return;
+        // ターゲット要素を取得
+        let target = null;
+        if (stepData.targetId) {
+            target = document.getElementById(stepData.targetId);
+        } else if (stepData.targetSelector) {
+            target = document.querySelector(stepData.targetSelector);
         }
 
-        if (index === 2) {
-            // ステップ2: 実験の終了手順
-            tooltip.style.width = '480px';
-            document.getElementById('tut-title').innerText = "🎉 実験の終了手順";
-            document.getElementById('tut-desc').innerHTML = `
-                ・10分経過すると、右上のボタンが「<strong>実験を終了して完了コードを発行する</strong>」に変わります。<br>
-                ・ボタンをクリックすると、学習ログが一括送信され、ランサーズに入力するための<strong>完了コード（ユーザーID）</strong>が発行されます。<br><br>
-                ・このチュートリアルをもう一度見たい場合は、画面右上の「<strong>MY PAGE</strong>」にある「<strong>再生する</strong>」ボタンからいつでもやり直すことができます。
-            `;
-
-            // ツールチップを画面中央に固定表示
-            setTimeout(() => {
-                tooltip.style.position = 'fixed';
-                tooltip.style.top = '50%';
-                tooltip.style.left = '50%';
-                tooltip.style.transform = 'translate(-50%, -50%)';
-            }, 50);
+        if (!target) {
+            // ターゲットが存在しない場合は中央配置にフォールバック
+            tooltip.style.position = 'fixed';
+            tooltip.style.top = '50%';
+            tooltip.style.left = '50%';
+            tooltip.style.transform = 'translate(-50%, -50%)';
             return;
         }
-
-        // 通常のターゲットが存在するステップ (index >= 3)
-        const target = targets[index - 3];
-        if (!target) return;
 
         target.classList.add('tut-highlight');
 
@@ -529,11 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
             behavior: 'smooth'
         });
 
-        document.getElementById('tut-title').innerText = target.dataset.title;
-        document.getElementById('tut-desc').innerText = target.dataset.desc;
-
         setTimeout(() => {
-            // ツールチップの位置設定を absolute に戻し、中央配置の transform を解除する
             tooltip.style.position = 'absolute';
             tooltip.style.transform = 'none';
 
@@ -541,34 +703,34 @@ document.addEventListener('DOMContentLoaded', () => {
             let topPos = updatedRect.bottom + window.scrollY + 15;
             let leftPos = updatedRect.left + window.scrollX;
             
-            // ① 画面の下にはみ出さない処理（下にスペースがない場合は上へ移動）
+            // 下にはみ出す場合はターゲットの上側に配置
             if (topPos + tooltip.offsetHeight > window.scrollY + window.innerHeight) {
                 topPos = updatedRect.top + window.scrollY - tooltip.offsetHeight - 15;
             }
             
-            // ★ ④上に移動した結果、画面外やヘッダーの裏に消えてしまう場合
-            const safeTopMargin = 100;
+            // 上にはみ出しヘッダー等に被る場合の最小マージン
+            const safeTopMargin = 80;
             if (topPos < window.scrollY + safeTopMargin) {
                 topPos = window.scrollY + safeTopMargin;
             }
             
-            // ② 画面の左にはみ出さない処理
+            // 画面左端のはみ出し防止
             if (leftPos < 10) {
                 leftPos = 10;
             }
             
-            // ③ 画面の右にはみ出さない処理（文字切れ防止）
+            // 画面右端のはみ出し防止
             if (leftPos + tooltip.offsetWidth > window.innerWidth - 10) {
                 leftPos = window.innerWidth - tooltip.offsetWidth - 10;
             }
 
             tooltip.style.top = `${topPos}px`;
             tooltip.style.left = `${leftPos}px`;
-        }, 350);
+        }, 300);
     }
 
     function clearHighlight() {
-        targets.forEach(el => el.classList.remove('tut-highlight'));
+        document.querySelectorAll('.tut-highlight').forEach(el => el.classList.remove('tut-highlight'));
     }
 });
 
@@ -581,7 +743,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // タイマー更新関数
     function updateTimer() {
-        const elapsed = parseInt(localStorage.getItem('accumulated_elapsed_time') || '0', 10);
+        const elapsed = (typeof getValidatedElapsedTime === 'function') ? getValidatedElapsedTime() : parseInt(localStorage.getItem('v2_accumulated_elapsed_time') || '0', 10);
         const limit = 10 * 60 * 1000; // 10分（600,000ミリ秒）
         const remaining = limit - elapsed;
 
@@ -591,13 +753,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const minutes = Math.floor(remaining / 60000);
             const seconds = Math.floor((remaining % 60000) / 1000);
             const displayTime = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
-            btnPostSurvey.textContent = `完了コードが発行できるようになるまで残り ${displayTime}`;
+            btnPostSurvey.textContent = `完了コード発行まで ${displayTime}`;
         } else {
             btnPostSurvey.disabled = false;
             btnPostSurvey.style.backgroundColor = 'var(--cud-orange)';
             btnPostSurvey.style.borderColor = 'var(--cud-orange)';
             btnPostSurvey.style.color = '#000';
-            btnPostSurvey.textContent = '実験を終了して完了コードを発行する';
+            btnPostSurvey.textContent = '完了コードを発行する';
             clearInterval(timerInterval);
         }
     }
@@ -607,63 +769,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ボタンクリック時の処理
     btnPostSurvey.addEventListener('click', () => {
-        btnPostSurvey.disabled = true;
-        btnPostSurvey.textContent = '送信中...';
-
-        // 共通関数 sendAllLogsToGAS を実行
-        if (typeof sendAllLogsToGAS === 'function') {
-            sendAllLogsToGAS()
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("GAS response not ok");
-                    }
-                    console.log("Logs successfully sent to GAS.");
-                    
-                    // ログ送信成功時はローカルのログをクリアして重複送信を防ぐ
-                    localStorage.setItem('system_logs', '[]');
-
-                    // 完了モーダルの表示
-                    const modal = document.getElementById('completion-modal');
-                    const codeVal = document.getElementById('completion-code-val');
-                    const warningEl = document.getElementById('completion-warning');
-                    if (warningEl) warningEl.style.display = 'none'; // 警告を非表示
-                    if (modal && codeVal) {
-                        const userId = localStorage.getItem('research_user_id') || 'User-unknown';
-                        codeVal.textContent = userId;
-                        modal.style.display = 'flex';
-                    }
-                })
-                .catch((err) => {
-                    console.error("GAS send error:", err);
-                    
-                    // エラー時も完了モーダルを表示し、警告メッセージを表示する（CORS制限や一時的過負荷への対応）
-                    const modal = document.getElementById('completion-modal');
-                    const codeVal = document.getElementById('completion-code-val');
-                    const warningEl = document.getElementById('completion-warning');
-                    if (warningEl) warningEl.style.display = 'block'; // 警告を表示
-                    if (modal && codeVal) {
-                        const userId = localStorage.getItem('research_user_id') || 'User-unknown';
-                        codeVal.textContent = userId;
-                        modal.style.display = 'flex';
-                    }
-                })
-                .finally(() => {
-                    btnPostSurvey.disabled = false;
-                    btnPostSurvey.textContent = '実験を終了して完了コードを発行する';
-                });
-        } else {
-            console.error("sendAllLogsToGAS is not defined.");
-            alert("システムエラー：ログ送信機能が読み込まれていません。管理者にお問い合わせください。");
-            btnPostSurvey.disabled = false;
-            btnPostSurvey.textContent = '実験を終了して完了コードを発行する';
+        // 完了モーダルの表示
+        const modal = document.getElementById('completion-modal');
+        const codeVal = document.getElementById('completion-code-val');
+        const warningEl = document.getElementById('completion-warning');
+        if (warningEl) warningEl.style.display = 'none'; // 警告を非表示
+        if (modal && codeVal) {
+            const userId = localStorage.getItem('v2_research_user_id') || 'User-unknown';
+            codeVal.textContent = userId;
+            modal.style.display = 'flex';
         }
     });
 
     // コピー機能の実装
     const btnCopy = document.getElementById('btn-copy-completion');
+    
+    // モーダル内のCSVダウンロードボタン
+    const btnDownloadLogModal = document.getElementById('btn-download-log-modal');
+    if (btnDownloadLogModal) {
+        btnDownloadLogModal.addEventListener('click', () => {
+            if (typeof exportLogsAsCSV === 'function') {
+                exportLogsAsCSV();
+                const origText = btnDownloadLogModal.textContent;
+                btnDownloadLogModal.textContent = '✓ ダウンロード完了！';
+                btnDownloadLogModal.style.borderColor = 'var(--cud-green)';
+                btnDownloadLogModal.style.color = 'var(--cud-green)';
+                setTimeout(() => {
+                    btnDownloadLogModal.textContent = origText;
+                    btnDownloadLogModal.style.borderColor = 'var(--border-color)';
+                    btnDownloadLogModal.style.color = 'var(--text-main)';
+                }, 2000);
+            }
+        });
+    }
+
     if (btnCopy) {
         btnCopy.addEventListener('click', () => {
-            const userId = localStorage.getItem('research_user_id') || 'User-unknown';
+            const userId = localStorage.getItem('v2_research_user_id') || 'User-unknown';
             navigator.clipboard.writeText(userId).then(() => {
                 const originalText = btnCopy.textContent;
                 btnCopy.textContent = '✓ コピーしました！';

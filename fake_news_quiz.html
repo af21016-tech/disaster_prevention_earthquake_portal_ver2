@@ -2,75 +2,294 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp; object-src 'none'; base-uri 'self';">
     <title>デマ・誤情報 見極め訓練 | Quake Interactive Archive</title>
     <link href="https://fonts.googleapis.com/css2?family=Biz+UDPGOthic:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/style.css?v=1.1">
+    <link rel="stylesheet" href="./css/style.css?v=20261026_fix_3d_hazard">
     
     <style>
-        .quiz-container { max-width: 600px; margin: 100px auto 2rem; padding: 2rem; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .smartphone-ui { background: #000; border: 2px solid #333; border-radius: 20px; padding: 20px; margin-bottom: 20px; position: relative; }
-        .post-box { background: #1a1a1a; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #333; }
+        .quiz-container { 
+            max-width: 600px; 
+            margin: 100px auto 2rem; 
+            padding: 2.2rem; 
+            background: var(--surface-color); 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            box-shadow: var(--card-shadow); 
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        /* スマートフォン筐体UI */
+        .smartphone-ui { 
+            background: #000; 
+            border: 2px solid #333; 
+            border-radius: 20px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            position: relative; 
+            box-shadow: var(--card-shadow);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        :root[data-theme="light"] .smartphone-ui,
+        body[data-theme="light"] .smartphone-ui {
+            background: #F0F2F5;
+            border-color: #D1D5DB;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        /* 投稿カード（SNSポスト） */
+        .post-box { 
+            background: #16181c; 
+            padding: 16px; 
+            border-radius: 12px; 
+            margin-bottom: 15px; 
+            border: 1px solid #2f3336; 
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        :root[data-theme="light"] .post-box,
+        body[data-theme="light"] .post-box {
+            background: #FFFFFF;
+            border-color: #E2E8F0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
         .post-header { display: flex; align-items: center; margin-bottom: 10px; }
-        .post-icon { width: 40px; height: 40px; background: #555; border-radius: 50%; margin-right: 10px; }
-        .post-name { font-weight: bold; color: #fff; font-size: 0.9rem; }
-        .post-id { color: #888; font-size: 0.8rem; margin-left: 5px; }
-        .post-content { color: #eaeaea; font-size: 0.95rem; line-height: 1.5; }
-        .post-image { width: 100%; height: 150px; background: #333; border-radius: 8px; margin-top: 10px; display: flex; align-items: center; justify-content: center; color: #888; }
+        .post-icon { 
+            width: 44px; 
+            height: 44px; 
+            background: #333; 
+            border-radius: 50%; 
+            margin-right: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.3rem; 
+            flex-shrink: 0; 
+            color: #fff;
+        }
+        :root[data-theme="light"] .post-icon,
+        body[data-theme="light"] .post-icon {
+            background: #E2E8F0;
+            color: #111418;
+        }
+
+        .post-user-info { display: flex; flex-direction: column; overflow: hidden; }
+        .post-user-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .post-name { font-weight: bold; color: #fff; font-size: 0.95rem; }
+        :root[data-theme="light"] .post-name,
+        body[data-theme="light"] .post-name {
+            color: #0F1419;
+        }
+
+        .post-badge { display: inline-flex; align-items: center; font-size: 0.75rem; background: #1d9bf0; color: #fff; padding: 1px 6px; border-radius: 10px; font-weight: bold; }
+        .post-id { color: #71767b; font-size: 0.85rem; font-family: var(--font-mono); }
+        :root[data-theme="light"] .post-id,
+        body[data-theme="light"] .post-id {
+            color: #536471;
+        }
+
+        .post-content { color: #e7e9ea; font-size: 1rem; line-height: 1.6; word-break: break-word; }
+        :root[data-theme="light"] .post-content,
+        body[data-theme="light"] .post-content {
+            color: #0F1419;
+        }
+
+        .post-image { 
+            width: 100%; 
+            height: 150px; 
+            background: #333; 
+            border-radius: 8px; 
+            margin-top: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: #888; 
+        }
+        :root[data-theme="light"] .post-image,
+        body[data-theme="light"] .post-image {
+            background: #E2E8F0;
+            color: #64748B;
+        }
         
-        .action-area { display: flex; gap: 10px; margin-top: 20px; }
-        .action-area button { flex: 1; padding: 12px; font-weight: bold; letter-spacing: 0.1em; }
+        .action-area { display: flex; gap: 12px; margin-top: 20px; }
+        .action-area button { 
+            flex: 1; 
+            padding: 14px 10px; 
+            font-weight: bold; 
+            font-size: 1.05rem; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            background: var(--surface-color);
+            box-shadow: var(--card-shadow);
+        }
+        .action-area button:hover {
+            transform: translateY(-1px);
+        }
         
-        .feedback-area { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; }
-        .feedback-area.correct { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--cud-green); color: var(--cud-green); }
-        .feedback-area.incorrect { background: rgba(255, 123, 0, 0.1); border: 1px solid var(--cud-orange); color: var(--cud-orange); }
+        /* モード選択カード */
+        .mode-card {
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            box-shadow: var(--card-shadow);
+        }
+        .mode-card:hover {
+            border-color: var(--border-card);
+            background: var(--surface-hover);
+        }
+        .mode-card.selected-timed {
+            background: rgba(179, 102, 255, 0.12) !important;
+            border-color: var(--cud-purple) !important;
+        }
+        .mode-card.selected-timed .mode-title {
+            color: var(--cud-purple) !important;
+        }
+        .mode-card.selected-practice {
+            background: rgba(0, 230, 118, 0.12) !important;
+            border-color: var(--cud-green) !important;
+        }
+        .mode-card.selected-practice .mode-title {
+            color: var(--cud-green) !important;
+        }
+        .mode-title {
+            font-weight: bold;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+        .mode-desc {
+            font-size: 0.72rem;
+            color: var(--text-sub);
+            line-height: 1.3;
+        }
+
+        .feedback-area { margin-top: 20px; padding: 1.2rem; border-radius: 8px; display: none; box-shadow: var(--card-shadow); }
+        .feedback-area.correct { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--cud-green); color: var(--text-main); }
+        .feedback-area.incorrect { background: rgba(255, 123, 0, 0.1); border: 1px solid var(--cud-orange); color: var(--text-main); }
         
         /* 進行状況バーの非表示化 */
-        .progress-bar {
-            display: none !important;
-        }
-        .progress-fill {
+        .progress-bar, .progress-fill {
             display: none !important;
         }
         
         .result-box { text-align: center; display: none; }
         .score-display { font-size: 3rem; font-family: var(--font-mono); color: var(--cud-purple); margin: 20px 0; }
     </style>
+    <script>
+        // テーマ初期適用（チラつき防止）
+        (function() {
+            var savedTheme = localStorage.getItem('v2_portal_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', savedTheme);
+            }
+        })();
+
+        window.setTheme = function(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', theme);
+            }
+            try {
+                localStorage.setItem('v2_portal_theme', theme);
+            } catch (e) {
+                console.error("Storage error:", e);
+            }
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+                toggleBtn.title = theme === 'dark' ? 'ライトテーマに切り替え' : 'ダークテーマに切り替え';
+            }
+            // テーマ変更イベントを通知
+            document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+        };
+
+        window.toggleTheme = function() {
+            var current = document.documentElement.getAttribute('data-theme') || 'dark';
+            window.setTheme(current === 'dark' ? 'light' : 'dark');
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('v2_portal_theme') || 'dark';
+            window.setTheme(currentTheme);
+
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.toggleTheme();
+                });
+            }
+        });
+    </script>
 </head>
 <body>
 
     <header>
         <div class="logo-area">
-            <span class="tag" style="background: #b366ff; color: #000; font-weight: bold; margin-bottom: 4px; display: inline-block;">Infodemic Training</span>
-            <h1 style="font-size: 1rem; margin: 0; letter-spacing: 0.1em;">デマ・誤情報 見極め訓練</h1>
+            <span class="tag" style="background: var(--cud-purple); color: #fff; font-weight: bold; margin-bottom: 4px; display: inline-block;">Infodemic Training</span>
+            <h1 style="font-size: 1rem; margin: 0; letter-spacing: 0.1em; color: var(--text-main);">デマ・誤情報 見極め訓練</h1>
         </div>
         <div class="header-actions">
+            <!-- テーマ切り替え（単一トグルボタン） -->
+            <button id="btn-theme-toggle" class="btn-theme-toggle" title="テーマ切り替え" aria-label="テーマ切り替え">🌙</button>
             <a href="index.html" class="btn-back" data-log="デマ見極め：戻るボタンをクリック">✕ 戻る</a>
         </div>
     </header>
 
     <main class="quiz-container">
         
-        <div id="start-screen" style="text-align: center; padding: 2rem 0;">
+        <div id="start-screen" style="text-align: center; padding: 1.5rem 0;">
             <div style="font-size: 3rem; margin-bottom: 1rem;">📱</div>
-            <h2 style="color: #fff; margin-bottom: 1rem;">情報を拡散しますか？</h2>
-            <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 2rem;">災害発生直後のSNSタイムライン。<br>次々と流れてくる情報の真偽を見極め、<br>インフォデミック（デマの拡散）を防いでください。</p>
-            <button class="btn secondary" id="btn-start" data-log="デマ見極め：訓練を開始するボタンをクリック">訓練を開始する</button>
+            <h2 style="color: var(--text-main); margin-bottom: 1rem; font-size: 1.6rem; letter-spacing: 0.05em;">情報を拡散しますか？</h2>
+            <p style="color: var(--text-sub); font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.7;">災害発生直後のSNSタイムライン。<br>次々と流れてくる情報の発信元や内容を冷静に見極め、<br><strong>「拡散すべきか、留まるべきか」</strong>を判断してください。</p>
+            
+            <!-- モード選択エリア -->
+            <div style="max-width: 480px; margin: 0 auto 2.2rem;">
+                <div style="font-size: 0.9rem; color: var(--text-main); margin-bottom: 10px; font-weight: bold; text-align: left;">訓練モードを選択：</div>
+                <div class="mode-select-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                    <div class="mode-card selected-timed" id="fake-mode-timed" data-log="デマ見極め：本番モードを選択">
+                        <div style="font-size: 1.4rem; margin-bottom: 4px;">🔥</div>
+                        <div class="mode-title">本番モード</div>
+                        <div class="mode-desc">15秒制限<br>緊迫したSNS流速を体感</div>
+                    </div>
+                    <div class="mode-card" id="fake-mode-practice" data-log="デマ見極め：練習モードを選択">
+                        <div style="font-size: 1.4rem; margin-bottom: 4px;">🟢</div>
+                        <div class="mode-title">練習モード</div>
+                        <div class="mode-desc">時間無制限<br>URLやアカウントを吟味</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn secondary" id="btn-start" style="padding: 14px 32px; font-size: 1.1rem;" data-log="デマ見極め：訓練を開始するボタンをクリック">訓練を開始する</button>
         </div>
 
         <div id="quiz-screen" style="display: none;">
-            <div style="text-align: center; margin: 1.5rem 0 2rem; font-family: var(--font-mono);">
-                <div style="font-size: 0.9rem; color: #aaa; letter-spacing: 0.15em; margin-bottom: 5px;">制限時間</div>
-                <div id="timer-display" style="font-size: 4rem; font-weight: bold; color: #b366ff; text-shadow: 0 0 15px rgba(179,102,255,0.5); line-height: 1;">10.0秒</div>
+            <div id="timer-wrapper" style="text-align: center; margin: 1rem 0 1.5rem; font-family: var(--font-mono);">
+                <div id="timer-label" style="font-size: 0.85rem; color: var(--text-sub); letter-spacing: 0.15em; margin-bottom: 5px;">残り判断時間</div>
+                <div id="timer-display" style="font-size: 3.5rem; font-weight: bold; color: var(--cud-purple); line-height: 1;">15.0秒</div>
             </div>
-            <div style="text-align: right; font-size: 0.8rem; color: #888; margin-bottom: 10px;" id="q-counter">Q. 1 / 5</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; color: var(--text-sub); font-family: var(--font-mono); margin-bottom: 12px;">
+                <span id="q-counter">Q. 1 / 10</span>
+                <span id="score-counter">スコア: 0点</span>
+            </div>
             
             <div class="smartphone-ui">
                 <div class="post-box">
                     <div class="post-header">
-                        <div class="post-icon"></div>
-                        <div>
-                            <span class="post-name" id="p-name">名前</span><span class="post-id" id="p-id">@id</span>
+                        <div class="post-icon" id="p-icon">👤</div>
+                        <div class="post-user-info">
+                            <div class="post-user-row">
+                                <span class="post-name" id="p-name">名前</span>
+                                <span class="post-badge" id="p-badge" style="display:none;">✓ 認証</span>
+                            </div>
+                            <span class="post-id" id="p-id">@id</span>
                         </div>
                     </div>
                     <div class="post-content" id="p-text">投稿内容</div>
@@ -79,14 +298,13 @@
             </div>
 
             <div class="action-area" id="action-btns">
-                <button class="btn secondary" id="btn-share" style="color: #FF2800; border: 2px solid #FF2800; background: #111; font-size: 1.2rem;" data-log="デマ見極め：〇ボタンをクリック">〇 (正しい情報)</button>
-                
-                <button class="btn secondary" id="btn-ignore" style="color: #56B4E9; border: 2px solid #56B4E9; background: #111; font-size: 1.2rem;" data-log="デマ見極め：✖ボタンをクリック">✖ (デマ・誤情報)</button>
+                <button class="btn secondary" id="btn-share" style="color: #FF2800; border: 2px solid #FF2800;" data-log="デマ見極め：拡散するボタンをクリック">🔄 拡散する (リポスト)</button>
+                <button class="btn secondary" id="btn-ignore" style="color: #0277BD; border: 2px solid #0277BD;" data-log="デマ見極め：拡散しないボタンをクリック">🛡️ 拡散しない (静観・確認)</button>
             </div>
 
             <div class="feedback-area" id="feedback">
-                <h3 id="fb-title" style="margin-top:0; margin-bottom:10px;"></h3>
-                <p id="fb-desc" style="font-size:0.9rem; line-height:1.5; color:#eaeaea;"></p>
+                <h3 id="fb-title" style="margin-top:0; margin-bottom:10px; font-size:1.2rem;"></h3>
+                <p id="fb-desc" style="font-size:0.95rem; line-height:1.7; color:var(--text-main); margin-bottom:0;"></p>
                 <div style="text-align:right; margin-top:15px;">
                     <button class="btn primary" id="btn-next" data-log="デマ見極め：次の情報へボタンをクリック">次の情報へ</button>
                     <button class="btn primary" id="btn-finish" style="display:none;" data-log="デマ見極め：結果を見るボタンをクリック">結果を見る</button>
@@ -95,10 +313,10 @@
         </div>
 
         <div id="result-screen" class="result-box">
-            <h2 style="color: #fff;">訓練完了</h2>
+            <h2 style="color: var(--text-main); margin-bottom: 0;">訓練完了</h2>
             <div class="score-display" id="final-score">0 / 0</div>
-            <p id="result-message" style="color: #aaa; margin-bottom: 2rem;"></p>
-            <div style="display: flex; gap: 10px; justify-content: center;">
+            <p id="result-message" style="color: var(--text-sub); margin-bottom: 2rem;"></p>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                 <a href="index.html" class="btn secondary" data-log="デマ見極め：ダッシュボードへ戻るリンクをクリック">ダッシュボードへ戻る</a>
                 <button class="btn primary" id="btn-retry" data-log="デマ見極め：もう一度挑戦するボタンをクリック">もう一度挑戦する</button>
             </div>
@@ -106,8 +324,7 @@
 
     </main>
 
-    <script src="./js/logger.js"></script>
-    <script src="./js/utils.js"></script>
-    <script src="./js/fake_news_quiz.js"></script>
+    <script src="./js/utils.js?v=20261026_sec_v2"></script>
+    <script src="./js/fake_news_quiz.js?v=20261016_badge"></script>
 </body>
 </html>

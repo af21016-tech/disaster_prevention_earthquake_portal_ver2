@@ -2,73 +2,216 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp; object-src 'none'; base-uri 'self';">
     <title>サバイバル・クイズ | Quake Interactive Archive</title>
     <link href="https://fonts.googleapis.com/css2?family=Biz+UDPGOthic:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/style.css?v=1.1">
+    <link rel="stylesheet" href="./css/style.css?v=20261026_fix_3d_hazard">
     
     <style>
-        .quiz-container { max-width: 800px; margin: 100px auto 2rem; padding: 2rem; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        /* 進行状況バーの非表示化 */
-        .progress-bar {
-            display: none !important;
+        .quiz-container { 
+            max-width: 800px; 
+            margin: 100px auto 2rem; 
+            padding: 2.5rem; 
+            background: var(--surface-color); 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            box-shadow: var(--card-shadow); 
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        .progress-fill {
+        /* 進行状況バーの非表示化 */
+        .progress-bar, .progress-fill {
             display: none !important;
         }
         
         .question-box { margin-bottom: 2rem; }
-        .question-box h2 { color: #fff; font-size: 1.3rem; line-height: 1.6; letter-spacing: 0.05em; }
+        .question-box h2 { 
+            color: var(--text-main); 
+            font-size: 1.35rem; 
+            line-height: 1.6; 
+            letter-spacing: 0.05em; 
+        }
         
         .choices-box { display: flex; flex-direction: column; gap: 15px; }
-        .choice-btn { text-align: left; padding: 1rem 1.5rem; font-size: 1rem; border-radius: 6px; background: #111; border: 1px solid #444; color: #eaeaea; cursor: pointer; transition: 0.2s; }
-        .choice-btn:hover { background: #222; border-color: var(--cud-orange); }
-        .choice-btn.selected { background: rgba(255, 123, 0, 0.1); border-color: var(--cud-orange); color: var(--cud-orange); }
+        .choice-btn { 
+            text-align: left; 
+            padding: 1.2rem 2rem; 
+            font-size: 1.2rem; 
+            font-weight: bold;
+            border-radius: 8px; 
+            background: var(--surface-color); 
+            border: 2px solid var(--border-color); 
+            color: var(--text-main); 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            box-shadow: var(--card-shadow);
+            font-family: var(--font-sans);
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        .choice-btn:hover { 
+            background: var(--surface-hover); 
+            border-color: var(--cud-orange); 
+            color: var(--cud-orange);
+            transform: translateY(-1px);
+        }
+        .choice-btn.selected { 
+            background: rgba(255, 123, 0, 0.12); 
+            border-color: var(--cud-orange); 
+            color: var(--cud-orange); 
+        }
         
-        .feedback-box { margin-top: 2rem; padding: 1.5rem; border-radius: 8px; display: none; }
+        /* モード選択カード */
+        .mode-card {
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            box-shadow: var(--card-shadow);
+        }
+        .mode-card:hover {
+            border-color: var(--border-card);
+            background: var(--surface-hover);
+        }
+        .mode-card.selected-timed {
+            background: rgba(255, 123, 0, 0.12) !important;
+            border-color: var(--cud-orange) !important;
+        }
+        .mode-card.selected-timed .mode-title {
+            color: var(--cud-orange) !important;
+        }
+        .mode-card.selected-practice {
+            background: rgba(0, 230, 118, 0.12) !important;
+            border-color: var(--cud-green) !important;
+        }
+        .mode-card.selected-practice .mode-title {
+            color: var(--cud-green) !important;
+        }
+        .mode-title {
+            font-weight: bold;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+        .mode-desc {
+            font-size: 0.72rem;
+            color: var(--text-sub);
+            line-height: 1.3;
+        }
+
+        .feedback-box { margin-top: 2rem; padding: 1.5rem; border-radius: 8px; display: none; box-shadow: var(--card-shadow); }
         .feedback-box.correct { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--cud-green); }
         .feedback-box.incorrect { background: rgba(255, 123, 0, 0.1); border: 1px solid var(--cud-orange); }
         .feedback-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; }
         .correct .feedback-title { color: var(--cud-green); }
         .incorrect .feedback-title { color: var(--cud-orange); }
-        .feedback-desc { color: #eaeaea; font-size: 0.95rem; line-height: 1.6; }
+        .feedback-desc { color: var(--text-main); font-size: 0.95rem; line-height: 1.7; }
         
         .result-box { text-align: center; display: none; }
         .score-display { font-size: 4rem; font-family: var(--font-mono); color: var(--cud-orange); margin: 20px 0; }
-        .medal-icon { font-size: 3rem; margin-bottom: 10px; }
     </style>
+    <script>
+        // テーマ初期適用（チラつき防止）
+        (function() {
+            var savedTheme = localStorage.getItem('v2_portal_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', savedTheme);
+            }
+        })();
+
+        window.setTheme = function(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', theme);
+            }
+            try {
+                localStorage.setItem('v2_portal_theme', theme);
+            } catch (e) {
+                console.error("Storage error:", e);
+            }
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+                toggleBtn.title = theme === 'dark' ? 'ライトテーマに切り替え' : 'ダークテーマに切り替え';
+            }
+            // テーマ変更イベントを通知
+            document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+        };
+
+        window.toggleTheme = function() {
+            var current = document.documentElement.getAttribute('data-theme') || 'dark';
+            window.setTheme(current === 'dark' ? 'light' : 'dark');
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('v2_portal_theme') || 'dark';
+            window.setTheme(currentTheme);
+
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.toggleTheme();
+                });
+            }
+        });
+    </script>
 </head>
 <body>
 
     <header>
         <div class="logo-area">
-            <span class="tag" style="background: #ff7b00; color: #000; font-weight: bold; margin-bottom: 4px; display: inline-block;">Survival Quiz</span>
-            <h1 style="font-size: 1rem; margin: 0; letter-spacing: 0.1em;">サバイバル・クイズ</h1>
+            <span class="tag" style="background: var(--cud-orange); color: #fff; font-weight: bold; margin-bottom: 4px; display: inline-block;">Survival Quiz</span>
+            <h1 style="font-size: 1rem; margin: 0; letter-spacing: 0.1em; color: var(--text-main);">サバイバル・クイズ</h1>
         </div>
         <div class="header-actions">
+            <!-- テーマ切り替え（単一トグルボタン） -->
+            <button id="btn-theme-toggle" class="btn-theme-toggle" title="テーマ切り替え" aria-label="テーマ切り替え">🌙</button>
             <a href="index.html" class="btn-back" data-log="クイズ：戻るボタンをクリック">✕ 戻る</a>
         </div>
     </header>
 
     <main class="quiz-container">
         
-        <div id="start-screen" style="text-align: center; padding: 2rem 0;">
-            <h2 style="color: #fff; margin-bottom: 1rem; font-size: 1.5rem;">災害時の「常識」を疑え</h2>
-            <p style="color: #aaa; margin-bottom: 2rem; line-height: 1.6;">過去の災害で多くの人が陥った「間違った判断」をベースにした実践的なクイズです。</p>
+        <div id="start-screen" style="text-align: center; padding: 1.5rem 0;">
+            <h2 style="color: var(--text-main); margin-bottom: 1rem; font-size: 1.6rem; letter-spacing: 0.05em;">災害時の「常識」を疑え</h2>
+            <p style="color: var(--text-sub); margin-bottom: 2rem; line-height: 1.7;">過去の災害で多くの人が陥った「間違った判断」をベースにした実践的なクイズです。</p>
             
-            <div style="display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 0 auto;">
-                <button class="btn primary" id="btn-start-stage0" style="padding: 15px;" data-log="クイズ：初級を開始">🥉 初級（地震直後の行動・備え）<br><span style="font-size:0.85rem; font-weight:normal;">※まずはここから！</span></button>
-                <button class="btn secondary" id="btn-start-stage1" style="padding: 15px;" data-log="クイズ：中級を開始">🥈 中級（複合・都市型災害）</button>
-                <button class="btn secondary" id="btn-start-stage2" style="padding: 15px;" data-log="クイズ：上級を開始">🥇 上級（極限状態・情報）</button>
+            <!-- モード選択エリア -->
+            <div style="max-width: 480px; margin: 0 auto 2.2rem;">
+                <div style="font-size: 0.9rem; color: var(--text-main); margin-bottom: 10px; font-weight: bold; text-align: left;">訓練モードを選択：</div>
+                <div class="mode-select-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                    <div class="mode-card selected-timed" id="quiz-mode-timed" data-log="クイズ：本番モードを選択">
+                        <div style="font-size: 1.4rem; margin-bottom: 4px;">🔥</div>
+                        <div class="mode-title">本番モード</div>
+                        <div class="mode-desc">10〜12秒制限<br>緊迫の判断訓練</div>
+                    </div>
+                    <div class="mode-card" id="quiz-mode-practice" data-log="クイズ：練習モードを選択">
+                        <div style="font-size: 1.4rem; margin-bottom: 4px;">🟢</div>
+                        <div class="mode-title">練習モード</div>
+                        <div class="mode-desc">時間無制限<br>じっくり確認・学習</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="font-size: 0.9rem; color: var(--text-main); margin-bottom: 12px; font-weight: bold; text-align: left; max-width: 420px; margin-left: auto; margin-right: auto;">ステージを選択して開始：</div>
+            <div style="display: flex; flex-direction: column; gap: 15px; max-width: 420px; margin: 0 auto;">
+                <button class="btn primary" id="btn-start-stage0" style="padding: 16px; font-size: 1.05rem;" data-log="クイズ：初級を開始">🥉 初級（地震直後の行動・備え）<br><span style="font-size:0.85rem; font-weight:normal; opacity: 0.9;">※まずはここから！</span></button>
+                <button class="btn secondary" id="btn-start-stage1" style="padding: 16px; font-size: 1.05rem;" data-log="クイズ：中級を開始">🥈 中級（複合・都市型災害）</button>
+                <button class="btn secondary" id="btn-start-stage2" style="padding: 16px; font-size: 1.05rem;" data-log="クイズ：上級を開始">🥇 上級（極限状態・情報）</button>
             </div>
         </div>
 
         <div id="quiz-screen" style="display: none;">
-            <div style="text-align: center; margin: 1.5rem 0 2rem; font-family: var(--font-mono);">
-                <div style="font-size: 0.9rem; color: #aaa; letter-spacing: 0.15em; margin-bottom: 5px;">残り時間</div>
-                <div id="timer-display" style="font-size: 4rem; font-weight: bold; color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.5); line-height: 1;">10.0秒</div>
+            <div id="timer-wrapper" style="text-align: center; margin: 1.5rem 0 2rem; font-family: var(--font-mono);">
+                <div id="timer-label" style="font-size: 0.9rem; color: var(--text-sub); letter-spacing: 0.15em; margin-bottom: 5px;">残り時間</div>
+                <div id="timer-display" style="font-size: 4rem; font-weight: bold; color: var(--text-main); line-height: 1;">10.0秒</div>
             </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; color: #888; font-family: var(--font-mono); font-size: 0.9rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; color: var(--text-sub); font-family: var(--font-mono); font-size: 0.9rem;">
                 <span id="q-counter">Q. 1 / 5</span>
                 <span id="score-counter">スコア: 0点</span>
             </div>
@@ -94,14 +237,10 @@
         </div>
 
         <div id="result-screen" class="result-box">
-            <h2 style="color: #fff; margin-bottom: 0;">訓練結果</h2>
+            <h2 style="color: var(--text-main); margin-bottom: 0;">訓練結果</h2>
             <div class="score-display" id="final-score">0 / 0</div>
-            <div id="medal-container" style="display:none;">
-                <div class="medal-icon" id="result-medal-icon">🥇</div>
-                <p style="color: #F0E442; font-weight: bold; margin-bottom: 20px;">サバイバル・メダルを獲得しました！</p>
-            </div>
-            <p id="result-message" style="color: #aaa; margin-bottom: 2rem;"></p>
-            <div style="display: flex; gap: 10px; justify-content: center;">
+            <p id="result-message" style="color: var(--text-sub); margin-bottom: 2rem;"></p>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                 <a href="index.html" class="btn secondary" data-log="クイズ：ダッシュボードへ戻るリンクをクリック">ダッシュボードへ戻る</a>
                 <button class="btn primary" id="btn-retry" data-log="クイズ：もう一度挑戦するボタンをクリック">別の難易度に挑戦する</button>
             </div>
@@ -109,8 +248,7 @@
 
     </main>
 
-    <script src="./js/logger.js"></script>
-    <script src="./js/utils.js"></script>
-    <script src="./js/quiz.js"></script>
+    <script src="./js/utils.js?v=20261026_sec_v2"></script>
+    <script src="./js/quiz.js?v=20261016_badge"></script>
 </body>
 </html>

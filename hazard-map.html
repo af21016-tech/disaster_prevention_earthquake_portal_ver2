@@ -2,7 +2,8 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp; object-src 'none'; base-uri 'self';">
     <title>複合災害ハザードマップ | Quake Interactive Archive</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Biz+UDPGOthic:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -17,7 +18,7 @@
           integrity="sha256-YSWCMtmNZNwqex4CEw1nQhvFub2lmU7vcCKP+XVwwXA=" 
           crossorigin="anonymous" />
     
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/style.css?v=20261026_fix_3d_hazard">
     
     <style>
         /* =========================================
@@ -27,7 +28,7 @@
         /* メインレイアウト（上下分割） */
         .dashboard-main { 
             max-width: 1400px; 
-            margin: 60px auto 0; /* ★修正：固定ヘッダー（60px）分を下げる */
+            margin: 60px auto 0; /* 固定ヘッダー（60px）分を下げる */
             padding: 2rem; 
             display: flex; 
             flex-direction: column; 
@@ -41,11 +42,18 @@
             min-height: 450px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: var(--card-shadow);
             position: relative;
-            z-index: 1; /* ★修正：ヘッダーより下に配置する */
+            z-index: 1;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        #hazard-map { width: 100%; height: 100%; border-radius: 8px; background: #000; }
+        #hazard-map { 
+            width: 100%; 
+            height: 100%; 
+            border-radius: 8px; 
+            background: var(--surface-color); 
+            transition: background-color 0.3s ease;
+        }
 
         /* 計器盤エリア（地図の下の3カラムグリッド） */
         .dashboard-console {
@@ -61,59 +69,507 @@
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
+            box-shadow: var(--card-shadow);
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        .console-panel h3 { margin: 0 0 15px 0; color: #fff; font-size: 1.05rem; border-bottom: 1px solid #333; padding-bottom: 8px; letter-spacing: 0.1em; }
-        .console-panel p { margin: 0; font-size: 0.85rem; color: #ccc; line-height: 1.6; }
+        .console-panel h3 { 
+            margin: 0 0 15px 0; 
+            color: var(--text-main); 
+            font-size: 1.05rem; 
+            border-bottom: 1px solid var(--border-color); 
+            padding-bottom: 8px; 
+            letter-spacing: 0.1em; 
+        }
+        .console-panel p { 
+            margin: 0; 
+            font-size: 0.85rem; 
+            color: var(--text-sub); 
+            line-height: 1.6; 
+        }
 
         /* 凡例スタイル */
         .legend-grid { display: flex; gap: 2rem; }
         .legend-col { flex: 1; }
-        .legend-title { font-weight: bold; font-size: 0.8rem; margin: 10px 0 6px; color: #fff; }
-        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; margin-bottom: 4px; color: #ccc; font-family: 'Roboto Mono', sans-serif; }
-        .color-box { width: 14px; height: 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 2px; }
+        .legend-title { font-weight: bold; font-size: 0.8rem; margin: 10px 0 6px; color: var(--text-main); }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; margin-bottom: 4px; color: var(--text-sub); font-family: 'Roboto Mono', sans-serif; }
+        .color-box { width: 14px; height: 14px; border: 1px solid var(--border-color); border-radius: 2px; }
 
         /* 警告と出典スタイル */
-        .warning-text { font-size: 0.75rem; color: var(--cud-orange); line-height: 1.6; background: rgba(255, 123, 0, 0.05); padding: 10px; border-radius: 4px; border-left: 3px solid var(--cud-orange); margin-bottom: 15px; }
-        .source-text { font-size: 0.7rem; color: #666; line-height: 1.6; margin-top: auto; }
+        .warning-text { font-size: 0.75rem; color: var(--cud-orange); line-height: 1.6; background: rgba(255, 123, 0, 0.08); padding: 10px; border-radius: 4px; border-left: 3px solid var(--cud-orange); margin-bottom: 15px; border: 1px solid var(--border-color); border-left-width: 3px; }
+        .source-text { font-size: 0.7rem; color: var(--text-sub); line-height: 1.6; margin-top: auto; }
         .source-text a { color: var(--cud-blue); }
         .source-text a:hover { text-decoration: underline; }
 
         /* --- Leaflet オーバーライド & カスタムマーカー --- */
-        .leaflet-control-layers { background: rgba(15, 15, 15, 0.9) !important; color: #fff !important; border: 1px solid #333 !important; border-radius: 8px !important; backdrop-filter: blur(5px); }
+        .leaflet-control-layers { 
+            background: var(--surface-color) !important; 
+            color: var(--text-main) !important; 
+            border: 1px solid var(--border-color) !important; 
+            border-radius: 8px !important; 
+            backdrop-filter: blur(8px); 
+            box-shadow: var(--card-shadow) !important;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
         .leaflet-control-layers-expanded { padding: 10px !important; }
-        .leaflet-control-layers-separator { border-top: 1px solid #333 !important; }
+        .leaflet-control-layers-separator { border-top: 1px solid var(--border-color) !important; }
+
+        /* 避難所災害絞り込みコントロール（PC用スタイル） */
+        .leaflet-shelter-filter {
+            background: var(--surface-color);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-top: 8px !important;
+            backdrop-filter: blur(8px);
+            box-shadow: var(--card-shadow);
+            max-width: 250px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .leaflet-shelter-filter-title {
+            font-weight: bold;
+            font-size: 0.82rem;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .leaflet-shelter-filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .leaflet-shelter-filter-item {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .leaflet-shelter-filter-mode-note {
+            font-size: 0.65rem;
+            color: var(--text-sub);
+            margin-top: 6px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 4px;
+            line-height: 1.35;
+        }
+
+        /* 左上 拡大縮小ボタン */
+        .leaflet-control-zoom { 
+            border: 1px solid var(--border-color) !important; 
+            border-radius: 6px !important; 
+            overflow: hidden; 
+            box-shadow: var(--card-shadow) !important; 
+        }
+        .leaflet-control-zoom a { 
+            background-color: var(--surface-color) !important; 
+            color: var(--text-main) !important; 
+            border-bottom: 1px solid var(--border-color) !important; 
+            transition: 0.15s; 
+        }
+        .leaflet-control-zoom a:hover { 
+            background-color: var(--surface-hover) !important; 
+            color: var(--cud-green) !important; 
+        }
 
         /* 避難所マーカー */
-        .sfj-shelter-marker { background-color: rgba(15, 15, 15, 0.9); border: 2px solid var(--cud-green); border-radius: 50%; color: var(--cud-green); display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 0 10px rgba(0, 230, 118, 0.4); font-weight: bold; transition: 0.2s; }
-        .sfj-shelter-marker:hover { background-color: var(--cud-green); color: #050505; transform: scale(1.1); }
+        .sfj-shelter-marker { 
+            background-color: var(--surface-color); 
+            border: 2px solid var(--cud-green); 
+            border-radius: 50%; 
+            color: var(--cud-green); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 12px; 
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.4); 
+            font-weight: bold; 
+            transition: 0.2s; 
+        }
+        :root[data-theme="light"] .sfj-shelter-marker,
+        body[data-theme="light"] .sfj-shelter-marker {
+            box-shadow: 0 2px 8px rgba(0, 135, 68, 0.25);
+        }
+        .sfj-shelter-marker:hover { 
+            background-color: var(--cud-green); 
+            color: #fff; 
+            transform: scale(1.1); 
+        }
         
         /* クラスター（まとめ数字） */
-        .sfj-cluster-marker { background-color: rgba(15, 15, 15, 0.95); border: 2px solid var(--cud-green); color: var(--cud-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; box-shadow: 0 0 15px rgba(0, 230, 118, 0.5); font-family: 'Roboto Mono', monospace; transition: 0.2s; }
-        .sfj-cluster-marker:hover { background-color: var(--cud-green); color: #050505; transform: scale(1.1); }
+        .sfj-cluster-marker { 
+            background-color: var(--surface-color); 
+            border: 2px solid var(--cud-green); 
+            color: var(--cud-green); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 14px; 
+            font-weight: bold; 
+            box-shadow: 0 0 15px rgba(0, 230, 118, 0.4); 
+            font-family: 'Roboto Mono', monospace; 
+            transition: 0.2s; 
+        }
+        :root[data-theme="light"] .sfj-cluster-marker,
+        body[data-theme="light"] .sfj-cluster-marker {
+            box-shadow: 0 3px 10px rgba(0, 135, 68, 0.25);
+        }
+        .sfj-cluster-marker:hover { 
+            background-color: var(--cud-green); 
+            color: #fff; 
+            transform: scale(1.1); 
+        }
 
-        /* ダークポップアップ */
-        .leaflet-popup-content-wrapper { background: rgba(15, 15, 15, 0.95) !important; color: #EAEAEA !important; border: 1px solid #333; border-radius: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); backdrop-filter: blur(5px); font-family: 'BIZ UDPGothic', sans-serif; letter-spacing: 0.05em; }
-        .leaflet-popup-tip { background: rgba(15, 15, 15, 0.95) !important; border-bottom: 1px solid #333; border-right: 1px solid #333; }
-        .leaflet-popup-close-button { color: #aaa !important; font-size: 16px !important; }
-        .leaflet-popup-close-button:hover { color: #fff !important; }
-        .popup-title { color: var(--cud-green); font-size: 1.05rem; margin: 0 0 8px 0; border-bottom: 1px solid #333; padding-bottom: 4px; }
-        .popup-tag { display: inline-block; font-size: 0.65rem; background: #222; border: 1px solid #444; padding: 2px 6px; border-radius: 3px; margin-right: 4px; margin-bottom: 4px; }
+        /* ポップアップ */
+        .leaflet-popup-content-wrapper { 
+            background: var(--surface-color) !important; 
+            color: var(--text-main) !important; 
+            border: 1px solid var(--border-color); 
+            border-radius: 6px; 
+            box-shadow: var(--card-shadow); 
+            backdrop-filter: blur(8px); 
+            font-family: 'BIZ UDPGothic', sans-serif; 
+            letter-spacing: 0.05em; 
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .leaflet-popup-tip { 
+            background: var(--surface-color) !important; 
+            border-bottom: 1px solid var(--border-color); 
+            border-right: 1px solid var(--border-color); 
+        }
+        .leaflet-popup-close-button { color: var(--text-sub) !important; font-size: 16px !important; }
+        .leaflet-popup-close-button:hover { color: var(--text-main) !important; }
 
+        .shelter-badge-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .shelter-badge-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            padding: 3px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+        .shelter-badge-item.ok {
+            background: rgba(0, 230, 118, 0.12);
+            color: var(--cud-green);
+            font-weight: bold;
+            border-color: rgba(0, 230, 118, 0.3);
+        }
+        .shelter-badge-item.ng {
+            background: var(--surface-hover);
+            color: var(--text-sub);
+            opacity: 0.6;
+        }
+
+        /* ========================================================
+           スマホ専用コントロール ＆ ボトムシート（PC時は完全非表示）
+           ======================================================== */
+        .mobile-map-controls,
+        .hazard-sheet-backdrop,
+        .hazard-bottom-sheet {
+            display: none;
+        }
+
+        /* ========================================================
+           スマートフォン向けレスポンシブ設定
+           ======================================================== */
         @media (max-width: 768px) {
-            .dashboard-main { padding: 1rem; margin-top: 60px; }
-            .map-container { height: 50vh; }
-            .legend-grid { flex-direction: column; gap: 0; }
+            .dashboard-main { 
+                padding: 10px; 
+                margin-top: 65px; 
+                gap: 1rem;
+            }
+            .map-container { 
+                height: 68vh; 
+                min-height: 420px; 
+                border-radius: 12px;
+                position: relative;
+            }
+            .legend-grid { 
+                flex-direction: column; 
+                gap: 0; 
+            }
+
+            /* ★スマホ用：国土地理院クレジット表示をスリム化して下端にすっきり配置 */
+            .leaflet-control-attribution {
+                font-size: 0.62rem !important;
+                background: rgba(0, 0, 0, 0.5) !important;
+                color: #bbb !important;
+                padding: 1px 6px !important;
+                border-radius: 4px 0 0 0 !important;
+            }
+            .leaflet-control-attribution a {
+                color: #56B4E9 !important;
+            }
+
+            /* ★スマホ時は地図上の重なり巨大カード、PC用現在地ボタン＆ズームボタンを完全非表示 */
+            .leaflet-control-layers,
+            .leaflet-shelter-filter,
+            .leaflet-control-zoom,
+            .pc-locate-control {
+                display: none !important;
+            }
+
+            /* ★スマホ専用：著作権クレジットの上に十分な余白（48px＋セーフエリア）を設けて配置するフロート操作バー */
+            .mobile-map-controls {
+                display: flex !important;
+                align-items: center;
+                justify-content: space-between;
+                position: absolute;
+                bottom: calc(env(safe-area-inset-bottom, 0px) + 48px); /* 著作権表示（高さ約24-30px）の上に十分なクリアランスを確保 */
+                left: 14px;
+                right: 14px;
+                z-index: 1000;
+                pointer-events: none; /* ボタン以外は地図タップを阻害しない */
+            }
+            .btn-map-float {
+                pointer-events: auto;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                background: var(--header-bg);
+                border: 1px solid var(--border-color);
+                color: var(--text-main);
+                font-size: 0.78rem;
+                font-weight: 700;
+                padding: 7px 13px;
+                border-radius: 20px;
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+                backdrop-filter: blur(10px);
+                cursor: pointer;
+                user-select: none;
+                transition: all 0.2s ease;
+            }
+            .btn-map-float:active {
+                transform: scale(0.95);
+                background: var(--surface-hover);
+            }
+
+            /* ボトムシート背景（バックドロップ） */
+            .hazard-sheet-backdrop {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(2px);
+                z-index: 2400;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+            }
+            .hazard-sheet-backdrop.active {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            /* 統合ボトムシート本体 */
+            .hazard-bottom-sheet {
+                display: flex !important;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                max-height: 82vh;
+                background: var(--surface-color);
+                border-top: 2px solid var(--border-color);
+                border-radius: 20px 20px 0 0;
+                box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.6);
+                z-index: 2500;
+                transform: translateY(100%);
+                transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+                flex-direction: column;
+                overflow: hidden;
+            }
+            .hazard-bottom-sheet.active {
+                transform: translateY(0);
+            }
+
+            .sheet-drag-handle {
+                width: 38px;
+                height: 4px;
+                background: var(--border-color);
+                border-radius: 2px;
+                margin: 8px auto 4px auto;
+            }
+            .sheet-top-bar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 8px 16px 10px 16px;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .sheet-top-title {
+                font-weight: bold;
+                font-size: 0.95rem;
+                color: var(--text-main);
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .sheet-btn-close {
+                background: var(--surface-hover);
+                border: 1px solid var(--border-color);
+                color: var(--text-sub);
+                font-size: 0.75rem;
+                font-weight: bold;
+                padding: 4px 10px;
+                border-radius: 12px;
+                cursor: pointer;
+            }
+            .sheet-content-scroll {
+                flex: 1;
+                overflow-y: auto;
+                padding: 14px 16px;
+                -webkit-overflow-scrolling: touch;
+            }
+            .sheet-panel-block {
+                background: var(--bg-color);
+                border: 1px solid var(--border-color);
+                border-radius: 10px;
+                padding: 12px 14px;
+                margin-bottom: 14px;
+            }
+            .sheet-block-title {
+                font-size: 0.82rem;
+                font-weight: bold;
+                color: var(--text-main);
+                margin-bottom: 8px;
+                border-bottom: 1px solid var(--border-color);
+                padding-bottom: 4px;
+            }
+            .sheet-item-row {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 7px 0;
+                cursor: pointer;
+                user-select: none;
+            }
+            .sheet-checkbox {
+                width: 18px;
+                height: 18px;
+                accent-color: var(--cud-green, #00E676);
+                cursor: pointer;
+            }
+            .sheet-item-label {
+                font-size: 0.85rem;
+                color: var(--text-main);
+            }
+            .sheet-shelter-tags-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            .sheet-tag-btn {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                background: var(--surface-hover);
+                border: 1px solid var(--border-color);
+                padding: 8px 6px;
+                border-radius: 6px;
+                font-size: 0.78rem;
+                color: var(--text-main);
+                cursor: pointer;
+                user-select: none;
+            }
+            .sheet-tag-btn input {
+                accent-color: var(--cud-green, #00E676);
+            }
+            .sheet-bottom-actions {
+                padding: 10px 16px 14px;
+                border-top: 1px solid var(--border-color);
+                background: var(--surface-color);
+            }
+            .btn-sheet-apply-large {
+                width: 100%;
+                padding: 10px 0;
+                background: var(--cud-green, #00E676);
+                color: #000;
+                border: none;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                font-weight: bold;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3);
+            }
+            .btn-sheet-apply-large:active {
+                transform: scale(0.98);
+            }
         }
     </style>
+    <script>
+        // テーマ初期適用（チラつき防止）
+        (function() {
+            var savedTheme = localStorage.getItem('v2_portal_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', savedTheme);
+            }
+        })();
+
+        window.setTheme = function(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', theme);
+            }
+            try {
+                localStorage.setItem('v2_portal_theme', theme);
+            } catch (e) {
+                console.error("Storage error:", e);
+            }
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+                toggleBtn.title = theme === 'dark' ? 'ライトテーマに切り替え' : 'ダークテーマに切り替え';
+            }
+            // テーマ変更イベントを通知
+            document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+        };
+
+        window.toggleTheme = function() {
+            var current = document.documentElement.getAttribute('data-theme') || 'dark';
+            window.setTheme(current === 'dark' ? 'light' : 'dark');
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('v2_portal_theme') || 'dark';
+            window.setTheme(currentTheme);
+
+            var toggleBtn = document.getElementById('btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.toggleTheme();
+                });
+            }
+        });
+    </script>
 </head>
 <body>
 
     <header>
         <div class="logo-area">
             <span class="tag" style="background: #56B4E9; color: #000; font-weight: bold; margin-bottom: 4px; display: inline-block;">Multi-Hazard Map</span>
-            <h1 style="font-size: 1rem; margin: 0; letter-spacing: 0.1em;">複合災害ハザードマップ</h1>
+            <h1 style="font-size: 1rem; margin: 0; letter-spacing: 0.1em; color: var(--text-main);">複合災害ハザードマップ</h1>
         </div>
         <div class="header-actions">
+            <!-- テーマ切り替え（単一トグルボタン） -->
+            <button id="btn-theme-toggle" class="btn-theme-toggle" title="テーマ切り替え" aria-label="テーマ切り替え">🌙</button>
             <a href="index.html" class="btn-back" data-log="ハザードマップ：戻るボタンをクリック">✕ 戻る</a>
         </div>
     </header>
@@ -121,19 +577,122 @@
     <main class="dashboard-main">
         <div class="map-container">
             <div id="hazard-map"></div>
+
+            <!-- ★スマホ専用：著作権クレジットの上の安全な高さに配置するフロート操作バー（PC時は非表示） -->
+            <div class="mobile-map-controls">
+                <button type="button" class="btn-map-float" id="btn-mobile-locate" title="現在地を表示" aria-label="現在地を表示">
+                    <span>📍 現在地</span>
+                </button>
+                <button type="button" class="btn-map-float" id="btn-hazard-settings-toggle" aria-label="災害・避難所設定を開く">
+                    <span>⚙️ 災害・避難所設定</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ★スマホ専用：統合ボトムシート ＆ バックドロップ（PC時は非表示） -->
+        <div class="hazard-sheet-backdrop" id="hazard-sheet-backdrop"></div>
+        <div class="hazard-bottom-sheet" id="hazard-bottom-sheet">
+            <div class="sheet-drag-handle" id="hazard-sheet-handle"></div>
+            <div class="sheet-top-bar">
+                <div class="sheet-top-title">
+                    <span style="color:var(--cud-green); font-size:1.1rem;">⚙️</span>
+                    <span>災害レイヤー・避難所設定</span>
+                </div>
+                <button type="button" class="sheet-btn-close" id="btn-hazard-sheet-close" aria-label="閉じる">✕ 閉じる</button>
+            </div>
+
+            <div class="sheet-content-scroll">
+                <!-- セクション1: 重ねるハザード面 -->
+                <div class="sheet-panel-block">
+                    <div class="sheet-block-title">
+                        <span>📊 重ねる災害リスク (ハザード面)</span>
+                    </div>
+                    <div class="sheet-layer-list">
+                        <label class="sheet-item-row">
+                            <input type="checkbox" id="m-layer-tsunami" class="sheet-checkbox" checked>
+                            <span class="sheet-item-label">🌊 津波浸水想定 (Area)</span>
+                        </label>
+                        <label class="sheet-item-row">
+                            <input type="checkbox" id="m-layer-flood" class="sheet-checkbox">
+                            <span class="sheet-item-label">💧 洪水浸水想定 (Area)</span>
+                        </label>
+                        <label class="sheet-item-row">
+                            <input type="checkbox" id="m-layer-landslide" class="sheet-checkbox">
+                            <span class="sheet-item-label">⛰️ 土砂災害警戒区域 (Area)</span>
+                        </label>
+                        <label class="sheet-item-row">
+                            <input type="checkbox" id="m-layer-pref" class="sheet-checkbox" checked>
+                            <span class="sheet-item-label">🗺️ 都道府県境 (Line)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- セクション2: 避難所と対応災害絞り込み -->
+                <div class="sheet-panel-block">
+                    <div class="sheet-block-title">
+                        <span>🏃 指定緊急避難場所 (Point)</span>
+                    </div>
+                    <label class="sheet-item-row" style="margin-bottom: 10px; background: var(--surface-hover); padding: 8px 12px; border-radius: 6px;">
+                        <input type="checkbox" id="m-layer-shelter" class="sheet-checkbox" checked>
+                        <span class="sheet-item-label" style="font-weight: bold; color: var(--cud-green);">避難所アイコンを表示する</span>
+                    </label>
+
+                    <div style="font-size: 0.76rem; color: var(--text-sub); margin-bottom: 6px; font-weight: bold;">
+                        対応災害で絞り込み (複数選択可):
+                    </div>
+                    <div class="sheet-shelter-tags-grid">
+                        <label class="sheet-tag-btn">
+                            <input type="checkbox" class="m-shelter-filter-cb" data-disaster="J" checked>
+                            <span>🏚️ 地震</span>
+                        </label>
+                        <label class="sheet-tag-btn">
+                            <input type="checkbox" class="m-shelter-filter-cb" data-disaster="T" checked>
+                            <span>🌊 津波</span>
+                        </label>
+                        <label class="sheet-tag-btn">
+                            <input type="checkbox" class="m-shelter-filter-cb" data-disaster="F" checked>
+                            <span>💧 洪水</span>
+                        </label>
+                        <label class="sheet-tag-btn">
+                            <input type="checkbox" class="m-shelter-filter-cb" data-disaster="S" checked>
+                            <span>⛰️ 土砂</span>
+                        </label>
+                        <label class="sheet-tag-btn">
+                            <input type="checkbox" class="m-shelter-filter-cb" data-disaster="H" checked>
+                            <span>🔥 火災</span>
+                        </label>
+                    </div>
+
+                    <div id="m-shelter-zoom-hint" style="margin-top: 10px; padding: 8px 10px; background: rgba(230,159,0,0.12); border: 1px solid rgba(230,159,0,0.35); border-radius: 6px; font-size: 0.72rem; color: #E69F00; line-height: 1.45;">
+                        ⚠️ 広域ではハザード面情報を優先表示しています。<br>
+                        <a href="#" id="m-link-zoom-shelter" style="color:#56B4E9; text-decoration:underline; font-weight:bold; display:inline-block; margin-top:3px;">
+                            🔍 この地域を拡大して避難所を表示 (Lv13〜)
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sheet-bottom-actions">
+                <button type="button" class="btn-sheet-apply-large" id="btn-hazard-sheet-apply">この設定で地図を見る</button>
+            </div>
         </div>
         
         <div class="dashboard-console">
             
             <div class="console-panel">
                 <h3>🛡️ 複合災害リスクの確認</h3>
-                <p>マップ右上の「レイヤーアイコン」から、表示したい災害リスクをチェックして重ね合わせることができます。<br><br>複数の色が重なる場所は、複合災害の危険性が高いエリアです。</p>
-                
-                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #333; display:flex; align-items:center; gap:12px;">
-                    <div class="sfj-shelter-marker" style="position:static; width:32px; height:32px; font-size: 16px;">🏃</div>
-                    <div>
-                        <span style="font-size:0.85rem; color:#00E676; font-weight:bold; display:block;">指定緊急避難場所</span>
-                        <span style="font-size:0.7rem; color:#888;">アイコンをクリックで対応災害を確認</span>
+                <p>マップ上の「災害・避難所設定」から、表示したい災害リスクや、避難所の対応災害（地震・津波・洪水・土砂・火災）を複数選択して絞り込むことができます。<br><br>複数の色が重なる場所は、複合災害の危険性が高いエリアです。</p>
+
+                <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed var(--border-color); display:flex; align-items:center; justify-content:space-between;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="sfj-shelter-marker" style="position:static; width:28px; height:28px; font-size: 14px;">🏃</div>
+                        <div>
+                            <span style="font-size:0.85rem; color:var(--cud-green); font-weight:bold; display:block;">指定緊急避難場所</span>
+                            <span style="font-size:0.7rem; color:var(--text-sub);">施設をクリックで適応災害バッジを確認</span>
+                        </div>
+                    </div>
+                    <div id="shelter-count-badge" style="font-size:0.75rem; background:var(--surface-hover); border:1px solid var(--border-color); padding:3px 8px; border-radius:12px; color:var(--text-sub); font-family:'Roboto Mono',monospace;">
+                        表示中: --件
                     </div>
                 </div>
             </div>
@@ -171,9 +730,10 @@
                 </div>
                 <div class="source-text">
                     <strong>[出典・データクレジット]</strong><br>
-                    ・ベースマップ：&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" data-log="ハザードマップ：OpenStreetMap出典リンクをクリック">OpenStreetMap</a> contributors<br>
-                    ・ハザード情報：<a href="https://disaportal.gsi.go.jp/" target="_blank" rel="noopener noreferrer" data-log="ハザードマップ：ハザードマップポータル出典リンクをクリック">国土地理院 ハザードマップポータル</a><br>
-                    ・避難所情報：国土地理院「<a href="https://hinanmap.gsi.go.jp/hinanjocp/hinanbasho/koukaidate.html" target="_blank" rel="noopener noreferrer" data-log="ハザードマップ：指定緊急避難場所データ出典リンクをクリック">指定緊急避難場所データ</a>」を当サイトで加工して作成
+                    ・ベースマップ：<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener noreferrer" data-log="ハザードマップ：国土地理院淡色地図リンクをクリック">国土地理院（淡色地図タイル）</a><br>
+                    ・ハザード情報：<a href="https://disaportal.gsi.go.jp/" target="_blank" rel="noopener noreferrer" data-log="ハザードマップ：ハザードマップポータル出典リンクをクリック">国土地理院 重ねるハザードマップ（津波・洪水・土砂災害データ）</a><br>
+                    ・避難所情報：国土地理院「<a href="https://hinanmap.gsi.go.jp/hinanjocp/hinanbasho/koukaidate.html" target="_blank" rel="noopener noreferrer" data-log="ハザードマップ：指定緊急避難場所データ出典リンクをクリック">指定緊急避難場所データ</a>」を加工して作成<br>
+                    ・都道府県境：国土交通省「<a href="https://nlftp.mlit.go.jp/ksj/" target="_blank" rel="noopener noreferrer" data-log="ハザードマップ：国土数値情報行政区域リンクをクリック">国土数値情報（行政区域データ）</a>」を加工して作成
                 </div>
             </div>
 
@@ -186,9 +746,8 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"
             integrity="sha256-Hk4dIpcqOSb0hZjgyvFOP+cEmDXUKKNE/tT542ZbNQg="
             crossorigin="anonymous"></script>
-    <script src="./js/logger.js"></script>
-    <script src="./js/utils.js"></script>
-    <script src="./js/prefectures.js"></script>
-    <script src="./js/hazard_map.js"></script>
+    <script src="./js/utils.js?v=20261026_sec_v2"></script>
+    <script src="./js/prefectures.js?v=20261013_9"></script>
+    <script src="./js/hazard_map.js?v=20261026_fix_3d_hazard"></script>
 </body>
 </html>

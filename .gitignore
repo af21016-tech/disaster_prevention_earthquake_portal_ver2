@@ -1,0 +1,12 @@
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+temp_*.js
+*.tmp
+*.log
+
+# Scratch directory (if any)
+scratch/

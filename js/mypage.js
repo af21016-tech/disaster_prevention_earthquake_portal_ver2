@@ -16,63 +16,50 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. バッジ（メダル）の自動描画機能 ---
-    // 全7種類のバッジ定義リスト
-    const ALL_BADGES = [
-        { id: 'bronze', icon: '🥉', name: 'サバイバル初級' },
-        { id: 'silver', icon: '🥈', name: 'サバイバル中級' },
-        { id: 'gold', icon: '🥇', name: 'サバイバル上級' },
-        { id: 'fakemediabuster', icon: '📱', name: 'フェイクバスター' },
-        { id: 'shakeout_sleep', icon: '🛏️', name: '暗闇の防衛者' },
-        { id: 'shakeout_arena', icon: '🏟️', name: '同調圧力への抵抗' },
-        { id: 'memory_inheritor', icon: '🕊️', name: '記憶の継承者' }
-    ];
+    // --- 3. 実績（バッジ）の初期描画 ---
+    renderBadges();
 
-    function renderMyPageBadges() {
-        const earnedMedals = JSON.parse(localStorage.getItem('quake_medals')) || [];
-        const badgeContainer = document.getElementById('my-badge-list');
+    // --- 行動ログCSVダウンロード（10分経過後のみ有効化） ---
+    const btnDownloadLogMypage = document.getElementById('btn-download-log-mypage');
+    const descLogDownload = document.getElementById('log-download-desc');
+    if (btnDownloadLogMypage) {
+        const elapsed = (typeof getValidatedElapsedTime === 'function') ? getValidatedElapsedTime() : parseInt(localStorage.getItem('v2_accumulated_elapsed_time') || '0', 10);
+        const limit = 10 * 60 * 1000; // 10分 (600,000ms)
         
-        if (!badgeContainer) return;
-        
-        badgeContainer.innerHTML = ''; 
-        badgeContainer.style.display = 'flex';
-        badgeContainer.style.flexWrap = 'wrap';
-        badgeContainer.style.gap = '15px';
-        
-        // スマホでも見やすいように左寄せ（または中央寄せ）
-        badgeContainer.style.justifyContent = 'flex-start'; 
+        if (elapsed >= limit) {
+            btnDownloadLogMypage.disabled = false;
+            btnDownloadLogMypage.style.cursor = 'pointer';
+            if (descLogDownload) {
+                descLogDownload.textContent = '実験での操作ログをCSV形式で保存します。事後アンケート等への添付にご利用ください。';
+            }
+        } else {
+            btnDownloadLogMypage.disabled = true;
+            btnDownloadLogMypage.title = '10分間の学習完了後にダウンロード可能になります';
+        }
 
-        ALL_BADGES.forEach(badge => {
-            const isEarned = earnedMedals.includes(badge.id);
-            
-            const iconDisplay = isEarned ? badge.icon : '🔒';
-            const nameDisplay = isEarned ? badge.name : '未獲得';
-            const opacityStyle = isEarned ? '1' : '0.4';
-            const filterStyle = isEarned ? 'none' : 'grayscale(100%)';
-            const borderStyle = isEarned ? '2px solid #FFBE00' : '2px dashed #444';
-            const shadowStyle = isEarned ? '0 0 15px rgba(255, 190, 0, 0.2)' : 'none';
-            const textStyle = isEarned ? '#fff' : '#666';
-
-            const badgeHTML = `
-                <div style="background: #1a1a1a; border: ${borderStyle}; border-radius: 10px; padding: 15px 10px; width: 120px; text-align: center; opacity: ${opacityStyle}; filter: ${filterStyle}; box-shadow: ${shadowStyle}; transition: 0.3s;">
-                    <div style="font-size: 2.5rem; margin-bottom: 8px;">${iconDisplay}</div>
-                    <div style="font-size: 0.75rem; font-weight: bold; color: ${textStyle}; line-height: 1.4;">${nameDisplay}</div>
-                </div>
-            `;
-            badgeContainer.innerHTML += badgeHTML;
+        btnDownloadLogMypage.addEventListener('click', () => {
+            const currentElapsed = (typeof getValidatedElapsedTime === 'function') ? getValidatedElapsedTime() : parseInt(localStorage.getItem('v2_accumulated_elapsed_time') || '0', 10);
+            if (currentElapsed < limit) {
+                alert('10分間の学習が完了した後にダウンロードできるようになります。');
+                return;
+            }
+            if (typeof exportLogsAsCSV === 'function') {
+                exportLogsAsCSV();
+                showToast('行動ログ (CSV) をダウンロードしました');
+            }
         });
     }
 
-    // すぐに描画を実行
-    renderMyPageBadges();
+    window.addEventListener('badgeunlocked', renderBadges);
 
     // --- 4. 各種設定のアクション ---
     const btnTutorial = document.getElementById('btn-replay-tutorial');
     if (btnTutorial) {
         btnTutorial.addEventListener('click', () => {
-            localStorage.removeItem('quake_tutorial_done');
-            localStorage.setItem('start_tutorial_now', 'true'); 
-            localStorage.setItem('is_replaying_tutorial', 'true'); // リプレイフラグをセット
+            localStorage.removeItem('v2_quake_tutorial_done');
+            localStorage.removeItem('v2_tutorialCompleted');
+            localStorage.setItem('v2_start_tutorial_now', 'true'); 
+            localStorage.setItem('v2_is_replaying_tutorial', 'true'); // リプレイフラグをセット
             window.location.href = 'index.html'; 
         });
     }
@@ -83,14 +70,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const confirmReset = confirm("獲得した実績などの学習データがすべて消去されます。\n本当によろしいですか？\n（※ユーザーIDは維持されます）");
             
             if (confirmReset) {
-                localStorage.removeItem('quake_medals');
-                renderMyPageBadges(); // 消去後にバッジ画面を再描画してグレーに戻す
-                showToast('学習データを初期化しました');
+                localStorage.removeItem('v2_quake_medals');
+                localStorage.removeItem('v2_quake_viewed_eqs');
+                renderBadges();
+                showToast('学習データと実績を初期化しました');
             }
         });
     }
 
-    // --- 5. マイページチュートリアル機能 ---
+    // --- 4. マイページチュートリアル機能 ---
     const overlay = document.getElementById('tut-overlay');
     const tooltip = document.getElementById('tut-tooltip');
     const btnClose = document.getElementById('tut-close');
@@ -107,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentStep = 0;
             
             // リプレイ中のみ「✕」ボタンを表示し、初回オンボーディング時は非表示にする
-            const isReplay = localStorage.getItem('is_replaying_tutorial') === 'true';
+            const isReplay = localStorage.getItem('v2_is_replaying_tutorial') === 'true';
             if (btnClose) {
                 btnClose.style.display = isReplay ? 'block' : 'none';
             }
@@ -122,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function closeMyPageTutorial() {
-            const isReplay = localStorage.getItem('is_replaying_tutorial') === 'true';
+            const isReplay = localStorage.getItem('v2_is_replaying_tutorial') === 'true';
 
             overlay.style.opacity = '0';
             tooltip.style.opacity = '0';
@@ -132,8 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 tooltip.style.display = 'none';
             }, 300);
             
-            localStorage.removeItem('start_mypage_tutorial');
-            localStorage.removeItem('is_replaying_tutorial'); // リプレイフラグを消去
+            localStorage.removeItem('v2_start_mypage_tutorial');
+            localStorage.removeItem('v2_is_replaying_tutorial'); // リプレイフラグを消去
 
             // 初回チュートリアルの場合はホーム（index.html）に強制遷移
             if (!isReplay) {
@@ -141,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        if (localStorage.getItem('start_mypage_tutorial') === 'true') {
+        if (localStorage.getItem('v2_start_mypage_tutorial') === 'true') {
             startMyPageTutorial();
         }
 
@@ -242,3 +230,69 @@ function showToast(message) {
         toast.style.opacity = '0'; 
     }, 2500);
 }
+
+/**
+ * 獲得実績（バッジ一覧）をDOMへ描画・更新する関数
+ */
+function renderBadges() {
+    const earnedIds = typeof getEarnedBadges === 'function' ? getEarnedBadges() : [];
+    const baseBadges = (typeof BADGE_DEFINITIONS !== 'undefined') 
+        ? BADGE_DEFINITIONS.filter(b => !b.isMaster) 
+        : [];
+    const masterBadge = (typeof BADGE_DEFINITIONS !== 'undefined')
+        ? BADGE_DEFINITIONS.find(b => b.isMaster)
+        : null;
+
+    const earnedCount = baseBadges.filter(b => earnedIds.includes(b.id)).length;
+    const isMasterUnlocked = earnedIds.includes('master') || (earnedCount === baseBadges.length && baseBadges.length > 0);
+
+    // 進捗サマリー表示の更新
+    const summaryEl = document.getElementById('badge-summary-text');
+    if (summaryEl) {
+        summaryEl.textContent = `獲得状況: ${earnedCount} / ${baseBadges.length}${isMasterUnlocked ? ' (👑 MASTER達成)' : ''}`;
+    }
+
+    // 進捗バーの更新
+    const progressFill = document.getElementById('badge-progress-fill');
+    if (progressFill) {
+        const percent = baseBadges.length > 0 ? Math.round((earnedCount / baseBadges.length) * 100) : 0;
+        progressFill.style.width = `${percent}%`;
+    }
+
+    // マスターバッジバナーの表示切り替え
+    const masterBanner = document.getElementById('master-badge-banner');
+    if (masterBanner) {
+        masterBanner.style.display = isMasterUnlocked ? 'flex' : 'none';
+    }
+
+    // 9つのバッジグリッドの描画
+    const gridEl = document.getElementById('badge-grid');
+    if (gridEl) {
+        gridEl.innerHTML = '';
+        baseBadges.forEach(b => {
+            const isUnlocked = earnedIds.includes(b.id);
+            const card = document.createElement('div');
+            card.className = `badge-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+            card.id = `badge-${b.id}`;
+
+            if (isUnlocked) {
+                card.innerHTML = `
+                    <div class="badge-icon">${b.icon}</div>
+                    <div class="badge-category">${b.category}</div>
+                    <div class="badge-name">${b.name}</div>
+                    <div class="badge-desc">${b.desc}</div>
+                    <div class="badge-status-tag">✓ 獲得済み</div>
+                `;
+            } else {
+                card.innerHTML = `
+                    <div class="badge-icon">${b.icon}</div>
+                    <div class="badge-category">${b.category}</div>
+                    <div class="badge-name">${b.name}</div>
+                    <div class="badge-desc"><span style="color:var(--cud-orange); font-weight:bold;">【要件】</span> ${b.req}</div>
+                    <div class="badge-status-tag">🔒 未獲得</div>
+                `;
+            }
+            gridEl.appendChild(card);
+        });
+    }
+}
