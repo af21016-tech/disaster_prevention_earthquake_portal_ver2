@@ -1,12 +1,12 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1792980247000,
-    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-10-26&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
+    "generated": 1793068898000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-10-27&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
     "title": "USGS Earthquakes",
     "status": 200,
     "api": "2.8.2",
-    "count": 5787
+    "count": 5785
   },
   "features": [
     {
@@ -55,7 +55,7 @@
         "mag": 6.5,
         "place": "Bonin Islands, Japan region",
         "time": 1792894163818,
-        "updated": 1792910912040,
+        "updated": 1792980948547,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u4r9",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000u4r9&format=geojson",
@@ -128,86 +128,6 @@
         ]
       },
       "id": "us6000u4qq"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "mag": 7,
-        "place": "Bonin Islands, Japan region",
-        "time": 1792807740000,
-        "updated": 1792895122235,
-        "tz": null,
-        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/pt26298050",
-        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=pt26298050&format=geojson",
-        "felt": null,
-        "cdi": null,
-        "mmi": null,
-        "alert": null,
-        "status": "REVIEWED",
-        "tsunami": 0,
-        "sig": 754,
-        "net": "pt",
-        "code": "26298050",
-        "ids": ",pt26298050,",
-        "sources": ",pt,",
-        "types": ",origin,",
-        "nst": 10,
-        "dmin": null,
-        "rms": null,
-        "gap": null,
-        "magType": "Mi",
-        "type": "earthquake",
-        "title": "M 7.0 - Bonin Islands, Japan region"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          139.9,
-          28,
-          473
-        ]
-      },
-      "id": "pt26298050"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "mag": 7,
-        "place": "Bonin Islands, Japan region",
-        "time": 1792807740000,
-        "updated": 1792895183900,
-        "tz": null,
-        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/pt26297050",
-        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=pt26297050&format=geojson",
-        "felt": null,
-        "cdi": null,
-        "mmi": null,
-        "alert": null,
-        "status": "REVIEWED",
-        "tsunami": 0,
-        "sig": 754,
-        "net": "pt",
-        "code": "26297050",
-        "ids": ",pt26297050,",
-        "sources": ",pt,",
-        "types": ",origin,",
-        "nst": 10,
-        "dmin": null,
-        "rms": null,
-        "gap": null,
-        "magType": "Mi",
-        "type": "earthquake",
-        "title": "M 7.0 - Bonin Islands, Japan region"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          139.9,
-          28,
-          473
-        ]
-      },
-      "id": "pt26297050"
     },
     {
       "type": "Feature",
