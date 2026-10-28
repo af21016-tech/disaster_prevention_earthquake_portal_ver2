@@ -227,9 +227,9 @@ function processAnswer(userAnswer) {
         if (fb) fb.className = "feedback-area correct";
         if (fbTitle) {
             if (userAnswer === true) {
-                fbTitle.innerText = "⭕ 正しい判断！（有益な情報を拡散）";
+                fbTitle.innerText = "✅ 正しい判断！（有益な情報を拡散）";
             } else {
-                fbTitle.innerText = "⭕ 見破りました！（デマの拡散を阻止）";
+                fbTitle.innerText = "✅ 見破りました！（デマの拡散を阻止）";
             }
             fbTitle.style.color = "var(--cud-green)";
         }
@@ -238,9 +238,9 @@ function processAnswer(userAnswer) {
         if (fb) fb.className = "feedback-area incorrect";
         if (fbTitle) {
             if (userAnswer === true) {
-                fbTitle.innerText = "❌ デマを拡散してしまいました！（インフォデミック加担）";
+                fbTitle.innerText = "⚠️ デマを拡散してしまいました！（インフォデミック加担）";
             } else {
-                fbTitle.innerText = "❌ 周知が必要な公式情報でした（拡散見送り）";
+                fbTitle.innerText = "⚠️ 周知が必要な公式情報でした（拡散見送り）";
             }
             fbTitle.style.color = "var(--cud-orange)";
         }

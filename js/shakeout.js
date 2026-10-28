@@ -13,7 +13,8 @@ let isRhythmGameActive = false;
 let rhythmStartTime = 0;
 let combo = 0;
 let rhythmAnimFrame = null;
-let bgmAudio = null; 
+let bgmAudio = null;
+let isArenaMuted = false; 
 let targetEarthquakeTime = 5000; 
 
 
@@ -115,29 +116,23 @@ const scenarios = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    const btnStart = document.getElementById('btn-start');
-    if (btnStart) {
-        btnStart.addEventListener('click', () => {
-            document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('training-screen').style.display = 'none';
-            
-            const mainEl = document.querySelector('main');
-            let mainContainer = document.getElementById('main-container');
-            if (!mainContainer) {
-                mainContainer = document.createElement('div');
-                mainContainer.id = 'main-container';
-                mainContainer.className = 'main-container';
-                mainEl.appendChild(mainContainer);
-                
-                const contentBox = document.createElement('div');
-                contentBox.id = 'content-box';
-                contentBox.style.width = '100%';
-                contentBox.style.padding = '0 20px';
-                mainContainer.appendChild(contentBox);
-            }
-            showMenu();
-        });
+    const mainEl = document.querySelector('main');
+    let mainContainer = document.getElementById('main-container');
+    if (!mainContainer) {
+        mainContainer = document.createElement('div');
+        mainContainer.id = 'main-container';
+        mainContainer.className = 'main-container';
+        mainEl.appendChild(mainContainer);
     }
+    let contentBox = document.getElementById('content-box');
+    if (!contentBox) {
+        contentBox = document.createElement('div');
+        contentBox.id = 'content-box';
+        contentBox.style.width = '100%';
+        contentBox.style.padding = '0 10px';
+        mainContainer.appendChild(contentBox);
+    }
+    showMenu();
 });
 
 function setTrainingMode(mode) {
@@ -146,6 +141,18 @@ function setTrainingMode(mode) {
 }
 
 function showMenu() {
+    if (bgmAudio) {
+        bgmAudio.pause();
+        bgmAudio.currentTime = 0;
+    }
+    isRhythmGameActive = false;
+    window.removeEventListener('keydown', handleRhythmKey);
+    if (rhythmAnimFrame) cancelAnimationFrame(rhythmAnimFrame);
+    const mainContainerEl = document.getElementById('main-container');
+    if (mainContainerEl) {
+        mainContainerEl.style.background = '';
+        mainContainerEl.className = 'main-container';
+    }
     contentBox = document.getElementById("content-box");
     contentBox.innerHTML = `
         <h2 style="color: #FFBE00; margin-bottom: 0.5rem; font-size: 1.8rem;">シミュレーション設定</h2>
@@ -192,22 +199,59 @@ function showMenu() {
                     <div style="font-size: 0.8rem; color: var(--text-sub); margin-top: 3px;">自室の家具配置・固定状況に応じたパーソナライズ訓練</div>
                 </div>
             </button>
-            <button class="shakeout-menu-btn" style="max-width:100%; justify-content: flex-start; padding: 18px 20px; border-radius: 10px;" onclick="startScenario('arena')">
-                <span style="font-size:2.4rem; min-width: 50px;">🏟️</span>
-                <div style="text-align: left;">
-                    <div style="font-size: 1.15rem; font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"><span>ライブ会場（アリーナ）</span><span style="font-size: 0.75rem; background: rgba(255, 123, 0, 0.15); color: var(--cud-orange); border: 1px solid var(--cud-orange); padding: 2px 7px; border-radius: 4px; font-weight: bold;">🔊 音が出ます</span></div>
-                    <div style="font-size: 0.8rem; color: var(--text-sub); margin-top: 3px;">大規模集客施設での群衆パニックと同調圧力への抵抗訓練 <span style="color: var(--cud-orange); font-weight: bold;">※BGM・音が出ます（音量注意）</span></div>
+            <div style="background: var(--surface-color); border: 2px solid var(--border-color); border-radius: 12px; padding: 18px 20px; box-shadow: var(--card-shadow); text-align: left;">
+                <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 8px;">
+                    <span style="font-size: 2.4rem;">🏟️</span>
+                    <div>
+                        <div style="font-size: 1.2rem; font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span>ライブ会場（アリーナ）</span>
+                            <span style="font-size: 0.75rem; background: rgba(255, 123, 0, 0.15); color: var(--cud-orange); border: 1px solid var(--cud-orange); padding: 2px 8px; border-radius: 4px; font-weight: bold;">🔊 音が出ます</span>
+                        </div>
+                        <div style="font-size: 0.82rem; color: var(--text-sub); margin-top: 2px;">
+                            大規模集客施設での群衆パニックと同調圧力への抵抗訓練
+                        </div>
+                    </div>
                 </div>
-            </button>
+
+                <!-- 音量警告ボックス -->
+                <div style="background: rgba(255, 123, 0, 0.08); border-left: 4px solid var(--cud-orange); border: 1px solid rgba(255, 123, 0, 0.3); border-left-width: 4px; border-radius: 6px; padding: 10px 14px; margin: 12px 0 14px; font-size: 0.85rem; line-height: 1.5; color: var(--text-main);">
+                    <strong style="color: var(--cud-orange); display: block; margin-bottom: 3px;">⚠️ 音量・音声に関する注意事項</strong>
+                    本訓練では、ライブ会場の臨場感再現のため大音量でBGM（音楽）が流れます。公共の場や音が鳴ると困る環境では、下の「🔇 ミュートで開始」をお選びください。
+                </div>
+
+                <!-- 音声あり / ミュート（消音）開始ボタン2系統 -->
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn primary" style="flex: 1; min-width: 160px; font-size: 1rem; padding: 12px 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: bold;" onclick="startScenario('arena', false)">
+                        <span style="font-size: 1.25rem;">🔊</span>
+                        <span>音声ありで開始</span>
+                    </button>
+                    <button class="btn secondary" style="flex: 1; min-width: 160px; font-size: 1rem; padding: 12px 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: bold; border-color: var(--border-color);" onclick="startScenario('arena', true)">
+                        <span style="font-size: 1.25rem;">🔇</span>
+                        <span>ミュート（消音）で開始</span>
+                    </button>
+                </div>
+            </div>
         </div>
     `;
 }
-function startScenario(sceneId) {
+function startScenario(sceneId, isMuted = null) {
     currentSceneId = sceneId;
     currentPhase = 0;
     playerConfig = {};
-    if (scenarios[sceneId].setupSteps && scenarios[sceneId].setupSteps.length > 0) showSetupStep(0);
-    else startArenaRhythmGame();
+    if (isMuted !== null) {
+        isArenaMuted = isMuted;
+    }
+    if (scenarios[sceneId].setupSteps && scenarios[sceneId].setupSteps.length > 0) {
+        showSetupStep(0);
+    } else if (sceneId === 'arena') {
+        if (isMuted !== null) {
+            startArenaRhythmGame(isMuted);
+        } else {
+            showArenaBriefing();
+        }
+    } else {
+        startArenaRhythmGame();
+    }
 }
 
 function showSetupStep(stepIndex) {
@@ -238,24 +282,118 @@ function startCountdown() {
     }, 1000);
 }
 
-function startArenaRhythmGame() {
+function showArenaBriefing() {
+    const mainContainer = document.getElementById('main-container');
+    if (mainContainer) {
+        mainContainer.className = 'main-container';
+        mainContainer.style.background = '';
+    }
+    
+    document.getElementById('content-box').innerHTML = `
+        <h2 class="scene-title" style="margin-bottom: 0.5rem; color: #FF69B4; text-shadow: 0 0 10px rgba(255,105,180,0.35);">SCENE 2：アリーナ会場</h2>
+        <p class="situation-text" style="font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem; color: var(--text-sub);">
+            大規模集客施設（ライブコンサート会場）でのシェイクアウト訓練です。<br>
+            興奮冷めやらぬライブ中に突如大地震が発生し、群衆パニックと同調圧力に直面します。
+        </p>
+
+        <!-- 音量・音声に関する注意事項枠 -->
+        <div style="background: rgba(255, 123, 0, 0.08); border: 1px solid var(--cud-orange); border-left: 5px solid var(--cud-orange); border-radius: 8px; padding: 1.25rem 1.4rem; text-align: left; margin-bottom: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 8px; font-weight: bold; font-size: 1.05rem; color: var(--cud-orange); margin-bottom: 8px;">
+                <span style="font-size: 1.3rem;">⚠️</span>
+                <span>音量・音声に関する注意事項</span>
+            </div>
+            <p style="font-size: 0.92rem; line-height: 1.7; margin: 0; color: var(--text-main);">
+                本シミュレーションでは、ライブ会場の臨場感を再現するため、<strong>BGMおよび音響演出（音楽）が流れます</strong>。<br>
+                公共の場所や静かな環境ではイヤホンをご使用いただくか、端末の音量にご注意ください。<br>
+                <strong>音を鳴らさずに訓練を行いたい場合は、下の「🔇 ミュート（消音）で開始」を選択してください。</strong>
+            </p>
+        </div>
+
+        <!-- 操作方法の事前案内 -->
+        <div style="background: var(--surface-hover); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; text-align: left;">
+            <div style="font-size: 0.85rem; font-weight: bold; color: var(--text-sub); margin-bottom: 6px;">💡 はじめの操作方法（ライブ演出）</div>
+            <div style="font-size: 0.92rem; color: var(--text-main); line-height: 1.6;">
+                開始直後は音楽に合わせてペンライトを振る演出があります。<br>
+                ・<strong>パソコン</strong>：キーボードの <strong>[F]</strong> と <strong>[J]</strong> キー<br>
+                ・<strong>スマートフォン</strong>：画面の左右（F / J）をタップ<br>
+                <span style="color: var(--text-sub); font-size: 0.82rem;">※演出の途中で地震が発生し、DROP（まず低く）の判断フェーズへ突入します。</span>
+            </div>
+        </div>
+
+        <!-- 開始ボタン（2系統）＋戻るボタン -->
+        <div style="display: flex; flex-direction: column; gap: 12px; max-width: 440px; margin: 0 auto;">
+            <button class="btn primary" style="font-size: 1.15rem; padding: 14px 20px; display: flex; align-items: center; justify-content: center; gap: 10px;" onclick="startArenaRhythmGame(false)">
+                <span style="font-size: 1.4rem;">🔊</span>
+                <span>音声ありで開始する（推奨）</span>
+            </button>
+            <button class="btn secondary" style="font-size: 1.05rem; padding: 12px 18px; display: flex; align-items: center; justify-content: center; gap: 10px; border-color: var(--border-color);" onclick="startArenaRhythmGame(true)">
+                <span style="font-size: 1.3rem;">🔇</span>
+                <span>ミュート（消音）で開始する</span>
+            </button>
+            <button class="btn" style="background: transparent; color: var(--text-sub); border: none; font-size: 0.9rem; margin-top: 4px; cursor: pointer;" onclick="showMenu()">
+                ◀ 設定メニューに戻る
+            </button>
+        </div>
+    `;
+}
+
+function toggleArenaMute() {
+    isArenaMuted = !isArenaMuted;
+    if (bgmAudio) {
+        bgmAudio.muted = isArenaMuted;
+        if (!isArenaMuted && isRhythmGameActive) {
+            bgmAudio.play().catch(e => console.log("BGM再生不可: ", e));
+        }
+    }
+    const btn = document.getElementById('btn-arena-mute-toggle');
+    const badge = document.getElementById('arena-audio-status-badge');
+    if (btn) {
+        btn.innerHTML = isArenaMuted ? '🔇 消音中 (タップで解除)' : '🔊 音声ON (タップで消音)';
+        btn.style.borderColor = isArenaMuted ? 'var(--cud-orange)' : 'rgba(255,255,255,0.4)';
+        btn.style.color = isArenaMuted ? 'var(--cud-orange)' : '#fff';
+    }
+    if (badge) {
+        badge.innerHTML = isArenaMuted ? '🔇 ミュート中（音は鳴りません）' : '🔊 BGM再生中（音量にご注意ください）';
+        badge.style.color = isArenaMuted ? 'var(--cud-orange)' : '#FFBE00';
+        badge.style.borderColor = isArenaMuted ? 'var(--cud-orange)' : '#FFBE00';
+    }
+}
+
+function startArenaRhythmGame(isMuted = false) {
+    isArenaMuted = isMuted;
     document.getElementById('main-container').className = 'main-container';
     document.getElementById('main-container').style.background = 'radial-gradient(circle at center, #1a0033 0%, #000 100%)';
     combo = 0;
     targetEarthquakeTime = Math.floor(Math.random() * (15000 - 5000 + 1)) + 5000;
     
+    if (bgmAudio) {
+        bgmAudio.pause();
+        bgmAudio.currentTime = 0;
+    }
     bgmAudio = new Audio('./audio/arena_bgm.mp3'); 
     bgmAudio.volume = 0.6; 
-    bgmAudio.play().catch(e => console.log("BGM再生不可: ", e));
+    bgmAudio.muted = isArenaMuted;
+    if (!isArenaMuted) {
+        bgmAudio.play().catch(e => console.log("BGM再生不可: ", e));
+    }
     
     document.getElementById('content-box').innerHTML = `
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
+            <button id="btn-arena-mute-toggle" onclick="toggleArenaMute()" style="background: rgba(0,0,0,0.6); border: 1px solid ${isArenaMuted ? 'var(--cud-orange)' : 'rgba(255,255,255,0.4)'}; color: ${isArenaMuted ? 'var(--cud-orange)' : '#fff'}; border-radius: 20px; padding: 6px 14px; font-size: 0.82rem; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 6px;">
+                ${isArenaMuted ? '🔇 消音中 (タップで解除)' : '🔊 音声ON (タップで消音)'}
+            </button>
+        </div>
         <h2 class="scene-title" style="color: #FF69B4; font-size: 2rem; text-shadow: 0 0 10px #FF69B4; margin-bottom: 0.5rem;">💖 ARENA LIVE START! 💖</h2>
-        <div style="margin-bottom: 1.2rem;"><span style="display: inline-block; font-size: 0.85rem; color: #FFBE00; background: rgba(255, 190, 0, 0.15); border: 1px solid #FFBE00; padding: 4px 12px; border-radius: 20px; font-weight: bold;">🔊 音が出ます（音量にご注意ください）</span></div>
+        <div style="margin-bottom: 1.2rem;">
+            <span id="arena-audio-status-badge" style="display: inline-block; font-size: 0.85rem; color: ${isArenaMuted ? 'var(--cud-orange)' : '#FFBE00'}; background: rgba(0,0,0,0.3); border: 1px solid ${isArenaMuted ? 'var(--cud-orange)' : '#FFBE00'}; padding: 4px 12px; border-radius: 20px; font-weight: bold;">
+                ${isArenaMuted ? '🔇 ミュート中（音は鳴りません）' : '🔊 BGM再生中（音量にご注意ください）'}
+            </span>
+        </div>
         <p style="font-size: 1.2rem; margin-bottom: 2rem; color: #fff;">音楽に合わせてペンライト（キー）を振れ！<br><span style="color:#aaa; font-size:0.9rem;">PC: [F] と [J] キー / スマホ: 画面の左右をタップ</span></p>
         
         <div style="display: flex; justify-content: space-around; width: 100%; max-width: 400px; margin: 0 auto; height: 150px; position: relative;">
-            <div id="lane-left" style="width: 80px; height: 80px; border: 4px solid #56B4E9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; position: absolute; bottom: 0; left: 10%; cursor: pointer; color: #56B4E9;">F</div>
-            <div id="lane-right" style="width: 80px; height: 80px; border: 4px solid #FFBE00; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; position: absolute; bottom: 0; right: 10%; cursor: pointer; color: #FFBE00;">J</div>
+            <div id="lane-left" style="width: 80px; height: 80px; border: 4px solid #56B4E9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; position: absolute; bottom: 0; left: 10%; cursor: pointer; color: #56B4E9; user-select: none;">F</div>
+            <div id="lane-right" style="width: 80px; height: 80px; border: 4px solid #FFBE00; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; position: absolute; bottom: 0; right: 10%; cursor: pointer; color: #FFBE00; user-select: none;">J</div>
         </div>
         <div id="combo-text" style="font-size: 3rem; font-weight: bold; color: #fff; margin-top: 2rem; opacity: 0; text-shadow: 0 0 15px rgba(255,255,255,0.5);">1 COMBO!</div>
     `;
@@ -297,7 +435,10 @@ function triggerEarthquake() {
     isRhythmGameActive = false;
     window.removeEventListener('keydown', handleRhythmKey);
     cancelAnimationFrame(rhythmAnimFrame);
-    if (bgmAudio) bgmAudio.pause();
+    if (bgmAudio) {
+        bgmAudio.pause();
+        bgmAudio.currentTime = 0;
+    }
     
     document.getElementById('content-box').innerHTML = '<h2 style="color:red; font-size:5rem; text-shadow: 0 0 30px red;">地震発生！！</h2>'; 
     setTimeout(() => {

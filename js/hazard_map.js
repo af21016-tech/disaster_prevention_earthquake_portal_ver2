@@ -374,7 +374,7 @@ function initHazardMap() {
         
         div.innerHTML = `
             <div class="leaflet-shelter-filter-title">
-                <span>🏃 避難所 災害絞り込み</span>
+                <span>🏃 避難場所 災害絞り込み</span>
                 <span id="shelter-control-count" style="font-size:0.7rem; color:#aaa; font-weight:normal;"></span>
             </div>
             <div class="leaflet-shelter-filter-options">
@@ -402,11 +402,11 @@ function initHazardMap() {
             <div id="shelter-zoom-notice" style="display:none; margin-top:8px; padding:6px; background:rgba(230,159,0,0.15); border:1px solid rgba(230,159,0,0.4); border-radius:4px; font-size:0.7rem; color:#E69F00; line-height:1.4;">
                 <span>⚠️ 広域ではハザード面情報を優先表示しています。</span><br>
                 <a href="#" id="link-zoom-in-shelter" style="color:#56B4E9; text-decoration:underline; font-weight:bold; display:inline-block; margin-top:3px;">
-                    🔍 この地域を拡大して避難所を表示
+                    🔍 この地域を拡大して避難場所を表示
                 </a>
             </div>
             <div class="leaflet-shelter-filter-mode-note">
-                ※ チェックを入れた災害に対応している避難所を表示（複数選択可）
+                ※ チェックを入れた災害に対応している避難場所を表示（複数選択可）
             </div>
         `;
 
@@ -433,7 +433,7 @@ function initHazardMap() {
                 rebuildShelterMarkers();
 
                 if (window.logUserAction) {
-                    window.logUserAction(`避難所複数フィルター更新(PC): [${Array.from(activeFilters).join(',')}]`);
+                    window.logUserAction(`避難場所複数フィルター更新(PC): [${Array.from(activeFilters).join(',')}]`);
                 }
             });
         });
@@ -603,7 +603,7 @@ function initHazardMap() {
             rebuildShelterMarkers();
 
             if (window.logUserAction) {
-                window.logUserAction(`避難所複数フィルター更新(Mobile): [${Array.from(activeFilters).join(',')}]`);
+                window.logUserAction(`避難場所複数フィルター更新(Mobile): [${Array.from(activeFilters).join(',')}]`);
             }
         });
     });

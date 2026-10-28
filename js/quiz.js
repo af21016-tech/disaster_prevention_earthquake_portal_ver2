@@ -136,25 +136,33 @@ function loadQuestion() {
     else if (Array.isArray(qData.options)) choicesArr = qData.options;
     
     if (choicesArr.length === 0) {
-        choicesArr = ["〇", "✖"]; 
+        choicesArr = [
+            { label: "⭕ 正しい（適切な行動）", isTrue: true },
+            { label: "❌ 誤り（危険・NG行動）", isTrue: false }
+        ]; 
     }
 
     const choicesContainer = document.getElementById('choices');
     choicesContainer.innerHTML = ''; 
     choicesContainer.style.display = 'flex';
 
-    choicesArr.forEach((text, index) => {
+    choicesArr.forEach((item, index) => {
         const btn = document.createElement('button');
         btn.className = 'choice-btn';
         
-        if (text === "〇") {
-            btn.style.color = '#FF2800'; // CUD赤
-        } else if (text === "✖") {
-            btn.style.color = '#56B4E9'; // CUD青
+        let label = "";
+        if (typeof item === 'object' && item !== null && item.label) {
+            label = item.label;
+        } else if (item === "〇") {
+            label = "⭕ 正しい（適切な行動）";
+        } else if (item === "✖") {
+            label = "❌ 誤り（危険・NG行動）";
+        } else {
+            label = item;
         }
         
-        btn.innerText = text;
-        btn.onclick = () => checkAnswer(index, text, btn);
+        btn.innerText = label;
+        btn.onclick = () => checkAnswer(index, label, btn);
         choicesContainer.appendChild(btn);
     });
     
@@ -242,7 +250,8 @@ function processAnswer(userIndex, choiceText, btnElement) {
     const correctAns = qData.a ?? qData.ans ?? qData.answer;
     
     if (typeof correctAns === 'boolean') {
-        const userBool = (choiceText === "〇");
+        // userIndex 0 is True ("正しい"), userIndex 1 is False ("誤り")
+        const userBool = (userIndex === 0);
         isCorrect = (correctAns === userBool);
     } else {
         if (correctAns === userIndex || correctAns === (userIndex + 1) || correctAns === choiceText) {
@@ -253,16 +262,15 @@ function processAnswer(userIndex, choiceText, btnElement) {
     if (isCorrect) correctCount++;
     
     if (btnElement) {
-        if (choiceText === "〇") {
-            btnElement.style.background = 'rgba(255, 40, 0, 0.1)'; 
-            btnElement.style.borderColor = '#FF2800';
-        } else if (choiceText === "✖") {
-            btnElement.style.background = 'rgba(86, 180, 233, 0.1)'; 
-            btnElement.style.borderColor = '#56B4E9';
+        if (userIndex === 0) {
+            btnElement.style.background = 'rgba(0, 230, 118, 0.12)'; 
+            btnElement.style.borderColor = 'var(--cud-green)';
+        } else if (userIndex === 1) {
+            btnElement.style.background = 'rgba(86, 180, 233, 0.12)'; 
+            btnElement.style.borderColor = 'var(--cud-blue)';
         } else {
-            btnElement.style.background = 'rgba(255, 123, 0, 0.1)';
-            btnElement.style.borderColor = '#ff7b00';
-            btnElement.style.color = '#ff7b00';
+            btnElement.style.background = 'rgba(255, 123, 0, 0.12)';
+            btnElement.style.borderColor = 'var(--cud-orange)';
         }
     }
 
@@ -282,14 +290,63 @@ function processAnswer(userIndex, choiceText, btnElement) {
     
     if (userIndex === null) {
         if(fb) fb.className = "feedback-box incorrect";
-        if(rm) { rm.innerText = "⏳ 逃げ遅れ（時間切れ）"; rm.style.color = "var(--cud-orange)"; }
-        if(expText) expText.innerHTML = `<strong style="color:var(--cud-orange);">【判断が遅れると命を落とします】</strong><br>${qData.exp || "時間内に判断する訓練が必要です。"}`;
+        if(rm) { 
+            rm.innerHTML = `<span style="font-size:1.25rem;">⏳</span> 逃げ遅れ（時間切れ）`; 
+            rm.style.color = "var(--cud-orange)"; 
+        }
+        if(expText) {
+            expText.innerHTML = `
+                <div class="fb-summary" style="margin-bottom: 14px; padding: 12px 14px; background: var(--surface-hover); border-radius: 6px; font-size: 0.92rem; line-height: 1.6; border: 1px solid var(--border-color);">
+                    <div style="color:var(--cud-orange); font-weight:bold; margin-bottom:4px;">【判断が遅れると命を落とします】</div>
+                    <div><strong>行動の評価：</strong> <span style="font-weight: bold; color: ${correctAns ? 'var(--cud-green)' : 'var(--cud-orange)'};">${correctAns ? "⭕ この行動は【安全・推奨】です" : "⚠️ この行動は【危険・NG】です（やってはいけません）"}</span></div>
+                </div>
+                <div class="fb-explanation" style="line-height: 1.65; font-size: 0.95rem;">
+                    ${qData.exp || "時間内に判断する訓練が必要です。"}
+                </div>
+            `;
+        }
     } else if (isCorrect) {
-        if(rm) { rm.innerText = "⭕ 正解！"; rm.style.color = "var(--cud-green)"; }
-        if(expText) expText.innerHTML = qData.exp || "正しい判断です。";
+        if(rm) { 
+            rm.innerHTML = `<span style="font-size:1.25rem;">✅</span> 正解！ <span style="font-size:0.92rem; font-weight:normal; margin-left:8px; opacity:0.9;">あなたの判断は的確です</span>`; 
+            rm.style.color = "var(--cud-green)"; 
+        }
+        const userChoiceLabel = (userIndex === 0) ? "⭕ 正しい（適切な行動）" : "❌ 誤り（危険・NG行動）";
+        const actionEvaluation = correctAns 
+            ? `<span style="color:var(--cud-green); font-weight:bold;">⭕ この行動は【安全・推奨】です</span>` 
+            : `<span style="color:var(--cud-orange); font-weight:bold;">⚠️ この行動は【危険・NG】です（絶対にやってはいけません）</span>`;
+
+        if(expText) {
+            expText.innerHTML = `
+                <div class="fb-summary" style="margin-bottom: 14px; padding: 12px 14px; background: var(--surface-hover); border-radius: 6px; font-size: 0.92rem; line-height: 1.6; border: 1px solid var(--border-color);">
+                    <div><strong>あなたの選択：</strong> ${userChoiceLabel}</div>
+                    <div><strong>行動の評価：</strong> ${actionEvaluation}</div>
+                </div>
+                <div class="fb-explanation" style="line-height: 1.65; font-size: 0.95rem;">
+                    ${qData.exp || "正しい判断です。"}
+                </div>
+            `;
+        }
     } else {
-        if(rm) { rm.innerText = "❌ 不正解..."; rm.style.color = "var(--cud-orange)"; }
-        if(expText) expText.innerHTML = qData.exp || "間違った判断は命を危険に晒します。";
+        if(rm) { 
+            rm.innerHTML = `<span style="font-size:1.25rem;">⚠️</span> 不正解… <span style="font-size:0.92rem; font-weight:normal; margin-left:8px; opacity:0.9;">命を危険に晒す判断です</span>`; 
+            rm.style.color = "var(--cud-orange)"; 
+        }
+        const userChoiceLabel = (userIndex === 0) ? "⭕ 正しい（適切な行動）" : "❌ 誤り（危険・NG行動）";
+        const actionEvaluation = correctAns 
+            ? `<span style="color:var(--cud-green); font-weight:bold;">⭕ 正しい行動は【安全・推奨】でした</span>` 
+            : `<span style="color:var(--cud-orange); font-weight:bold;">⚠️ この行動は【危険・NG】です（絶対にやってはいけません）</span>`;
+
+        if(expText) {
+            expText.innerHTML = `
+                <div class="fb-summary" style="margin-bottom: 14px; padding: 12px 14px; background: var(--surface-hover); border-radius: 6px; font-size: 0.92rem; line-height: 1.6; border: 1px solid var(--border-color);">
+                    <div><strong>あなたの選択：</strong> ${userChoiceLabel}</div>
+                    <div><strong>正しい評価：</strong> ${actionEvaluation}</div>
+                </div>
+                <div class="fb-explanation" style="line-height: 1.65; font-size: 0.95rem;">
+                    ${qData.exp || "間違った判断は命を危険に晒します。"}
+                </div>
+            `;
+        }
     }
     
     const btnNext = document.getElementById('btn-next');

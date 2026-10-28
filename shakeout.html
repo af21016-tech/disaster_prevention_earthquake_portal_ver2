@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp; object-src 'none'; base-uri 'self';">
     <title>空間シェイクアウト | Quake Interactive Archive</title>
     <link href="https://fonts.googleapis.com/css2?family=Biz+UDPGOthic:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/style.css?v=20261026_fix_3d_hazard">
+    <link rel="stylesheet" href="./css/style.css?v=20261027_mobile_v2">
     
     <style>
         .shakeout-container { max-width: 800px; margin: 100px auto 2rem; text-align: center; }
@@ -164,7 +164,20 @@
             border-color: #56B4E9 !important;
             box-shadow: 0 0 15px rgba(86, 180, 233, 0.35) !important;
         }
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+            .shakeout-container {
+                margin: 76px 12px 1.5rem;
+            }
+            .main-container {
+                padding: 1.5rem 1rem;
+            }
+            .scene-title {
+                font-size: 1.35rem;
+            }
+            .simulation-window {
+                height: 260px;
+                margin-bottom: 1.2rem;
+            }
             .mode-select-grid {
                 grid-template-columns: 1fr;
             }
@@ -234,10 +247,8 @@
 
     <main class="shakeout-container">
         
-        <div id="start-screen">
-            <h2 style="color: var(--text-main); margin-bottom: 1rem;">緊急地震速報、受信。</h2>
-            <p style="color: var(--text-sub); margin-bottom: 2rem;">揺れが来るまでに安全な姿勢（DROP, COVER, HOLD ON）をとってください。<br>揺れが収まるまで、下のボタンを「長押し」して身を守り続けてください。</p>
-            <button class="btn primary" id="btn-start" style="font-size: 1.2rem; padding: 15px 30px;" data-log="シェイクアウト：訓練を開始するボタンをクリック">訓練を開始する</button>
+        <div id="main-container" class="main-container">
+            <div id="content-box" style="width: 100%; padding: 0 10px;"></div>
         </div>
 
         <div id="training-screen" style="display: none;">
@@ -264,6 +275,6 @@
     </main>
 
     <script src="./js/utils.js?v=20261026_sec_v2"></script>
-    <script src="./js/shakeout.js?v=20261016_badge"></script>
+    <script src="./js/shakeout.js?v=20261027_mute_v2"></script>
 </body>
 </html>

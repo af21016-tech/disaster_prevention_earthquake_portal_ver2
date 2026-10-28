@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp; object-src 'none'; base-uri 'self';">
     <title>3.11 記憶の追体験 | Quake Interactive Archive</title>
     <link href="https://fonts.googleapis.com/css2?family=Biz+UDPGOthic:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/style.css?v=20261026_fix_3d_hazard">
+    <link rel="stylesheet" href="./css/style.css?v=20261027_mobile_v2">
     
     <style>
         body { 
@@ -225,6 +225,73 @@
             font-size: 0.95rem;
             line-height: 1.7;
             color: var(--text-main);
+        }
+
+        /* スマートフォン向けレスポンシブ最適化 */
+        @media (max-width: 768px) {
+            #start-screen {
+                padding: 65px 1rem 1.5rem;
+                justify-content: flex-start;
+            }
+            #start-screen h1 {
+                font-size: 1.45rem !important;
+                margin-bottom: 0.8rem !important;
+                white-space: normal !important;
+            }
+            #start-screen p {
+                font-size: 0.88rem !important;
+                margin-bottom: 1rem !important;
+            }
+
+            .menu-btn {
+                padding: 12px 20px;
+                font-size: 0.95rem;
+                min-width: 140px;
+            }
+
+            /* 選択肢コンテナ：ヘッダー下端（top: 68px）基準で配置、縦中央マイナスシフトを解除 */
+            .choice-container {
+                top: 68px;
+                bottom: auto;
+                left: 50%;
+                transform: translateX(-50%); /* 縦方向のマイナスシフトを解除し、ヘッダー裏への潜り込みを完全防止 */
+                width: 92%;
+                max-width: 480px;
+                gap: 10px;
+                max-height: calc(100vh - 68px - 170px); /* ヘッダーと下部メッセージ枠の間の安全領域に限定 */
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 6px;
+                box-sizing: border-box;
+            }
+
+            .choice-btn {
+                padding: 10px 14px;
+                font-size: 0.92rem;
+                line-height: 1.45;
+                border-radius: 6px;
+            }
+
+            /* メッセージボックス：下部にコンパクトに配置 */
+            .message-box {
+                margin: 0 0.8rem 0.8rem 0.8rem;
+                padding: 1rem 1.1rem;
+                min-height: 110px;
+                border-radius: 8px;
+            }
+            .speaker-name {
+                font-size: 0.95rem;
+                margin-bottom: 6px;
+            }
+            .message-text {
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+
+            /* 結果モーダル */
+            .result-container {
+                padding: 4.5rem 1rem 2rem;
+            }
         }
     </style>
     <script>

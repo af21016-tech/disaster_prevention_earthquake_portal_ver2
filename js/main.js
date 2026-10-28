@@ -27,21 +27,40 @@ function getDepthColor(depth) {
 }
 
 /**
+ * マグニチュードに応じた円の半径(px)を返す関数
+ * エネルギー規模の差が直感的に伝わるようメリハリをつけた非線形スケール
+ */
+function getMagnitudeRadius(mag) {
+    if (!mag || mag < 2.5) return 4;
+    if (mag < 4.0) return 5;
+    if (mag < 5.0) return 9;
+    if (mag < 6.0) return 15;
+    if (mag < 7.0) return 23;
+    return 34; // M7.0以上（巨大地震）
+}
+
+/**
  * Leafletマップの初期化とUSGSデータの描画を行う関数
  */
 function initializeRecentQuakeMap(containerId) {
     const mapContainer = document.getElementById(containerId);
     if (!mapContainer) return; 
 
-    const isFullScreen = containerId === 'leaflet-map-full';
-    const worldBounds = L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180));
+    const isFullScreen = containerId === 'leaflet-map-full' || (typeof window !== 'undefined' && window.location.pathname.includes('live-map'));
+    const isMobile = window.innerWidth <= 768;
+    const initialCenter = [36.5, 138.0]; // 日本列島中央
+    const initialZoom = isFullScreen ? (isMobile ? 3.0 : 3.8) : (isMobile ? 2.3 : 3.2);
+
+    // 日本を中心とした「世界地図1周分（360度: 経度 -42° 〜 +318°）」に限定
+    const world1CycleBounds = L.latLngBounds(L.latLng(-85, -42), L.latLng(85, 318));
 
     const map = L.map(containerId, { 
-        zoomControl: false,          
-        maxBounds: worldBounds,      
-        maxBoundsViscosity: 1.0,     
-        minZoom: 2                   
-    }).setView([37.5, 137.5], isFullScreen ? 5 : 4.5); 
+        zoomControl: false,
+        zoomSnap: 0.25,
+        maxBounds: world1CycleBounds, // 世界地図1周分に限定
+        maxBoundsViscosity: 1.0,      // 境界外へのスクロールを完全に抑止
+        minZoom: 2.0
+    }).setView(initialCenter, initialZoom); 
 
     L.control.zoom({ position: 'topright' }).addTo(map);
 
@@ -80,29 +99,21 @@ function initializeRecentQuakeMap(containerId) {
     // --- テーマ連動ベースマップレイヤー管理 (Esri Canvas) ---
     const darkBaseLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
         attribution: '&copy; <a href="https://www.esri.com/" target="_blank" rel="noopener noreferrer">Esri</a> | 出典：<a href="https://earthquake.usgs.gov/" target="_blank" rel="noopener noreferrer">USGS (アメリカ地質調査所)</a>',
-        maxZoom: 16,
-        bounds: worldBounds,
-        noWrap: true
+        maxZoom: 16
     });
 
     const darkRefLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 16,
-        bounds: worldBounds,
-        noWrap: true,
         opacity: 0.85
     });
 
     const lightBaseLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
         attribution: '&copy; <a href="https://www.esri.com/" target="_blank" rel="noopener noreferrer">Esri</a> | 出典：<a href="https://earthquake.usgs.gov/" target="_blank" rel="noopener noreferrer">USGS (アメリカ地質調査所)</a>',
-        maxZoom: 16,
-        bounds: worldBounds,
-        noWrap: true
+        maxZoom: 16
     });
 
     const lightRefLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 16,
-        bounds: worldBounds,
-        noWrap: true,
         opacity: 0.85
     });
 
@@ -135,17 +146,42 @@ function initializeRecentQuakeMap(containerId) {
     fetch(usgsUrl)
         .then(response => response.json())
         .then(data => {
-            L.geoJSON(data, {
+            if (!data || !Array.isArray(data.features)) return;
+
+            // 小さな地震の上に大きな地震が重なって描画されるよう、マグニチュード昇順にソート
+            data.features.sort((a, b) => (a.properties.mag || 0) - (b.properties.mag || 0));
+
+            // 日本中心の1周分（-42° 〜 +318°）に座標をマッピング
+            // 西半球（経度 -180° 〜 -42°）の震源を経度 +180° 〜 +318°（日本の東側太平洋上）へシフト
+            const displayFeatures = data.features.map(feature => {
+                if (!feature.geometry || !Array.isArray(feature.geometry.coordinates)) return feature;
+                const f = JSON.parse(JSON.stringify(feature));
+                let lon = f.geometry.coordinates[0];
+                if (lon < -42) {
+                    lon += 360;
+                }
+                f.geometry.coordinates[0] = lon;
+                return f;
+            });
+
+            const displayData = {
+                type: 'FeatureCollection',
+                features: displayFeatures
+            };
+
+            L.geoJSON(displayData, {
                 pointToLayer: function (feature, latlng) {
-                    const mag = feature.properties.mag;
+                    const mag = feature.properties.mag || 0;
                     const depth = feature.geometry.coordinates[2]; 
+                    const radius = getMagnitudeRadius(mag);
+                    const isMajor = mag >= 7.0;
                     return L.circleMarker(latlng, {
-                        radius: Math.max(mag * 2.5, 3),
+                        radius: radius,
                         fillColor: getDepthColor(depth),
                         color: "#ffffff",
-                        weight: 1.5,
-                        opacity: 1,
-                        fillOpacity: 0.8
+                        weight: isMajor ? 2.5 : (mag >= 5.0 ? 1.8 : 1.0),
+                        opacity: 0.95,
+                        fillOpacity: isMajor ? 0.85 : 0.72
                     });
                 },
                 onEachFeature: function (feature, layer) {
@@ -153,7 +189,7 @@ function initializeRecentQuakeMap(containerId) {
                         const time = new Date(feature.properties.time).toLocaleString('ja-JP');
                         const placeEscaped = typeof escapeHTML === 'function' ? escapeHTML(feature.properties.place) : feature.properties.place.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
                         layer.bindPopup(`
-                            <strong style="font-family: var(--font-sans); font-size: 1.1rem; color: #333;">M ${feature.properties.mag.toFixed(1)}</strong><br>
+                            <strong style="font-family: var(--font-sans); font-size: 1.1rem; color: #333;">M ${(feature.properties.mag || 0).toFixed(1)}</strong><br>
                             <span style="font-size:0.8rem; color: #666;">深さ: ${feature.geometry.coordinates[2].toFixed(1)} km</span><br>
                             <span style="font-size:0.8rem; color: #666;">${placeEscaped}</span><br>
                             <span style="font-size:0.75rem; color: #666;">${time}</span>
@@ -162,23 +198,61 @@ function initializeRecentQuakeMap(containerId) {
                 }
             }).addTo(map);
 
-            // ★ 修正点：テーマ連動凡例パネル（.quake-legendクラスを適用）
+            // テーマ連動凡例パネル（スマホ時はタップで開閉）
             const legend = L.control({ position: 'bottomright' });
             legend.onAdd = function () {
                 const div = L.DomUtil.create('div', 'quake-legend');
+
+                // 地図操作へのイベント伝播を防止
+                L.DomEvent.disableClickPropagation(div);
+                L.DomEvent.disableScrollPropagation(div);
+
                 div.innerHTML = `
-                    <h4>震源の深さ</h4>
-                    <div class="legend-row"><span class="legend-dot" style="background:#D55E00;"></span> 0 - 33 km (浅い)</div>
-                    <div class="legend-row"><span class="legend-dot" style="background:#E69F00;"></span> 33 - 70 km</div>
-                    <div class="legend-row"><span class="legend-dot" style="background:#56B4E9;"></span> 70 - 150 km</div>
-                    <div class="legend-row"><span class="legend-dot" style="background:#0072B2;"></span> 150 km以上 (深い)</div>
+                    <button type="button" class="quake-legend-toggle" id="quake-legend-toggle" aria-expanded="false" aria-label="凡例の開閉">
+                        <span class="legend-toggle-title">凡例（深さ・規模）</span>
+                        <span class="legend-toggle-icon">▾</span>
+                    </button>
+                    <div class="quake-legend-content">
+                        <div class="legend-section">
+                            <h4>震源の深さ</h4>
+                            <div class="legend-row"><span class="legend-dot" style="background:#D55E00;"></span> 0 - 33 km (浅い)</div>
+                            <div class="legend-row"><span class="legend-dot" style="background:#E69F00;"></span> 33 - 70 km</div>
+                            <div class="legend-row"><span class="legend-dot" style="background:#56B4E9;"></span> 70 - 150 km</div>
+                            <div class="legend-row"><span class="legend-dot" style="background:#0072B2;"></span> 150 km以上 (深い)</div>
+                        </div>
+                        <div class="legend-section legend-mag-section">
+                            <h4>規模 (M)</h4>
+                            <div class="legend-row">
+                                <span class="legend-circle-wrap"><span class="legend-circle size-lg"></span></span>
+                                <span>M7.0+ 巨大</span>
+                            </div>
+                            <div class="legend-row">
+                                <span class="legend-circle-wrap"><span class="legend-circle size-md"></span></span>
+                                <span>M5.0 - 6.9 大</span>
+                            </div>
+                            <div class="legend-row">
+                                <span class="legend-circle-wrap"><span class="legend-circle size-sm"></span></span>
+                                <span>M2.5 - 4.9 小〜中</span>
+                            </div>
+                        </div>
+                    </div>
                 `;
+
+                const toggleBtn = div.querySelector('.quake-legend-toggle');
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const isOpen = div.classList.toggle('is-open');
+                        toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                        const icon = toggleBtn.querySelector('.legend-toggle-icon');
+                        if (icon) icon.textContent = isOpen ? '▴' : '▾';
+                    });
+                }
+
                 return div;
             };
             legend.addTo(map);
-
-            // ※もし以前あった「リスト表示機能」を live-map.html で使用する場合は
-            // この下に if (isFullScreen) { ... リスト描画処理 ... } を追加してください。
         })
         .catch(err => console.error('USGS Data fetch error:', err));
 }

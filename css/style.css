@@ -242,26 +242,46 @@ body[data-theme="light"] .btn-mypage:disabled {
     font-weight: bold;
 }
 
-/* テーマ連動 震源深さ凡例 */
+/* テーマ連動 震源深さ・マグニチュード凡例 */
 .quake-legend {
     background: var(--header-bg);
     border: 1px solid var(--border-color);
     color: var(--text-main);
     padding: 10px 14px;
-    border-radius: 6px;
-    font-size: 0.8rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
     backdrop-filter: blur(8px);
     box-shadow: var(--card-shadow);
-    line-height: 1.5;
+    line-height: 1.4;
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    z-index: 1000;
 }
+
+/* デスクトップ表示：トグルボタン非表示、2セクションを横並び表示 */
+.quake-legend-toggle {
+    display: none;
+}
+
+.quake-legend-content {
+    display: flex;
+    gap: 16px;
+}
+
+.quake-legend .legend-section {
+    display: flex;
+    flex-direction: column;
+}
+
 .quake-legend h4 {
     margin: 0 0 6px 0;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 700;
     color: var(--text-main);
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 4px;
+    white-space: nowrap;
 }
+
 .quake-legend .legend-row {
     display: flex;
     align-items: center;
@@ -269,14 +289,101 @@ body[data-theme="light"] .btn-mypage:disabled {
     margin-bottom: 4px;
     color: var(--text-sub);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
+    white-space: nowrap;
 }
+
 .quake-legend .legend-dot {
     width: 10px;
     height: 10px;
     border-radius: 50%;
     display: inline-block;
     flex-shrink: 0;
+}
+
+.quake-legend .legend-circle-wrap {
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.quake-legend .legend-circle {
+    border-radius: 50%;
+    border: 1.5px solid var(--text-main);
+    background: rgba(128, 128, 128, 0.25);
+    display: inline-block;
+    box-sizing: border-box;
+}
+
+.quake-legend .legend-circle.size-lg {
+    width: 16px;
+    height: 16px;
+    border-width: 2px;
+}
+
+.quake-legend .legend-circle.size-md {
+    width: 11px;
+    height: 11px;
+}
+
+.quake-legend .legend-circle.size-sm {
+    width: 6px;
+    height: 6px;
+}
+
+/* スマホ表示（768px以下）：凡例をタップで開閉するコンパクトボタン化 */
+@media (max-width: 768px) {
+    .quake-legend {
+        padding: 4px;
+        max-width: calc(100vw - 32px);
+    }
+
+    .quake-legend-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+        background: transparent;
+        border: none;
+        color: var(--text-main);
+        font-family: var(--font-sans);
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        touch-action: manipulation;
+    }
+
+    .quake-legend-toggle:active {
+        background: rgba(128, 128, 128, 0.15);
+    }
+
+    .quake-legend-toggle .legend-toggle-icon {
+        font-size: 0.85rem;
+        transition: transform 0.2s ease;
+    }
+
+    .quake-legend .quake-legend-content {
+        display: none;
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px 6px 4px 6px;
+        border-top: 1px solid var(--border-color);
+        margin-top: 4px;
+    }
+
+    .quake-legend.is-open {
+        padding: 8px 12px;
+    }
+
+    .quake-legend.is-open .quake-legend-content {
+        display: flex;
+    }
 }
 
 /* -----------------------------------------
@@ -400,32 +507,58 @@ body[data-theme="light"] .btn-mypage:disabled {
 .color-yellow .card-action span:last-child { color: var(--cud-yellow); }
 
 /* -----------------------------------------
-   Mobile Optimization (スマホ用の余白・ヘッダー2段組調整)
+   Mobile Optimization (スマホ用の余白・ヘッダー調整)
    ----------------------------------------- */
 @media (max-width: 768px) {
     header { 
-        padding: 0.5rem 0.8rem; 
+        padding: 0.4rem 0.8rem; 
+        min-height: 52px;
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         align-items: center;
         justify-content: space-between;
+    }
+
+    /* index.html 等、事後アンケートボタンがある画面のみ2段組（flex-wrap）にする */
+    header:has(#btn-post-survey) {
+        flex-wrap: wrap;
+        padding: 0.5rem 0.8rem;
     }
 
     .logo-area {
         display: flex;
         align-items: center;
+        gap: 6px;
+        min-width: 0;
+        flex: 1 1 auto;
     }
     .logo-area h1 {
-        font-size: 0.92rem;
+        font-size: 0.88rem;
         letter-spacing: 0.05em;
         margin: 0;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .logo-area .tag {
+        font-size: 0.65rem;
+        padding: 2px 6px;
+        margin-bottom: 0 !important;
+        flex-shrink: 0;
     }
     .logo-area p {
         display: none;
     }
 
     .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    /* index.html 専用のアンケート2段組ロジック */
+    header:has(#btn-post-survey) .header-actions {
         display: contents; /* 子要素を直接headerのflexアイテムにする */
     }
 
@@ -434,6 +567,13 @@ body[data-theme="light"] .btn-mypage:disabled {
         width: 32px;
         height: 32px;
         font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .btn-back {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        white-space: nowrap;
         flex-shrink: 0;
     }
 

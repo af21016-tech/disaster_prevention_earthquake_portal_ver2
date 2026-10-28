@@ -18,7 +18,7 @@
           integrity="sha256-YSWCMtmNZNwqex4CEw1nQhvFub2lmU7vcCKP+XVwwXA=" 
           crossorigin="anonymous" />
     
-    <link rel="stylesheet" href="./css/style.css?v=20261026_fix_3d_hazard">
+    <link rel="stylesheet" href="./css/style.css?v=20261027_mobile_v2">
     
     <style>
         /* =========================================
@@ -287,7 +287,7 @@
         @media (max-width: 768px) {
             .dashboard-main { 
                 padding: 10px; 
-                margin-top: 65px; 
+                margin-top: 72px; 
                 gap: 1rem;
             }
             .map-container { 
@@ -583,8 +583,8 @@
                 <button type="button" class="btn-map-float" id="btn-mobile-locate" title="現在地を表示" aria-label="現在地を表示">
                     <span>📍 現在地</span>
                 </button>
-                <button type="button" class="btn-map-float" id="btn-hazard-settings-toggle" aria-label="災害・避難所設定を開く">
-                    <span>⚙️ 災害・避難所設定</span>
+                <button type="button" class="btn-map-float" id="btn-hazard-settings-toggle" aria-label="災害・避難場所設定を開く">
+                    <span>⚙️ 災害・避難場所設定</span>
                 </button>
             </div>
         </div>
@@ -596,7 +596,7 @@
             <div class="sheet-top-bar">
                 <div class="sheet-top-title">
                     <span style="color:var(--cud-green); font-size:1.1rem;">⚙️</span>
-                    <span>災害レイヤー・避難所設定</span>
+                    <span>災害レイヤー・避難場所設定</span>
                 </div>
                 <button type="button" class="sheet-btn-close" id="btn-hazard-sheet-close" aria-label="閉じる">✕ 閉じる</button>
             </div>
@@ -627,14 +627,14 @@
                     </div>
                 </div>
 
-                <!-- セクション2: 避難所と対応災害絞り込み -->
+                <!-- セクション2: 避難場所と対応災害絞り込み -->
                 <div class="sheet-panel-block">
                     <div class="sheet-block-title">
                         <span>🏃 指定緊急避難場所 (Point)</span>
                     </div>
                     <label class="sheet-item-row" style="margin-bottom: 10px; background: var(--surface-hover); padding: 8px 12px; border-radius: 6px;">
                         <input type="checkbox" id="m-layer-shelter" class="sheet-checkbox" checked>
-                        <span class="sheet-item-label" style="font-weight: bold; color: var(--cud-green);">避難所アイコンを表示する</span>
+                        <span class="sheet-item-label" style="font-weight: bold; color: var(--cud-green);">避難場所アイコンを表示する</span>
                     </label>
 
                     <div style="font-size: 0.76rem; color: var(--text-sub); margin-bottom: 6px; font-weight: bold;">
@@ -666,8 +666,19 @@
                     <div id="m-shelter-zoom-hint" style="margin-top: 10px; padding: 8px 10px; background: rgba(230,159,0,0.12); border: 1px solid rgba(230,159,0,0.35); border-radius: 6px; font-size: 0.72rem; color: #E69F00; line-height: 1.45;">
                         ⚠️ 広域ではハザード面情報を優先表示しています。<br>
                         <a href="#" id="m-link-zoom-shelter" style="color:#56B4E9; text-decoration:underline; font-weight:bold; display:inline-block; margin-top:3px;">
-                            🔍 この地域を拡大して避難所を表示 (Lv13〜)
+                            🔍 この地域を拡大して避難場所を表示 (Lv13〜)
                         </a>
+                    </div>
+
+                    <!-- 💡スマホ用ミニコラム -->
+                    <div class="shelter-difference-note-mobile" style="margin-top: 10px; padding: 10px 12px; background: rgba(86, 180, 233, 0.08); border: 1px solid rgba(86, 180, 233, 0.25); border-radius: 6px; font-size: 0.72rem; line-height: 1.5;">
+                        <div style="font-weight: bold; color: var(--cud-blue); margin-bottom: 4px;">
+                            💡「避難場所」と「避難所」の違い
+                        </div>
+                        <div style="color: var(--text-sub);">
+                            ・<strong>避難場所（本マップ）</strong>：命を守るため「まず逃げる場所」（災害別）<br>
+                            ・<strong>避難所</strong>：被災後に「生活滞在する施設」（体育館等）
+                        </div>
                     </div>
                 </div>
             </div>
@@ -681,7 +692,7 @@
             
             <div class="console-panel">
                 <h3>🛡️ 複合災害リスクの確認</h3>
-                <p>マップ上の「災害・避難所設定」から、表示したい災害リスクや、避難所の対応災害（地震・津波・洪水・土砂・火災）を複数選択して絞り込むことができます。<br><br>複数の色が重なる場所は、複合災害の危険性が高いエリアです。</p>
+                <p>マップ上の「災害・避難場所設定」から、表示したい災害リスクや、避難場所の対応災害（地震・津波・洪水・土砂・火災）を複数選択して絞り込むことができます。<br><br>複数の色が重なる場所は、複合災害の危険性が高いエリアです。</p>
 
                 <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed var(--border-color); display:flex; align-items:center; justify-content:space-between;">
                     <div style="display:flex; align-items:center; gap:10px;">
@@ -693,6 +704,26 @@
                     </div>
                     <div id="shelter-count-badge" style="font-size:0.75rem; background:var(--surface-hover); border:1px solid var(--border-color); padding:3px 8px; border-radius:12px; color:var(--text-sub); font-family:'Roboto Mono',monospace;">
                         表示中: --件
+                    </div>
+                </div>
+
+                <!-- 💡「避難場所」と「避難所」の違い解説ミニコラム -->
+                <div class="shelter-difference-note" style="margin-top: 15px; padding: 12px 14px; background: rgba(86, 180, 233, 0.08); border: 1px solid rgba(86, 180, 233, 0.3); border-radius: 6px; font-size: 0.78rem; line-height: 1.55;">
+                    <div style="font-weight: bold; color: var(--cud-blue); margin-bottom: 6px; font-size: 0.82rem; display: flex; align-items: center; gap: 4px;">
+                        <span>💡</span><span>知っておきたい「避難場所」と「避難所」の違い</span>
+                    </div>
+                    <div style="color: var(--text-main); margin-bottom: 6px;">
+                        <div style="margin-bottom: 4px;">
+                            <strong>・指定緊急避難場所（本マップで表示）：</strong><br>
+                            <span style="color: var(--text-sub);">命を守るため「まず緊急に逃げ込む場所」（高台・公園など。災害種別ごとに指定）。</span>
+                        </div>
+                        <div>
+                            <strong>・指定避難所：</strong><br>
+                            <span style="color: var(--text-sub);">自宅被災後に「一定期間避難生活を送る施設」（小中学校の体育館や公民館など）。</span>
+                        </div>
+                    </div>
+                    <div style="color: var(--cud-orange); font-size: 0.72rem; font-weight: bold; border-top: 1px dashed rgba(86, 180, 233, 0.3); padding-top: 5px;">
+                        ⚠️ 災害時は、まずその災害に対応した「避難場所」へ命を守る避難を行ってください。
                     </div>
                 </div>
             </div>
@@ -732,7 +763,7 @@
                     <strong>[出典・データクレジット]</strong><br>
                     ・ベースマップ：<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener noreferrer" data-log="ハザードマップ：国土地理院淡色地図リンクをクリック">国土地理院（淡色地図タイル）</a><br>
                     ・ハザード情報：<a href="https://disaportal.gsi.go.jp/" target="_blank" rel="noopener noreferrer" data-log="ハザードマップ：ハザードマップポータル出典リンクをクリック">国土地理院 重ねるハザードマップ（津波・洪水・土砂災害データ）</a><br>
-                    ・避難所情報：国土地理院「<a href="https://hinanmap.gsi.go.jp/hinanjocp/hinanbasho/koukaidate.html" target="_blank" rel="noopener noreferrer" data-log="ハザードマップ：指定緊急避難場所データ出典リンクをクリック">指定緊急避難場所データ</a>」を加工して作成<br>
+                    ・避難場所データ：国土地理院「<a href="https://hinanmap.gsi.go.jp/hinanjocp/hinanbasho/koukaidate.html" target="_blank" rel="noopener noreferrer" data-log="ハザードマップ：指定緊急避難場所データ出典リンクをクリック">指定緊急避難場所データ</a>」を加工して作成<br>
                     ・都道府県境：国土交通省「<a href="https://nlftp.mlit.go.jp/ksj/" target="_blank" rel="noopener noreferrer" data-log="ハザードマップ：国土数値情報行政区域リンクをクリック">国土数値情報（行政区域データ）</a>」を加工して作成
                 </div>
             </div>
@@ -748,6 +779,6 @@
             crossorigin="anonymous"></script>
     <script src="./js/utils.js?v=20261026_sec_v2"></script>
     <script src="./js/prefectures.js?v=20261013_9"></script>
-    <script src="./js/hazard_map.js?v=20261026_fix_3d_hazard"></script>
+    <script src="./js/hazard_map.js?v=20261027_shelter_terminology"></script>
 </body>
 </html>
