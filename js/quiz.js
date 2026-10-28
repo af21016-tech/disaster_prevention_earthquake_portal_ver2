@@ -85,6 +85,10 @@ function initQuiz(stageIndex) {
 
 function startStage(stageIndex) {
     currentStageIndex = stageIndex;
+    if (typeof addSystemLog === 'function') {
+        const stageName = stageIndex === 0 ? '初級' : (stageIndex === 1 ? '中級' : '上級');
+        addSystemLog('quiz_start', `ステージ:${stageName}`, isPracticeMode ? '練習モード' : '本番モード');
+    }
     currentTimeLimit = STAGE_TIME_LIMITS[currentStageIndex] !== undefined ? STAGE_TIME_LIMITS[currentStageIndex] : 10.0;
     
     let pool = [];
@@ -385,8 +389,15 @@ function showResultScreen() {
         if(resultMsg) resultMsg.innerText = "間違えた問題の解説をよく復習し、繰り返し訓練して正しい判断を身につけましょう。";
     }
 
-    // 本番モード（制限時間あり）かつ正答率80%以上でバッジ獲得
+    // 実験ログ記録（ステージ・モード・正答数）
     const totalQ = currentStageQuestions.length;
+    if (typeof addSystemLog === 'function') {
+        const stageName = currentStageIndex === 0 ? '初級' : (currentStageIndex === 1 ? '中級' : '上級');
+        const modeName = isPracticeMode ? '練習モード' : '本番モード';
+        addSystemLog('quiz_result', `ステージ:${stageName},モード:${modeName}`, `${correctCount}点 / ${totalQ}問`);
+    }
+
+    // 本番モード（制限時間あり）かつ正答率80%以上でバッジ獲得
     if (!isPracticeMode && totalQ > 0 && (correctCount / totalQ) >= 0.8) {
         if (typeof unlockBadge === 'function') {
             if (currentStageIndex === 0) unlockBadge('quiz_stage0');

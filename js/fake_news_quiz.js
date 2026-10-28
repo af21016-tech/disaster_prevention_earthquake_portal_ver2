@@ -72,6 +72,9 @@ function startQuiz() {
     currentQuestionIndex = 0;
     correctCount = 0;
     userReviewData = []; 
+    if (typeof addSystemLog === 'function') {
+        addSystemLog('fake_news_start', 'デマ見極め開始', isPracticeMode ? '練習モード' : '本番モード');
+    }
 
     const quizScreen = document.getElementById('quiz-screen');
     const startScreen = document.getElementById('start-screen');
@@ -290,6 +293,14 @@ function showResultScreen() {
         } else {
             resultMsg.innerHTML = `<span style="font-size:2.5rem; margin-bottom:10px; display:inline-block;">⚠️</span><br><strong>注意！デマや詐欺に騙されやすい状態です</strong><br>災害時は不安や善意から不用意に拡散しがちです。「一歩立ち止まって公式確認」を意識して再訓練しましょう。`;
         }
+    }
+
+    // 実験ログ記録（モード・正答数・誤拡散数）
+    if (typeof addSystemLog === 'function') {
+        const fakeSharedCount = userReviewData.filter(r => r.correctAnswer === false && r.userAnswer === true).length;
+        const totalQ = currentQuestions.length;
+        const modeName = isPracticeMode ? '練習モード' : '本番モード';
+        addSystemLog('fake_news_result', `モード:${modeName},デマ拡散ミス:${fakeSharedCount}問`, `${correctCount}点 / ${totalQ}問`);
     }
 
     // 本番モード（制限時間あり）かつ正答率80%以上（10問中8問以上正解）でバッジ獲得
