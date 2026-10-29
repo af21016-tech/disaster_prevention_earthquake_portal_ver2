@@ -1,14 +1,54 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1793155811000,
-    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-10-28&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
+    "generated": 1793243560000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-10-29&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
     "title": "USGS Earthquakes",
     "status": 200,
     "api": "2.8.2",
-    "count": 5785
+    "count": 5786
   },
   "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 5.5,
+        "place": "5 km ESE of Asahi, Japan",
+        "time": 1793200072050,
+        "updated": 1793243300962,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000ttpe",
+        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000ttpe&format=geojson",
+        "felt": 54,
+        "cdi": 3.9,
+        "mmi": 4.775,
+        "alert": "green",
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 486,
+        "net": "us",
+        "code": "7000ttpe",
+        "ids": ",us7000ttpe,",
+        "sources": ",us,",
+        "types": ",dyfi,losspager,moment-tensor,origin,phase-data,shakemap,",
+        "nst": 116,
+        "dmin": 2.188,
+        "rms": 1.28,
+        "gap": 64,
+        "magType": "mww",
+        "type": "earthquake",
+        "title": "M 5.5 - 5 km ESE of Asahi, Japan"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          140.7059,
+          35.7015,
+          41.356
+        ]
+      },
+      "id": "us7000ttpe"
+    },
     {
       "type": "Feature",
       "properties": {
@@ -55,12 +95,12 @@
         "mag": 6.5,
         "place": "Bonin Islands, Japan region",
         "time": 1792894163818,
-        "updated": 1792980948547,
+        "updated": 1793239975538,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u4r9",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000u4r9&format=geojson",
-        "felt": null,
-        "cdi": null,
+        "felt": 1,
+        "cdi": 1,
         "mmi": 0,
         "alert": "green",
         "status": "reviewed",
@@ -68,9 +108,9 @@
         "sig": 650,
         "net": "us",
         "code": "6000u4r9",
-        "ids": ",attnfxzn,usauto6000u4r9,us6000u4r9,",
-        "sources": ",at,usauto,us,",
-        "types": ",impact-link,internal-moment-tensor,internal-origin,losspager,moment-tensor,origin,phase-data,shakemap,",
+        "ids": ",us6000u4r9,attnfxzn,usauto6000u4r9,",
+        "sources": ",us,at,usauto,",
+        "types": ",dyfi,impact-link,internal-moment-tensor,internal-origin,losspager,moment-tensor,origin,phase-data,shakemap,",
         "nst": 124,
         "dmin": 7.706,
         "rms": 0.8,
@@ -292,39 +332,39 @@
     {
       "type": "Feature",
       "properties": {
-        "mag": 5.3,
-        "place": "0 km NNE of Yōkaichiba, Japan",
-        "time": 1790857631864,
-        "updated": 1790902738566,
+        "mag": 5.2,
+        "place": "0 km ENE of Yokoshiba, Japan",
+        "time": 1790857634063,
+        "updated": 1793178959529,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000tytg",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000tytg&format=geojson",
-        "felt": 25,
+        "felt": 26,
         "cdi": 3.7,
         "mmi": null,
         "alert": null,
         "status": "reviewed",
         "tsunami": 0,
-        "sig": 441,
+        "sig": 426,
         "net": "us",
         "code": "6000tytg",
         "ids": ",us6000tytg,",
         "sources": ",us,",
-        "types": ",dyfi,origin,phase-data,",
-        "nst": 97,
-        "dmin": 2.072,
-        "rms": 0.76,
+        "types": ",dyfi,moment-tensor,origin,phase-data,",
+        "nst": 95,
+        "dmin": 0.374,
+        "rms": 0.63,
         "gap": 119,
         "magType": "mww",
         "type": "earthquake",
-        "title": "M 5.3 - 0 km NNE of Yōkaichiba, Japan"
+        "title": "M 5.2 - 0 km ENE of Yokoshiba, Japan"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          140.5507,
-          35.7025,
-          41.649
+          140.4924,
+          35.653,
+          64.885
         ]
       },
       "id": "us6000tytg"
@@ -375,7 +415,7 @@
         "mag": 5,
         "place": "Mariana Islands region",
         "time": 1790168511754,
-        "updated": 1792588324773,
+        "updated": 1793193115699,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000tx38",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000tx38&format=geojson",
@@ -534,8 +574,8 @@
       "properties": {
         "mag": 5,
         "place": "Izu Islands, Japan region",
-        "time": 1789715969154,
-        "updated": 1792437095040,
+        "time": 1789715969152,
+        "updated": 1793171477040,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000ti89",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000ti89&format=geojson",
@@ -552,7 +592,7 @@
         "sources": ",us,",
         "types": ",moment-tensor,origin,phase-data,",
         "nst": 41,
-        "dmin": 4.706,
+        "dmin": 4.707,
         "rms": 0.68,
         "gap": 132,
         "magType": "mww",
@@ -562,9 +602,9 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          141.402,
-          32.3036,
-          38.867
+          141.4026,
+          32.3029,
+          38.87
         ]
       },
       "id": "us7000ti89"
@@ -1255,7 +1295,7 @@
         "mag": 6.8,
         "place": "The 2026 Kumamoto Region, Japan Earthquake",
         "time": 1785223634658,
-        "updated": 1791931342040,
+        "updated": 1793222695151,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000tgb9",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000tgb9&format=geojson",
@@ -1695,17 +1735,17 @@
         "mag": 5.2,
         "place": "5 km W of Ōtsuki, Japan",
         "time": 1782480540376,
-        "updated": 1789515640040,
+        "updated": 1793240645133,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000t8fe",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000t8fe&format=geojson",
-        "felt": 144,
-        "cdi": 5.4,
+        "felt": 145,
+        "cdi": 5.6,
         "mmi": 5.064,
         "alert": "green",
         "status": "reviewed",
         "tsunami": 0,
-        "sig": 494,
+        "sig": 497,
         "net": "us",
         "code": "6000t8fe",
         "ids": ",us6000t8fe,",
