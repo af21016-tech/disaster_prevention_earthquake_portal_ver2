@@ -1,14 +1,54 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1793415596000,
-    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-10-31&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
+    "generated": 1793501724000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-01&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
     "title": "USGS Earthquakes",
     "status": 200,
     "api": "2.8.2",
-    "count": 5786
+    "count": 5787
   },
   "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 6,
+        "place": "58 km SSE of Shima, Japan",
+        "time": 1793484902901,
+        "updated": 1793498560878,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000tuku",
+        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000tuku&format=geojson",
+        "felt": 17,
+        "cdi": 3.1,
+        "mmi": 2.993,
+        "alert": "green",
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 559,
+        "net": "us",
+        "code": "7000tuku",
+        "ids": ",us7000tuku,usauto7000tuku,",
+        "sources": ",us,usauto,",
+        "types": ",dyfi,ground-failure,internal-moment-tensor,losspager,moment-tensor,origin,phase-data,shakemap,",
+        "nst": 116,
+        "dmin": 1.525,
+        "rms": 0.76,
+        "gap": 30,
+        "magType": "mww",
+        "type": "earthquake",
+        "title": "M 6.0 - 58 km SSE of Shima, Japan"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          136.9854,
+          33.822,
+          352.449
+        ]
+      },
+      "id": "us7000tuku"
+    },
     {
       "type": "Feature",
       "properties": {
@@ -975,7 +1015,7 @@
         "mag": 5.1,
         "place": "Kuril Islands",
         "time": 1787002595316,
-        "updated": 1787702358040,
+        "updated": 1793466625040,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000tlbz",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000tlbz&format=geojson",
@@ -1015,7 +1055,7 @@
         "mag": 5.6,
         "place": "Volcano Islands, Japan region",
         "time": 1786822349133,
-        "updated": 1789829802161,
+        "updated": 1793466615040,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000tl36",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000tl36&format=geojson",
