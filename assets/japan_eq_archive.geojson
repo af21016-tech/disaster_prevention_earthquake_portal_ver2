@@ -1,11 +1,11 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1793588537000,
-    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-02&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
+    "generated": 1793679681000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-03&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
     "title": "USGS Earthquakes",
     "status": 200,
-    "api": "2.8.2",
+    "api": "2.8.4",
     "count": 5787
   },
   "features": [
@@ -15,11 +15,11 @@
         "mag": 6,
         "place": "58 km SSE of Shima, Japan",
         "time": 1793484902901,
-        "updated": 1793571690122,
+        "updated": 1793615849077,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000tuku",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000tuku&format=geojson",
-        "felt": 29,
+        "felt": 30,
         "cdi": 3.1,
         "mmi": 2.993,
         "alert": "green",
