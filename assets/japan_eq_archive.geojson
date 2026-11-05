@@ -1,8 +1,8 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1793763596000,
-    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-04&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
+    "generated": 1793851109000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-05&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
     "title": "USGS Earthquakes",
     "status": 200,
     "api": "2.8.4",
@@ -134,8 +134,8 @@
       "properties": {
         "mag": 5.3,
         "place": "Bonin Islands, Japan region",
-        "time": 1792966456010,
-        "updated": 1792979850040,
+        "time": 1792966455989,
+        "updated": 1793842001040,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u4we",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000u4we&format=geojson",
@@ -151,10 +151,10 @@
         "ids": ",us6000u4we,",
         "sources": ",us,",
         "types": ",origin,phase-data,",
-        "nst": 121,
-        "dmin": 7.699,
+        "nst": 128,
+        "dmin": 2.355,
         "rms": 0.57,
-        "gap": 63,
+        "gap": 37,
         "magType": "mww",
         "type": "earthquake",
         "title": "M 5.3 - Bonin Islands, Japan region"
@@ -162,9 +162,9 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          139.6916,
-          27.8572,
-          485.13
+          139.6767,
+          27.861,
+          483.675
         ]
       },
       "id": "us6000u4we"
@@ -495,7 +495,7 @@
         "mag": 5,
         "place": "Mariana Islands region",
         "time": 1790168511754,
-        "updated": 1793193115699,
+        "updated": 1793797919612,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000tx38",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000tx38&format=geojson",
