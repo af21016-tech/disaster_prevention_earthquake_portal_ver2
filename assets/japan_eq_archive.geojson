@@ -1,8 +1,8 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1793851109000,
-    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-05&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
+    "generated": 1793937448000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-06&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
     "title": "USGS Earthquakes",
     "status": 200,
     "api": "2.8.4",
@@ -14,8 +14,8 @@
       "properties": {
         "mag": 5.2,
         "place": "Volcano Islands, Japan region",
-        "time": 1793724493110,
-        "updated": 1793725518040,
+        "time": 1793724492006,
+        "updated": 1793896921040,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000tvie",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000tvie&format=geojson",
@@ -31,10 +31,10 @@
         "ids": ",us7000tvie,",
         "sources": ",us,",
         "types": ",moment-tensor,origin,phase-data,",
-        "nst": 163,
-        "dmin": 9.625,
-        "rms": 0.99,
-        "gap": 33,
+        "nst": 203,
+        "dmin": 9.615,
+        "rms": 0.98,
+        "gap": 16,
         "magType": "mww",
         "type": "earthquake",
         "title": "M 5.2 - Volcano Islands, Japan region"
@@ -42,9 +42,9 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          141.6725,
-          24.1441,
-          139.456
+          141.6688,
+          24.1773,
+          129.171
         ]
       },
       "id": "us7000tvie"
