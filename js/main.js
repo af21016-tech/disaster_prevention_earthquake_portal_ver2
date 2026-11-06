@@ -635,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
             title: '🎉 実験の終了手順',
             desc: `・10分が経過すると、右上のボタンが「<strong>完了コードを発行する</strong>」に点灯します。<br>
 ・発行された完了コードは、<strong>事後アンケートとランサーズの両方に入力</strong>してください。<br>
-・※完了画面およびマイページから、任意で学習ログ（CSV）のダウンロードも可能です。`
+・※完了画面およびマイページから、ワンクリックで学習ログの送信も可能です（送信は任意です）。`
         },
         {
             type: 'center',
@@ -859,20 +859,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCopy = document.getElementById('btn-copy-completion');
     
     // モーダル内のCSVダウンロードボタン
-    const btnDownloadLogModal = document.getElementById('btn-download-log-modal');
-    if (btnDownloadLogModal) {
-        btnDownloadLogModal.addEventListener('click', () => {
-            if (typeof exportLogsAsCSV === 'function') {
-                exportLogsAsCSV();
-                const origText = btnDownloadLogModal.textContent;
-                btnDownloadLogModal.textContent = '✓ ダウンロード完了！';
-                btnDownloadLogModal.style.borderColor = 'var(--cud-green)';
-                btnDownloadLogModal.style.color = 'var(--cud-green)';
-                setTimeout(() => {
-                    btnDownloadLogModal.textContent = origText;
-                    btnDownloadLogModal.style.borderColor = 'var(--border-color)';
-                    btnDownloadLogModal.style.color = 'var(--text-main)';
-                }, 2000);
+    // モーダル内のログ送信ボタン
+    const btnSendLogModal = document.getElementById('btn-send-log-modal') || document.getElementById('btn-download-log-modal');
+    if (btnSendLogModal) {
+        if (localStorage.getItem('v2_log_sent') === 'true') {
+            btnSendLogModal.disabled = true;
+            btnSendLogModal.textContent = '✓ ログ送信完了';
+            btnSendLogModal.style.borderColor = 'var(--cud-green)';
+            btnSendLogModal.style.color = 'var(--cud-green)';
+            btnSendLogModal.style.cursor = 'default';
+        }
+
+        btnSendLogModal.addEventListener('click', async () => {
+            if (localStorage.getItem('v2_log_sent') === 'true') return;
+
+            btnSendLogModal.disabled = true;
+            btnSendLogModal.textContent = '送信中...';
+
+            if (typeof sendLogsToSupabase === 'function') {
+                await sendLogsToSupabase();
+            }
+            btnSendLogModal.textContent = '✓ ログ送信完了！';
+            btnSendLogModal.style.borderColor = 'var(--cud-green)';
+            btnSendLogModal.style.color = 'var(--cud-green)';
+            btnSendLogModal.style.cursor = 'default';
+            if (typeof showToast === 'function') {
+                showToast('実験ログを送信しました。ご協力ありがとうございます！');
             }
         });
     }
@@ -885,9 +897,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnCopy.textContent = '✓ コピーしました！';
                 btnCopy.style.background = '#00B45A';
                 setTimeout(() => {
+
                     btnCopy.textContent = originalText;
                     btnCopy.style.background = 'var(--cud-green)';
                 }, 2000);
+
             }).catch(err => {
                 console.error("Failed to copy:", err);
                 alert('コピーに失敗しました。手動でコピーしてください: ' + userId);

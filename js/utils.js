@@ -460,300 +460,373 @@ if (typeof window !== 'undefined') {
     window.addSystemLog = addSystemLog;
 }
 
+// ==========================================
+// 5. 実験ログ構造化集計 & Supabase送信 / CSVエクスポート
+// ==========================================
+
+const SUPABASE_CONFIG = {
+    url: 'https://zjkbyunumomcbyovfoix.supabase.co',
+    anonKey: 'sb_publishable_N9Tiu9plJrplo9WoubZSZw_PdOXzFbL'
+};
+
+/**
+ * 実験ログを構造化データ（サマリー指標 + ペイロード + CSV用データ）として集計・整形する関数
+ */
+function getStructuredExperimentData() {
+    const userId = getOrCreateUserId();
+    let logs = [];
+    const raw = localStorage.getItem(SYSTEM_LOGS_KEY);
+    if (raw) {
+        try {
+            const parsed = JSON.parse(raw);
+            logs = Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+            logs = [];
+        }
+    }
+
+    const earnedBadges = getValidatedBadges();
+    const totalElapsedSec = Math.floor(getValidatedElapsedTime() / 1000);
+
+    let sessionStartJST = logs.length > 0 && (logs[0].jst || logs[0].timestamp) ? logs[0].jst || logs[0].timestamp : new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
+    let sessionEndJST = logs.length > 0 && (logs[logs.length - 1].jst || logs[logs.length - 1].timestamp) ? logs[logs.length - 1].jst || logs[logs.length - 1].timestamp : sessionStartJST;
+
+    const stayTimes = {
+        'index.html': 0,
+        'quiz.html': 0,
+        'shakeout.html': 0,
+        'fake_news_quiz.html': 0,
+        'novel-game.html': 0,
+        'hazard-map.html': 0,
+        'intensity-map.html': 0,
+        'archive-3d.html': 0,
+        'mypage.html': 0
+    };
+
+    let quizTotalAttempts = 0;
+    let quizStage0Attempts = 0;
+    let quizStage1Attempts = 0;
+    let quizStage2Attempts = 0;
+    let quizStage0Best = null;
+    let quizStage1Best = null;
+    let quizStage2Best = null;
+    let quizTimedAttempts = 0;
+
+    let fakeNewsAttempts = 0;
+    let fakeNewsBestScore = null;
+    let fakeNewsMistakeShares = 0;
+
+    let shakeoutClears = 0;
+    let shakeoutFails = 0;
+    let shakeoutStumbles = [];
+    let shakeoutAudioChoice = '未選択';
+
+    let hazardShelterClicks = 0;
+
+    logs.forEach(item => {
+        const page = item.page || '';
+        const action = item.action || '';
+        const detail = item.detail || '';
+        const extra = item.extra || '';
+
+        if (action === 'stay_time') {
+            const sec = parseInt(extra, 10);
+            if (!isNaN(sec) && sec > 0) {
+                if (stayTimes[page] !== undefined) {
+                    stayTimes[page] += sec;
+                }
+            }
+        }
+
+        if (action === 'quiz_start') {
+            quizTotalAttempts++;
+            if (detail.includes('初級')) quizStage0Attempts++;
+            else if (detail.includes('中級')) quizStage1Attempts++;
+            else if (detail.includes('上級')) quizStage2Attempts++;
+            if (extra.includes('本番モード')) quizTimedAttempts++;
+        }
+        if (action === 'quiz_result') {
+            const scoreMatch = extra.match(/(\d+)/);
+            if (scoreMatch) {
+                const score = parseInt(scoreMatch[1], 10);
+                if (detail.includes('初級')) {
+                    quizStage0Best = quizStage0Best !== null ? Math.max(quizStage0Best, score) : score;
+                } else if (detail.includes('中級')) {
+                    quizStage1Best = quizStage1Best !== null ? Math.max(quizStage1Best, score) : score;
+                } else if (detail.includes('上級')) {
+                    quizStage2Best = quizStage2Best !== null ? Math.max(quizStage2Best, score) : score;
+                }
+            }
+            if (quizTotalAttempts === 0) {
+                quizTotalAttempts++;
+                if (detail.includes('初級') && quizStage0Attempts === 0) quizStage0Attempts++;
+                if (detail.includes('中級') && quizStage1Attempts === 0) quizStage1Attempts++;
+                if (detail.includes('上級') && quizStage2Attempts === 0) quizStage2Attempts++;
+            }
+        }
+        if (action === 'click' && detail.includes('クイズ：初級を開始') && quizStage0Attempts === 0) quizStage0Attempts++;
+        if (action === 'click' && detail.includes('クイズ：中級を開始') && quizStage1Attempts === 0) quizStage1Attempts++;
+        if (action === 'click' && detail.includes('クイズ：上級を開始') && quizStage2Attempts === 0) quizStage2Attempts++;
+
+        if (action === 'fake_news_start') {
+            fakeNewsAttempts++;
+        }
+        if (action === 'fake_news_result') {
+            if (fakeNewsAttempts === 0) fakeNewsAttempts++;
+            const scoreMatch = extra.match(/(\d+)/);
+            if (scoreMatch) {
+                const score = parseInt(scoreMatch[1], 10);
+                fakeNewsBestScore = fakeNewsBestScore !== null ? Math.max(fakeNewsBestScore, score) : score;
+            }
+            const mistMatch = detail.match(/デマ拡散ミス:(\d+)問/);
+            if (mistMatch) {
+                fakeNewsMistakeShares += parseInt(mistMatch[1], 10);
+            }
+        }
+
+        if (action === 'shakeout_clear') {
+            shakeoutClears++;
+        }
+        if (action === 'shakeout_fail') {
+            shakeoutFails++;
+            let failSummary = '';
+            const sceneMatch = detail.match(/シーン:([^,]+)/);
+            const phaseMatch = detail.match(/フェーズ:([^,]+)/);
+            const scene = sceneMatch ? sceneMatch[1] : '';
+            const phase = phaseMatch ? phaseMatch[1] : '';
+            const reason = extra ? extra.replace(/【[^】]+】/g, '').trim().substring(0, 30) : '';
+
+            if (scene || phase) {
+                failSummary = `[${scene}/${phase}] ${reason}`;
+            } else {
+                failSummary = reason;
+            }
+            if (failSummary && !shakeoutStumbles.includes(failSummary)) {
+                shakeoutStumbles.push(failSummary);
+            }
+        }
+        if (action === 'shakeout_audio_choice') {
+            shakeoutAudioChoice = detail;
+        }
+        if (action === 'click') {
+            if (detail.includes('音声ありで開始')) shakeoutAudioChoice = '音声あり';
+            else if (detail.includes('ミュートで開始')) shakeoutAudioChoice = 'ミュート';
+        }
+
+        if (action === 'badge_unlock' && extra === 'hazard_navigator') {
+            hazardShelterClicks = Math.max(hazardShelterClicks, 1);
+        }
+        if (action === 'click' && (detail.includes('指定緊急避難場所') || detail.includes('避難場所マーカー'))) {
+            hazardShelterClicks++;
+        }
+    });
+
+    const quizStageSum = quizStage0Attempts + quizStage1Attempts + quizStage2Attempts;
+    quizTotalAttempts = Math.max(quizTotalAttempts, quizStageSum);
+
+    const summaryHeaders = [
+        "被験者ID",
+        "開始日時 (JST)",
+        "終了日時 (JST)",
+        "総利用時間(秒)",
+        "獲得バッジ数(全10種)",
+        "マスター達成",
+        "クイズ総挑戦数",
+        "クイズ初級挑戦数",
+        "クイズ中級挑戦数",
+        "クイズ上級挑戦数",
+        "クイズ初級最高点(10点満点)",
+        "クイズ中級最高点(10点満点)",
+        "クイズ上級最高点(10点満点)",
+        "クイズ本番挑戦数",
+        "デマ見極め挑戦数",
+        "デマ見極め最高点(10点満点)",
+        "デマ見極め正答率(%)",
+        "デマ拡散ミス数",
+        "シェイクアウト成否",
+        "シェイクアウト失敗数",
+        "シェイクアウト主なつまずき箇所",
+        "シェイクアウト音声設定",
+        "トップ滞在秒",
+        "クイズ滞在秒",
+        "シェイクアウト滞在秒",
+        "デマ見極め滞在秒",
+        "3.11追体験滞在秒",
+        "ハザード滞在秒",
+        "震度・3D震源滞在秒",
+        "避難場所詳細確認数"
+    ];
+
+    const summaryRow = [
+        userId,
+        sessionStartJST,
+        sessionEndJST,
+        String(totalElapsedSec),
+        String(earnedBadges.length),
+        earnedBadges.includes('master') ? 'TRUE' : 'FALSE',
+        String(quizTotalAttempts),
+        String(quizStage0Attempts),
+        String(quizStage1Attempts),
+        String(quizStage2Attempts),
+        quizStage0Best !== null ? String(quizStage0Best) : '未挑戦',
+        quizStage1Best !== null ? String(quizStage1Best) : '未挑戦',
+        quizStage2Best !== null ? String(quizStage2Best) : '未挑戦',
+        String(quizTimedAttempts),
+        String(fakeNewsAttempts),
+        fakeNewsBestScore !== null ? String(fakeNewsBestScore) : '未挑戦',
+        fakeNewsBestScore !== null ? String(fakeNewsBestScore * 10) : '未挑戦',
+        String(fakeNewsMistakeShares),
+        shakeoutClears > 0 ? `クリア達成(${shakeoutClears}回)` : (shakeoutFails > 0 ? '失敗離脱' : '未挑戦'),
+        String(shakeoutFails),
+        shakeoutStumbles.length > 0 ? shakeoutStumbles.slice(0, 5).join(' | ') : 'なし',
+        shakeoutAudioChoice,
+        String(stayTimes['index.html'] || 0),
+        String(stayTimes['quiz.html'] || 0),
+        String(stayTimes['shakeout.html'] || 0),
+        String(stayTimes['fake_news_quiz.html'] || 0),
+        String(stayTimes['novel-game.html'] || 0),
+        String(stayTimes['hazard-map.html'] || 0),
+        String((stayTimes['intensity-map.html'] || 0) + (stayTimes['archive-3d.html'] || 0)),
+        String(hazardShelterClicks)
+    ];
+
+    const timelineHeaders = [
+        "日時 (JST)",
+        "経過時間 (秒)",
+        "被験者ID",
+        "ページ",
+        "イベント種別",
+        "詳細・操作内容",
+        "補足・スコア"
+    ];
+
+    const timelineRows = [];
+    logs.forEach(item => {
+        timelineRows.push([
+            item.jst || item.timestamp || '',
+            String(item.elapsedSec !== undefined ? item.elapsedSec : ''),
+            item.userId || userId,
+            item.page || '',
+            item.action || '',
+            item.detail || '',
+            item.extra || ''
+        ]);
+    });
+
+    if (timelineRows.length === 0) {
+        timelineRows.push([
+            new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
+            String(totalElapsedSec),
+            userId,
+            window.location.pathname.split('/').pop() || 'index.html',
+            'session_summary',
+            'セッションログ出力',
+            ''
+        ]);
+    }
+
+    const supabasePayload = {
+        user_id: userId,
+        session_start: sessionStartJST,
+        session_end: sessionEndJST,
+        total_elapsed_sec: totalElapsedSec,
+        badge_count: earnedBadges.length,
+        master_unlocked: earnedBadges.includes('master'),
+        quiz_total_attempts: quizTotalAttempts,
+        quiz_stage0_attempts: quizStage0Attempts,
+        quiz_stage1_attempts: quizStage1Attempts,
+        quiz_stage2_attempts: quizStage2Attempts,
+        quiz_stage0_best: quizStage0Best !== null ? String(quizStage0Best) : '未挑戦',
+        quiz_stage1_best: quizStage1Best !== null ? String(quizStage1Best) : '未挑戦',
+        quiz_stage2_best: quizStage2Best !== null ? String(quizStage2Best) : '未挑戦',
+        quiz_timed_attempts: quizTimedAttempts,
+        fake_news_attempts: fakeNewsAttempts,
+        fake_news_best: fakeNewsBestScore !== null ? String(fakeNewsBestScore) : '未挑戦',
+        fake_news_accuracy: fakeNewsBestScore !== null ? String(fakeNewsBestScore * 10) : '未挑戦',
+        fake_news_mistakes: fakeNewsMistakeShares,
+        shakeout_result: shakeoutClears > 0 ? `クリア達成(${shakeoutClears}回)` : (shakeoutFails > 0 ? '失敗離脱' : '未挑戦'),
+        shakeout_fails: shakeoutFails,
+        shakeout_stumbles: shakeoutStumbles.length > 0 ? shakeoutStumbles.slice(0, 5).join(' | ') : 'なし',
+        shakeout_audio_choice: shakeoutAudioChoice,
+        stay_index: stayTimes['index.html'] || 0,
+        stay_quiz: stayTimes['quiz.html'] || 0,
+        stay_shakeout: stayTimes['shakeout.html'] || 0,
+        stay_fake_news: stayTimes['fake_news_quiz.html'] || 0,
+        stay_novel: stayTimes['novel-game.html'] || 0,
+        stay_hazard: stayTimes['hazard-map.html'] || 0,
+        stay_intensity_3d: (stayTimes['intensity-map.html'] || 0) + (stayTimes['archive-3d.html'] || 0),
+        hazard_shelter_clicks: hazardShelterClicks,
+        timeline_data: logs
+    };
+
+    return {
+        userId,
+        totalElapsedSec,
+        summaryHeaders,
+        summaryRow,
+        timelineHeaders,
+        timelineRows,
+        supabasePayload
+    };
+}
+
+/**
+ * Supabaseへのログ送信関数（三重防御：通信1回・自動リトライ・サイレントフォールバック）
+ * @param {number} retryCount リトライ試行回数
+ * @returns {Promise<{success: boolean, error?: any}>}
+ */
+async function sendLogsToSupabase(retryCount = 0) {
+    try {
+        const data = getStructuredExperimentData();
+        const payload = data.supabasePayload;
+
+        const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/experiment_logs`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_CONFIG.anonKey,
+                'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            localStorage.setItem('v2_log_sent', 'true');
+            if (typeof addSystemLog === 'function') {
+                addSystemLog('send_log_supabase', 'Supabaseログ送信成功');
+            }
+            return { success: true };
+        } else {
+            const errText = await response.text().catch(() => '');
+            throw new Error(`HTTP ${response.status}: ${errText}`);
+        }
+    } catch (err) {
+        console.warn(`Supabase送信エラー (試行 ${retryCount + 1}):`, err);
+        if (retryCount < 2) {
+            // サイレント・リトライ（2秒後、4秒後）
+            await new Promise(r => setTimeout(r, 2000 * (retryCount + 1)));
+            return sendLogsToSupabase(retryCount + 1);
+        }
+        // サイレント・フォールバック（画面を止めず握りつぶす）
+        return { success: false, error: err };
+    }
+}
+
 /**
  * 蓄積されたログをCSV形式に整形してダウンロードする関数
  */
 function exportLogsAsCSV() {
     try {
-        const userId = getOrCreateUserId();
-        let logs = [];
-        const raw = localStorage.getItem(SYSTEM_LOGS_KEY);
-        if (raw) {
-            try {
-                const parsed = JSON.parse(raw);
-                logs = Array.isArray(parsed) ? parsed : [];
-            } catch (e) {
-                logs = [];
-            }
-        }
+        const data = getStructuredExperimentData();
+        const userId = data.userId;
 
-        const earnedBadges = getValidatedBadges();
-        const totalElapsedSec = Math.floor(getValidatedElapsedTime() / 1000);
-
-        // ==========================================
-        // サマリー指標の集計・計算ロジック
-        // ==========================================
-        let sessionStartJST = logs.length > 0 && (logs[0].jst || logs[0].timestamp) ? logs[0].jst || logs[0].timestamp : new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
-        let sessionEndJST = logs.length > 0 && (logs[logs.length - 1].jst || logs[logs.length - 1].timestamp) ? logs[logs.length - 1].jst || logs[logs.length - 1].timestamp : sessionStartJST;
-
-        // コンテンツ別 滞在時間の集計 (stay_time イベント)
-        const stayTimes = {
-            'index.html': 0,
-            'quiz.html': 0,
-            'shakeout.html': 0,
-            'fake_news_quiz.html': 0,
-            'novel-game.html': 0,
-            'hazard-map.html': 0,
-            'intensity-map.html': 0,
-            'archive-3d.html': 0,
-            'mypage.html': 0
-        };
-
-        // クイズ集計用変数
-        let quizTotalAttempts = 0;
-        let quizStage0Attempts = 0; // 初級
-        let quizStage1Attempts = 0; // 中級
-        let quizStage2Attempts = 0; // 上級
-        let quizStage0Best = null;
-        let quizStage1Best = null;
-        let quizStage2Best = null;
-        let quizTimedAttempts = 0;
-
-        // デマ見極め集計用変数
-        let fakeNewsAttempts = 0;
-        let fakeNewsBestScore = null;
-        let fakeNewsMistakeShares = 0;
-
-        // シェイクアウト集計用変数
-        let shakeoutClears = 0;
-        let shakeoutFails = 0;
-        let shakeoutStumbles = [];
-        let shakeoutAudioChoice = '未選択';
-
-        // ハザードマップ集計用変数
-        let hazardShelterClicks = 0;
-
-        // ログ走査
-        logs.forEach(item => {
-            const page = item.page || '';
-            const action = item.action || '';
-            const detail = item.detail || '';
-            const extra = item.extra || '';
-
-            // 1. 滞在時間
-            if (action === 'stay_time') {
-                const sec = parseInt(extra, 10);
-                if (!isNaN(sec) && sec > 0) {
-                    if (stayTimes[page] !== undefined) {
-                        stayTimes[page] += sec;
-                    }
-                }
-            }
-
-            // 2. クイズ実績
-            if (action === 'quiz_start') {
-                quizTotalAttempts++;
-                if (detail.includes('初級')) quizStage0Attempts++;
-                else if (detail.includes('中級')) quizStage1Attempts++;
-                else if (detail.includes('上級')) quizStage2Attempts++;
-                if (extra.includes('本番モード')) quizTimedAttempts++;
-            }
-            if (action === 'quiz_result') {
-                // スコアパース: X/Y
-                const scoreMatch = extra.match(/(\d+)/);
-                if (scoreMatch) {
-                    const score = parseInt(scoreMatch[1], 10);
-                    if (detail.includes('初級')) {
-                        quizStage0Best = quizStage0Best !== null ? Math.max(quizStage0Best, score) : score;
-                    } else if (detail.includes('中級')) {
-                        quizStage1Best = quizStage1Best !== null ? Math.max(quizStage1Best, score) : score;
-                    } else if (detail.includes('上級')) {
-                        quizStage2Best = quizStage2Best !== null ? Math.max(quizStage2Best, score) : score;
-                    }
-                }
-                // もしquiz_startが無かった場合のフォールバックカウント
-                if (quizTotalAttempts === 0) {
-                    quizTotalAttempts++;
-                    if (detail.includes('初級') && quizStage0Attempts === 0) quizStage0Attempts++;
-                    if (detail.includes('中級') && quizStage1Attempts === 0) quizStage1Attempts++;
-                    if (detail.includes('上級') && quizStage2Attempts === 0) quizStage2Attempts++;
-                }
-            }
-            // クイズ開始クリックのフォールバック検知
-            if (action === 'click' && detail.includes('クイズ：初級を開始') && quizStage0Attempts === 0) quizStage0Attempts++;
-            if (action === 'click' && detail.includes('クイズ：中級を開始') && quizStage1Attempts === 0) quizStage1Attempts++;
-            if (action === 'click' && detail.includes('クイズ：上級を開始') && quizStage2Attempts === 0) quizStage2Attempts++;
-
-            // 3. デマ見極め実績
-            if (action === 'fake_news_start') {
-                fakeNewsAttempts++;
-            }
-            if (action === 'fake_news_result') {
-                if (fakeNewsAttempts === 0) fakeNewsAttempts++;
-                const scoreMatch = extra.match(/(\d+)/);
-                if (scoreMatch) {
-                    const score = parseInt(scoreMatch[1], 10);
-                    fakeNewsBestScore = fakeNewsBestScore !== null ? Math.max(fakeNewsBestScore, score) : score;
-                }
-                const mistMatch = detail.match(/デマ拡散ミス:(\d+)問/);
-                if (mistMatch) {
-                    fakeNewsMistakeShares += parseInt(mistMatch[1], 10);
-                }
-            }
-
-            // 4. シェイクアウト実績
-            if (action === 'shakeout_clear') {
-                shakeoutClears++;
-            }
-            if (action === 'shakeout_fail') {
-                shakeoutFails++;
-                // つまずき内容の整形: [シーン/フェーズ] 理由
-                let failSummary = '';
-                const sceneMatch = detail.match(/シーン:([^,]+)/);
-                const phaseMatch = detail.match(/フェーズ:([^,]+)/);
-                const scene = sceneMatch ? sceneMatch[1] : '';
-                const phase = phaseMatch ? phaseMatch[1] : '';
-                const reason = extra ? extra.replace(/【[^】]+】/g, '').trim().substring(0, 30) : '';
-
-                if (scene || phase) {
-                    failSummary = `[${scene}/${phase}] ${reason}`;
-                } else {
-                    failSummary = reason;
-                }
-                if (failSummary && !shakeoutStumbles.includes(failSummary)) {
-                    shakeoutStumbles.push(failSummary);
-                }
-            }
-            if (action === 'shakeout_audio_choice') {
-                shakeoutAudioChoice = detail;
-            }
-            if (action === 'click') {
-                if (detail.includes('音声ありで開始')) shakeoutAudioChoice = '音声あり';
-                else if (detail.includes('ミュートで開始')) shakeoutAudioChoice = 'ミュート';
-            }
-
-            // 5. ハザード避難場所ピン詳細確認
-            if (action === 'badge_unlock' && extra === 'hazard_navigator') {
-                hazardShelterClicks = Math.max(hazardShelterClicks, 1);
-            }
-            if (action === 'click' && (detail.includes('指定緊急避難場所') || detail.includes('避難場所マーカー'))) {
-                hazardShelterClicks++;
-            }
-        });
-
-        // クイズ総挑戦数の補正（各ステージの合計と大きい方を採用）
-        const quizStageSum = quizStage0Attempts + quizStage1Attempts + quizStage2Attempts;
-        quizTotalAttempts = Math.max(quizTotalAttempts, quizStageSum);
-
-        // ==========================================
-        // CSVテーブルの構築
-        // ==========================================
-
-        // 【パート1：被験者総合サマリー（1被験者1行データ）】
-        const summaryHeaders = [
-            "被験者ID",
-            "開始日時 (JST)",
-            "終了日時 (JST)",
-            "総利用時間(秒)",
-            "獲得バッジ数(全10種)",
-            "マスター達成",
-            "クイズ総挑戦数",
-            "クイズ初級挑戦数",
-            "クイズ中級挑戦数",
-            "クイズ上級挑戦数",
-            "クイズ初級最高点(10点満点)",
-            "クイズ中級最高点(10点満点)",
-            "クイズ上級最高点(10点満点)",
-            "クイズ本番挑戦数",
-            "デマ見極め挑戦数",
-            "デマ見極め最高点(10点満点)",
-            "デマ見極め正答率(%)",
-            "デマ拡散ミス数",
-            "シェイクアウト成否",
-            "シェイクアウト失敗数",
-            "シェイクアウト主なつまずき箇所",
-            "シェイクアウト音声設定",
-            "トップ滞在秒",
-            "クイズ滞在秒",
-            "シェイクアウト滞在秒",
-            "デマ見極め滞在秒",
-            "3.11追体験滞在秒",
-            "ハザード滞在秒",
-            "震度・3D震源滞在秒",
-            "避難場所詳細確認数"
-        ];
-
-        const summaryRow = [
-            userId,
-            sessionStartJST,
-            sessionEndJST,
-            String(totalElapsedSec),
-            String(earnedBadges.length), // 純粋な数値 (Excel日付化防止 & 平均計算可能)
-            earnedBadges.includes('master') ? 'TRUE' : 'FALSE',
-            String(quizTotalAttempts),
-            String(quizStage0Attempts),
-            String(quizStage1Attempts),
-            String(quizStage2Attempts),
-            quizStage0Best !== null ? String(quizStage0Best) : '未挑戦',
-            quizStage1Best !== null ? String(quizStage1Best) : '未挑戦',
-            quizStage2Best !== null ? String(quizStage2Best) : '未挑戦',
-            String(quizTimedAttempts),
-            String(fakeNewsAttempts),
-            fakeNewsBestScore !== null ? String(fakeNewsBestScore) : '未挑戦',
-            fakeNewsBestScore !== null ? String(fakeNewsBestScore * 10) : '未挑戦',
-            String(fakeNewsMistakeShares),
-            shakeoutClears > 0 ? `クリア達成(${shakeoutClears}回)` : (shakeoutFails > 0 ? '失敗離脱' : '未挑戦'),
-            String(shakeoutFails),
-            shakeoutStumbles.length > 0 ? shakeoutStumbles.slice(0, 5).join(' | ') : 'なし',
-            shakeoutAudioChoice,
-            String(stayTimes['index.html'] || 0),
-            String(stayTimes['quiz.html'] || 0),
-            String(stayTimes['shakeout.html'] || 0),
-            String(stayTimes['fake_news_quiz.html'] || 0),
-            String(stayTimes['novel-game.html'] || 0),
-            String(stayTimes['hazard-map.html'] || 0),
-            String((stayTimes['intensity-map.html'] || 0) + (stayTimes['archive-3d.html'] || 0)),
-            String(hazardShelterClicks)
-        ];
-
-        // 【パート2：イベント詳細タイムライン】
-        const timelineHeaders = [
-            "日時 (JST)",
-            "経過時間 (秒)",
-            "被験者ID",
-            "ページ",
-            "イベント種別",
-            "詳細・操作内容",
-            "補足・スコア"
-        ];
-
-        const timelineRows = [];
-        logs.forEach(item => {
-            timelineRows.push([
-                item.jst || item.timestamp || '',
-                String(item.elapsedSec !== undefined ? item.elapsedSec : ''),
-                item.userId || userId,
-                item.page || '',
-                item.action || '',
-                item.detail || '',
-                item.extra || ''
-            ]);
-        });
-
-        if (timelineRows.length === 0) {
-            timelineRows.push([
-                new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
-                String(totalElapsedSec),
-                userId,
-                window.location.pathname.split('/').pop() || 'index.html',
-                'session_summary',
-                'セッションログ出力',
-                ''
-            ]);
-        }
-
-        // CSV組み立て
-        // 1行目: サマリーヘッダー
-        // 2行目: サマリーデータ値
-        // 3行目: 空行
-        // 4行目: タイムラインヘッダー
-        // 5行目以降: タイムラインデータ行
         const allRows = [
-            summaryHeaders,
-            summaryRow,
+            data.summaryHeaders,
+            data.summaryRow,
             [], // 区切り空行
-            timelineHeaders,
-            ...timelineRows
+            data.timelineHeaders,
+            ...data.timelineRows
         ];
 
         const csvContent = allRows.map(r => 
@@ -787,7 +860,10 @@ function exportLogsAsCSV() {
         alert('CSVの生成中にエラーが発生しました。');
     }
 }
+
 if (typeof window !== 'undefined') {
+    window.getStructuredExperimentData = getStructuredExperimentData;
+    window.sendLogsToSupabase = sendLogsToSupabase;
     window.exportLogsAsCSV = exportLogsAsCSV;
 }
 

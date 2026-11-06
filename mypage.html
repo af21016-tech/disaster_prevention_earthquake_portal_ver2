@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp; object-src 'none'; base-uri 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://*.supabase.co; object-src 'none'; base-uri 'self';">
     <title>学習記録 / 設定 | Quake Interactive Archive</title>
     <link href="https://fonts.googleapis.com/css2?family=Biz+UDPGOthic:wght@400;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/style.css?v=20261027_mobile_v2">
@@ -311,12 +311,16 @@
                 </div>
                 <div class="setting-item">
                     <div class="setting-info">
-                        <h4>行動ログのダウンロード (.csv)</h4>
-                        <p id="log-download-desc">実験での操作ログをCSV形式で保存します（※10分間の学習完了後に利用可能になります）。</p>
+                        <h4>行動ログの送信 (任意)</h4>
+                        <p id="log-send-desc">10分間の学習完了後、ワンクリックで実験ログを送信できます（※送信は任意です）。</p>
                     </div>
-                    <button class="btn secondary btn-small" id="btn-download-log-mypage" disabled data-log="マイページ：行動ログダウンロードボタンをクリック">
-                        CSVを保存
-                    </button>
+
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <button class="btn secondary btn-small" id="btn-send-log-mypage" disabled data-log="マイページ：ログ送信ボタンをクリック" style="font-weight: bold;">ログを送信する</button>
+                        <button class="btn secondary btn-small" id="btn-download-log-mypage" disabled data-log="マイページ：行動ログダウンロードボタンをクリック" title="予備として端末にCSVファイルを保存します" style="opacity: 0.8; font-size: 0.78rem;">CSV保存 (予備)</button>
+                    </div>
+
+
                 </div>
 
                 <div class="setting-item tut-target" data-step="2" data-title="⚠️ 学習データの初期化" data-desc="学習履歴をリセットして、最初からやり直すことができます。">
@@ -343,7 +347,7 @@
             <button id="tut-next" class="btn-mypage" style="background: #00E676; color: #000; border: none;" data-log="マイページ：チュートリアル次へボタンをクリック">NEXT ▶</button>
         </div>
     </div>
-    <script src="./js/utils.js?v=20261026_sec_v2"></script>
+    <script src="./js/utils.js?v=20261029_csv_v3"></script>
     <script src="./js/mypage.js?v=20261026_sec_v2"></script>
 </body>
 </html>

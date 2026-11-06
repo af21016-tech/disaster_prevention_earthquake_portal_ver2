@@ -550,6 +550,14 @@ function selectAnswer(isCorrect, feedbackText) {
 }
 
 function showFeedback(isCorrect, feedbackText) {
+    if (!isCorrect && typeof addSystemLog === 'function') {
+        const sceneTitle = (scenarios[currentSceneId] && scenarios[currentSceneId].title) 
+            ? scenarios[currentSceneId].title.replace(/^SCENE\s*\d+：/, '') 
+            : (currentSceneId || '訓練');
+        const phaseName = `フェーズ${currentPhase + 1}`;
+        addSystemLog('shakeout_fail', `シーン:${sceneTitle},フェーズ:${phaseName}`, feedbackText ? feedbackText.substring(0, 60) : '');
+    }
+
     document.getElementById('content-box').innerHTML = `
         <div class="feedback-box ${isCorrect ? "feedback-correct" : "feedback-incorrect"}" style="font-size:1.1rem;">
             <h3 style="color: ${isCorrect ? '#00B400' : '#FF2800'}; margin-top:0; font-size:1.5rem;">${isCorrect ? "正しい判断です！" : "【致命的な判断ミス】"}</h3>
@@ -769,6 +777,13 @@ function selectAfterHoldAnswer(isCorrect, feedbackText) {
 }
 
 function showClear(clearText) {
+    if (typeof addSystemLog === 'function') {
+        const sceneTitle = (scenarios[currentSceneId] && scenarios[currentSceneId].title) 
+            ? scenarios[currentSceneId].title.replace(/^SCENE\s*\d+：/, '') 
+            : (currentSceneId || '訓練');
+        addSystemLog('shakeout_clear', `シーン:${sceneTitle},モード:${trainingMode}`, 'クリア達成');
+    }
+
     // 本番モード（制限時間あり）でのみバッジ獲得
     if (trainingMode === "timed" && typeof unlockBadge === 'function') {
         if (currentSceneId === 'sleep') {

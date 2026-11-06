@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp; object-src 'none'; base-uri 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://unpkg.com; connect-src 'self' https://raw.githubusercontent.com https://earthquake.usgs.gov https://server.arcgisonline.com https://cyberjapandata.gsi.go.jp https://maps.gsi.go.jp https://disaportaldata.gsi.go.jp https://*.supabase.co; object-src 'none'; base-uri 'self';">
     <title>Quake Interactive Archive | 過去の災害から学ぶ防災シミュレーター</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Biz+UDPGOthic:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -102,8 +102,8 @@
                 📋 完了コードをコピー
             </button>
 
-            <button id="btn-download-log-modal" class="btn-primary-modal" style="background: transparent; color: var(--text-main); border: 1px solid var(--border-color); margin-bottom: 6px; font-size: 0.92rem; padding: 10px 16px; box-shadow: none;">
-                📥 【任意】行動ログをダウンロード (.csv)
+            <button id="btn-send-log-modal" class="btn-primary-modal" style="background: transparent; color: var(--text-main); border: 1px solid var(--border-color); margin-bottom: 6px; font-size: 0.92rem; padding: 10px 16px; box-shadow: none; cursor: pointer;">
+                📤 ログを送信する (任意)
             </button>
             <p style="font-size: 0.74rem; color: var(--text-sub); margin: 0 0 16px; line-height: 1.4;">
                 ※ログの提出は任意です。完了コードのみでも承認されます。
@@ -188,7 +188,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin="anonymous"></script>
-    <script src="./js/utils.js?v=20261026_sec_v2"></script>
+    <script src="./js/utils.js?v=20261029_csv_v3"></script>
     <script src="./js/main.js?v=20261027_usgs_v2" defer></script>
 </body>
 </html>

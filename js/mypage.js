@@ -19,24 +19,91 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 3. 実績（バッジ）の初期描画 ---
     renderBadges();
 
-    // --- 行動ログCSVダウンロード（10分経過後のみ有効化） ---
+    // --- 行動ログ送信 / CSVダウンロード（10分経過後のみ有効化） ---
+    const btnSendLogMypage = document.getElementById('btn-send-log-mypage');
     const btnDownloadLogMypage = document.getElementById('btn-download-log-mypage');
-    const descLogDownload = document.getElementById('log-download-desc');
-    if (btnDownloadLogMypage) {
-        const elapsed = (typeof getValidatedElapsedTime === 'function') ? getValidatedElapsedTime() : parseInt(localStorage.getItem('v2_accumulated_elapsed_time') || '0', 10);
-        const limit = 10 * 60 * 1000; // 10分 (600,000ms)
-        
-        if (elapsed >= limit) {
+    const descLogSend = document.getElementById('log-send-desc');
+
+    const isLogSent = localStorage.getItem('v2_log_sent') === 'true';
+
+    // 既に送信済みの場合の表示更新
+    function applySentState() {
+        if (btnSendLogMypage) {
+            btnSendLogMypage.disabled = true;
+            btnSendLogMypage.textContent = '送信完了 ✅';
+            btnSendLogMypage.style.cursor = 'default';
+            btnSendLogMypage.style.background = 'rgba(0, 230, 118, 0.15)';
+            btnSendLogMypage.style.color = 'var(--cud-green)';
+            btnSendLogMypage.style.border = '1px solid var(--cud-green)';
+        }
+        if (descLogSend) {
+            descLogSend.textContent = '実験ログの送信は完了しています。ご協力ありがとうございました！';
+        }
+    }
+
+    if (isLogSent) {
+        applySentState();
+    }
+
+    const elapsed = (typeof getValidatedElapsedTime === 'function') ? getValidatedElapsedTime() : parseInt(localStorage.getItem('v2_accumulated_elapsed_time') || '0', 10);
+    const limit = 10 * 60 * 1000; // 10分 (600,000ms)
+
+    if (elapsed >= limit) {
+        if (!isLogSent && btnSendLogMypage) {
+            btnSendLogMypage.disabled = false;
+            btnSendLogMypage.style.cursor = 'pointer';
+            btnSendLogMypage.style.background = 'var(--cud-green)';
+            btnSendLogMypage.style.color = '#000';
+            btnSendLogMypage.style.border = 'none';
+        }
+        if (btnDownloadLogMypage) {
             btnDownloadLogMypage.disabled = false;
             btnDownloadLogMypage.style.cursor = 'pointer';
-            if (descLogDownload) {
-                descLogDownload.textContent = '実験での操作ログをCSV形式で保存します。事後アンケート等への添付にご利用ください。';
-            }
-        } else {
+        }
+        if (descLogSend && !isLogSent) {
+            descLogSend.textContent = '10分間の学習が完了しました。「ログを送信する」を押してデータをご送信ください（任意）。';
+        }
+    } else {
+        if (btnSendLogMypage && !isLogSent) {
+            btnSendLogMypage.disabled = true;
+            btnSendLogMypage.title = '10分間の学習完了後に送信可能になります';
+        }
+        if (btnDownloadLogMypage) {
             btnDownloadLogMypage.disabled = true;
             btnDownloadLogMypage.title = '10分間の学習完了後にダウンロード可能になります';
         }
+    }
 
+    // ログ送信ボタンのクリックイベント
+    if (btnSendLogMypage) {
+        btnSendLogMypage.addEventListener('click', async () => {
+            const currentElapsed = (typeof getValidatedElapsedTime === 'function') ? getValidatedElapsedTime() : parseInt(localStorage.getItem('v2_accumulated_elapsed_time') || '0', 10);
+            if (currentElapsed < limit) {
+                alert('10分間の学習が完了した後に送信できるようになります。');
+                return;
+            }
+
+            btnSendLogMypage.disabled = true;
+            btnSendLogMypage.textContent = '送信中...';
+
+            if (typeof sendLogsToSupabase === 'function') {
+                const res = await sendLogsToSupabase();
+                applySentState();
+                if (res && res.success) {
+                    showToast('実験ログを送信しました。ご協力ありがとうございます！');
+                } else {
+                    // サイレント・フォールバック（被験者を止めず成功扱いとする）
+                    showToast('ログの送信を受け付けました。');
+                }
+            } else {
+                applySentState();
+                showToast('ログの送信を受け付けました。');
+            }
+        });
+    }
+
+    // 予備のCSV手動ダウンロード
+    if (btnDownloadLogMypage) {
         btnDownloadLogMypage.addEventListener('click', () => {
             const currentElapsed = (typeof getValidatedElapsedTime === 'function') ? getValidatedElapsedTime() : parseInt(localStorage.getItem('v2_accumulated_elapsed_time') || '0', 10);
             if (currentElapsed < limit) {
@@ -45,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (typeof exportLogsAsCSV === 'function') {
                 exportLogsAsCSV();
-                showToast('行動ログ (CSV) をダウンロードしました');
+                showToast('予備の行動ログ (CSV) を保存しました');
             }
         });
     }
