@@ -1,14 +1,54 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1793937448000,
-    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-06&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
+    "generated": 1794022256000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-07&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
     "title": "USGS Earthquakes",
     "status": 200,
     "api": "2.8.4",
-    "count": 5788
+    "count": 5789
   },
   "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 6.1,
+        "place": "144 km SE of Hasaki, Japan",
+        "time": 1793961567869,
+        "updated": 1794021565084,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000twg9",
+        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000twg9&format=geojson",
+        "felt": 35,
+        "cdi": 4.2,
+        "mmi": 0,
+        "alert": "green",
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 587,
+        "net": "us",
+        "code": "7000twg9",
+        "ids": ",us7000twg9,usauto7000twg9,atto2tlr,",
+        "sources": ",us,usauto,at,",
+        "types": ",dyfi,internal-moment-tensor,internal-origin,losspager,moment-tensor,origin,phase-data,shakemap,",
+        "nst": 134,
+        "dmin": 3.545,
+        "rms": 0.76,
+        "gap": 32,
+        "magType": "mww",
+        "type": "earthquake",
+        "title": "M 6.1 - 144 km SE of Hasaki, Japan"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          142.1175,
+          34.9677,
+          29
+        ]
+      },
+      "id": "us7000twg9"
+    },
     {
       "type": "Feature",
       "properties": {
@@ -212,10 +252,10 @@
     {
       "type": "Feature",
       "properties": {
-        "mag": 5.3,
-        "place": "44 km ESE of Miyazaki, Japan",
-        "time": 1792886376599,
-        "updated": 1792970386153,
+        "mag": 5.1,
+        "place": "46 km ESE of Miyazaki, Japan",
+        "time": 1792886377247,
+        "updated": 1794016151096,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u4qq",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000u4qq&format=geojson",
@@ -225,25 +265,25 @@
         "alert": null,
         "status": "reviewed",
         "tsunami": 0,
-        "sig": 433,
+        "sig": 401,
         "net": "us",
         "code": "6000u4qq",
         "ids": ",us6000u4qq,",
         "sources": ",us,",
         "types": ",dyfi,moment-tensor,origin,phase-data,",
-        "nst": 73,
-        "dmin": 1.251,
-        "rms": 1.3,
-        "gap": 114,
-        "magType": "mb",
+        "nst": 88,
+        "dmin": 1.254,
+        "rms": 1.26,
+        "gap": 94,
+        "magType": "mww",
         "type": "earthquake",
-        "title": "M 5.3 - 44 km ESE of Miyazaki, Japan"
+        "title": "M 5.1 - 46 km ESE of Miyazaki, Japan"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          131.873,
-          31.8226,
+          131.8868,
+          31.7892,
           10
         ]
       },
@@ -253,9 +293,9 @@
       "type": "Feature",
       "properties": {
         "mag": 5.1,
-        "place": "72 km ENE of Noda, Japan",
-        "time": 1792771671754,
-        "updated": 1792801545803,
+        "place": "73 km ENE of Noda, Japan",
+        "time": 1792771670626,
+        "updated": 1794002536640,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u4e2",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000u4e2&format=geojson",
@@ -271,20 +311,20 @@
         "ids": ",us6000u4e2,",
         "sources": ",us,",
         "types": ",dyfi,origin,phase-data,",
-        "nst": 74,
-        "dmin": 1.207,
+        "nst": 81,
+        "dmin": 1.266,
         "rms": 0.67,
-        "gap": 100,
+        "gap": 92,
         "magType": "mb",
         "type": "earthquake",
-        "title": "M 5.1 - 72 km ENE of Noda, Japan"
+        "title": "M 5.1 - 73 km ENE of Noda, Japan"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          142.572,
-          40.4159,
-          38.138
+          142.6211,
+          40.3463,
+          31.83
         ]
       },
       "id": "us6000u4e2"
