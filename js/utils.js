@@ -111,6 +111,82 @@ if (typeof window !== 'undefined') {
     window.getValidatedElapsedTime = getValidatedElapsedTime;
 }
 
+// ==========================================
+// 実験タイマートラッキング機構 (30秒非アクティブ自動停止・全ページ共通)
+// ==========================================
+const LAST_UPDATE_KEY = 'v2_last_timer_update_time';
+const LAST_INTERACTION_KEY = 'v2_last_interaction_time';
+let lastInteractionRecordTime = 0;
+
+function recordUserInteraction() {
+    const now = Date.now();
+    if (now - lastInteractionRecordTime < 200) return; // 200msスロットリング
+    lastInteractionRecordTime = now;
+
+    const lastInteraction = parseInt(localStorage.getItem(LAST_INTERACTION_KEY) || now, 10);
+    const wasInactive = (now - lastInteraction) >= 30000; // 30秒以上無操作なら非アクティブ判定
+
+    localStorage.setItem(LAST_INTERACTION_KEY, now.toString());
+    if (wasInactive) {
+        localStorage.setItem(LAST_UPDATE_KEY, now.toString());
+    }
+}
+
+// ユーザーのアクティビティを監視
+['click', 'mousemove', 'keydown', 'touchstart', 'scroll'].forEach(evt => {
+    document.addEventListener(evt, recordUserInteraction, { passive: true });
+});
+
+// タブ表示状態の切り替え時
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        const now = Date.now();
+        localStorage.setItem(LAST_UPDATE_KEY, now.toString());
+        localStorage.setItem(LAST_INTERACTION_KEY, now.toString());
+    }
+});
+
+// 1秒ごとのタイマー加算処理
+function tickTimer() {
+    if (document.hidden) return;
+
+    const now = Date.now();
+    const lastInteraction = parseInt(localStorage.getItem(LAST_INTERACTION_KEY) || now, 10);
+    const isInactive = (now - lastInteraction) >= 30000;
+
+    if (!isInactive) {
+        const lastUpdate = parseInt(localStorage.getItem(LAST_UPDATE_KEY) || now, 10);
+        const diff = now - lastUpdate;
+
+        if (diff > 0 && diff < 2000) { // スリープ復帰時などの異常値を防ぐ
+            let elapsed = getValidatedElapsedTime();
+            elapsed += diff;
+            try {
+                localStorage.setItem(ELAPSED_TIME_KEY, elapsed.toString());
+            } catch (e) {
+                console.warn('Failed to update elapsed time:', e);
+            }
+        }
+    }
+    localStorage.setItem(LAST_UPDATE_KEY, now.toString());
+}
+
+// 初期化とタイマーループ起動
+document.addEventListener('DOMContentLoaded', () => {
+    const now = Date.now();
+    if (!localStorage.getItem(LAST_UPDATE_KEY)) {
+        localStorage.setItem(LAST_UPDATE_KEY, now.toString());
+    }
+    if (!localStorage.getItem(LAST_INTERACTION_KEY)) {
+        localStorage.setItem(LAST_INTERACTION_KEY, now.toString());
+    }
+    if (localStorage.getItem(ELAPSED_TIME_KEY) === null) {
+        localStorage.setItem(ELAPSED_TIME_KEY, '0');
+    }
+
+    setInterval(tickTimer, 1000);
+});
+
 /**
  * 獲得済みバッジリストを安全に取得する関数（配列検証・破損防止）
  * @returns {Array<string>} バッジIDの配列
