@@ -1,31 +1,71 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1794194580000,
-    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-09&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
+    "generated": 1794286724000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-10&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
     "title": "USGS Earthquakes",
     "status": 200,
     "api": "2.8.4",
-    "count": 5791
+    "count": 5792
   },
   "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 5.7,
+        "place": "106 km ENE of Hasaki, Japan",
+        "time": 1794199971519,
+        "updated": 1794286683509,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000tx1f",
+        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000tx1f&format=geojson",
+        "felt": 18,
+        "cdi": 3.8,
+        "mmi": 3.784,
+        "alert": "green",
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 507,
+        "net": "us",
+        "code": "7000tx1f",
+        "ids": ",us7000tx1f,usauto7000tx1f,atto7xk5,",
+        "sources": ",us,usauto,at,",
+        "types": ",dyfi,internal-moment-tensor,internal-origin,losspager,moment-tensor,origin,phase-data,shakemap,",
+        "nst": 39,
+        "dmin": 2.936,
+        "rms": 1.27,
+        "gap": 57,
+        "magType": "mww",
+        "type": "earthquake",
+        "title": "M 5.7 - 106 km ENE of Hasaki, Japan"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          141.8299,
+          36.2471,
+          24.173
+        ]
+      },
+      "id": "us7000tx1f"
+    },
     {
       "type": "Feature",
       "properties": {
         "mag": 5.5,
         "place": "10 km NW of Hamakita, Japan",
         "time": 1794067475125,
-        "updated": 1794154241008,
+        "updated": 1794248614385,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000twt0",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000twt0&format=geojson",
-        "felt": 71,
+        "felt": 74,
         "cdi": 5.6,
         "mmi": 6.2,
         "alert": "green",
         "status": "reviewed",
         "tsunami": 0,
-        "sig": 505,
+        "sig": 507,
         "net": "us",
         "code": "7000twt0",
         "ids": ",us7000twt0,",
