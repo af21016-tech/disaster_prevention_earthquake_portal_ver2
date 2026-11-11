@@ -1,8 +1,8 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1794286724000,
-    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-10&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
+    "generated": 1794367825000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-11&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
     "title": "USGS Earthquakes",
     "status": 200,
     "api": "2.8.4",
@@ -253,15 +253,15 @@
       "type": "Feature",
       "properties": {
         "mag": 5.5,
-        "place": "5 km ESE of Asahi, Japan",
-        "time": 1793200072050,
-        "updated": 1793360023692,
+        "place": "2 km E of Yōkaichiba, Japan",
+        "time": 1793200073185,
+        "updated": 1794340944396,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000ttpe",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000ttpe&format=geojson",
         "felt": 61,
         "cdi": 4.1,
-        "mmi": 5.294,
+        "mmi": 5.18,
         "alert": "green",
         "status": "reviewed",
         "tsunami": 0,
@@ -271,20 +271,20 @@
         "ids": ",us7000ttpe,",
         "sources": ",us,",
         "types": ",dyfi,losspager,moment-tensor,origin,phase-data,shakemap,",
-        "nst": 116,
-        "dmin": 2.188,
-        "rms": 1.28,
-        "gap": 64,
+        "nst": 168,
+        "dmin": 0.447,
+        "rms": 0.73,
+        "gap": 32,
         "magType": "mww",
         "type": "earthquake",
-        "title": "M 5.5 - 5 km ESE of Asahi, Japan"
+        "title": "M 5.5 - 2 km E of Yōkaichiba, Japan"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          140.7059,
-          35.7015,
-          41.356
+          140.5751,
+          35.701,
+          49.935
         ]
       },
       "id": "us7000ttpe"
@@ -125055,7 +125055,7 @@
         "mag": 9.1,
         "place": "2011 Great Tohoku Earthquake, Japan",
         "time": 1299822384120,
-        "updated": 1792147089160,
+        "updated": 1794337875486,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/official20110311054624120_30",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=official20110311054624120_30&format=geojson",
