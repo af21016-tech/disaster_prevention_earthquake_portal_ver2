@@ -1,12 +1,12 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1794541965000,
-    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-13&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
+    "generated": 1794628285000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-14&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
     "title": "USGS Earthquakes",
     "status": 200,
     "api": "2.8.4",
-    "count": 5793
+    "count": 5795
   },
   "features": [
     {
@@ -55,11 +55,11 @@
         "mag": 5.7,
         "place": "106 km ENE of Hasaki, Japan",
         "time": 1794199971519,
-        "updated": 1794396428631,
+        "updated": 1794606619886,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000tx1f",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000tx1f&format=geojson",
-        "felt": 19,
+        "felt": 20,
         "cdi": 3.8,
         "mmi": 3.784,
         "alert": "green",
@@ -372,10 +372,90 @@
     {
       "type": "Feature",
       "properties": {
+        "mag": 5,
+        "place": "Bonin Islands, Japan region",
+        "time": 1792895792398,
+        "updated": 1794623070040,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u4rr",
+        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000u4rr&format=geojson",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 385,
+        "net": "us",
+        "code": "6000u4rr",
+        "ids": ",us6000u4rr,",
+        "sources": ",us,",
+        "types": ",origin,phase-data,",
+        "nst": 84,
+        "dmin": 2.32,
+        "rms": 0.71,
+        "gap": 68,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 5.0 - Bonin Islands, Japan region"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.6534,
+          27.6622,
+          492.421
+        ]
+      },
+      "id": "us6000u4rr"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 6,
+        "place": "Bonin Islands, Japan region",
+        "time": 1792894184027,
+        "updated": 1794551133029,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000tw0y",
+        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000tw0y&format=geojson",
+        "felt": null,
+        "cdi": null,
+        "mmi": 0,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 554,
+        "net": "us",
+        "code": "7000tw0y",
+        "ids": ",us7000tw0y,",
+        "sources": ",us,",
+        "types": ",origin,phase-data,shakemap,",
+        "nst": 80,
+        "dmin": 2.206,
+        "rms": 0.74,
+        "gap": 61,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 6.0 - Bonin Islands, Japan region"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.8079,
+          27.7325,
+          472.952
+        ]
+      },
+      "id": "us7000tw0y"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "mag": 6.5,
         "place": "Bonin Islands, Japan region",
-        "time": 1792894163818,
-        "updated": 1793239975538,
+        "time": 1792894162321,
+        "updated": 1794548377184,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u4r9",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000u4r9&format=geojson",
@@ -391,9 +471,9 @@
         "ids": ",us6000u4r9,attnfxzn,usauto6000u4r9,",
         "sources": ",us,at,usauto,",
         "types": ",dyfi,impact-link,internal-moment-tensor,internal-origin,losspager,moment-tensor,origin,phase-data,shakemap,",
-        "nst": 124,
-        "dmin": 7.706,
-        "rms": 0.8,
+        "nst": 158,
+        "dmin": 2.311,
+        "rms": 0.75,
         "gap": 24,
         "magType": "mww",
         "type": "earthquake",
@@ -402,9 +482,9 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          139.6184,
-          27.7953,
-          492.376
+          139.7102,
+          27.8093,
+          475
         ]
       },
       "id": "us6000u4r9"
@@ -2015,17 +2095,17 @@
         "mag": 5.2,
         "place": "5 km W of Ōtsuki, Japan",
         "time": 1782480540376,
-        "updated": 1793240645133,
+        "updated": 1794615136907,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000t8fe",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000t8fe&format=geojson",
-        "felt": 145,
+        "felt": 146,
         "cdi": 5.6,
         "mmi": 5.064,
         "alert": "green",
         "status": "reviewed",
         "tsunami": 0,
-        "sig": 497,
+        "sig": 498,
         "net": "us",
         "code": "6000t8fe",
         "ids": ",us6000t8fe,",
@@ -2095,13 +2175,13 @@
         "mag": 6.9,
         "place": "35 km ENE of Noda, Japan",
         "time": 1782340212962,
-        "updated": 1788536450040,
+        "updated": 1794605259741,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000t7zq",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000t7zq&format=geojson",
         "felt": 95,
         "cdi": 6.9,
-        "mmi": 6.699,
+        "mmi": 6.542,
         "alert": "yellow",
         "status": "reviewed",
         "tsunami": 0,
