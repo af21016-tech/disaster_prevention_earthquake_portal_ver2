@@ -1,8 +1,8 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1794628285000,
-    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-14&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
+    "generated": 1794713531000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-15&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
     "title": "USGS Earthquakes",
     "status": 200,
     "api": "2.8.4",
@@ -133,15 +133,15 @@
       "type": "Feature",
       "properties": {
         "mag": 5.5,
-        "place": "74 km NE of Hasaki, Japan",
-        "time": 1794049663355,
-        "updated": 1794187209805,
+        "place": "77 km NE of Hasaki, Japan",
+        "time": 1794049662734,
+        "updated": 1794645635566,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000twrq",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000twrq&format=geojson",
         "felt": 26,
         "cdi": 3.4,
-        "mmi": 4.054,
+        "mmi": 4.063,
         "alert": "green",
         "status": "reviewed",
         "tsunami": 0,
@@ -151,20 +151,20 @@
         "ids": ",us7000twrq,",
         "sources": ",us,",
         "types": ",dyfi,losspager,moment-tensor,origin,phase-data,shakemap,",
-        "nst": 88,
-        "dmin": 2.632,
-        "rms": 0.62,
+        "nst": 99,
+        "dmin": 2.636,
+        "rms": 0.42,
         "gap": 97,
         "magType": "mww",
         "type": "earthquake",
-        "title": "M 5.5 - 74 km NE of Hasaki, Japan"
+        "title": "M 5.5 - 77 km NE of Hasaki, Japan"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          141.4404,
-          36.1884,
-          31.748
+          141.4515,
+          36.2184,
+          28
         ]
       },
       "id": "us7000twrq"
