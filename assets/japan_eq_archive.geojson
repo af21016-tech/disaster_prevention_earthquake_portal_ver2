@@ -1,14 +1,54 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1794799889000,
-    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-16&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
+    "generated": 1794893437000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-17&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
     "title": "USGS Earthquakes",
     "status": 200,
     "api": "2.8.4",
-    "count": 5795
+    "count": 5796
   },
   "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 5.4,
+        "place": "20 km NW of Anamizu, Japan",
+        "time": 1794803051718,
+        "updated": 1794890012722,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000tyhr",
+        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000tyhr&format=geojson",
+        "felt": null,
+        "cdi": null,
+        "mmi": 2.929,
+        "alert": "green",
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 449,
+        "net": "us",
+        "code": "7000tyhr",
+        "ids": ",us7000tyhr,",
+        "sources": ",us,",
+        "types": ",losspager,moment-tensor,origin,phase-data,shakemap,",
+        "nst": 152,
+        "dmin": 1.428,
+        "rms": 0.59,
+        "gap": 66,
+        "magType": "mww",
+        "type": "earthquake",
+        "title": "M 5.4 - 20 km NW of Anamizu, Japan"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          136.7444,
+          37.3664,
+          273.644
+        ]
+      },
+      "id": "us7000tyhr"
+    },
     {
       "type": "Feature",
       "properties": {
