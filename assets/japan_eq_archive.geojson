@@ -1,12 +1,12 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1794893437000,
-    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-17&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
+    "generated": 1794977758000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-18&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
     "title": "USGS Earthquakes",
     "status": 200,
     "api": "2.8.4",
-    "count": 5796
+    "count": 5797
   },
   "features": [
     {
@@ -133,15 +133,15 @@
       "type": "Feature",
       "properties": {
         "mag": 5.5,
-        "place": "8 km E of Shinshiro, Japan",
-        "time": 1794067475288,
-        "updated": 1794418952999,
+        "place": "9 km E of Shinshiro, Japan",
+        "time": 1794067475556,
+        "updated": 1794926178429,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000twt0",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000twt0&format=geojson",
         "felt": 77,
         "cdi": 5.6,
-        "mmi": 6.279,
+        "mmi": 6.332,
         "alert": "green",
         "status": "reviewed",
         "tsunami": 0,
@@ -150,21 +150,21 @@
         "code": "7000twt0",
         "ids": ",us7000twt0,",
         "sources": ",us,",
-        "types": ",dyfi,ground-failure,losspager,moment-tensor,origin,phase-data,shakemap,",
-        "nst": 248,
-        "dmin": 0.649,
-        "rms": 0.62,
+        "types": ",dyfi,ground-failure,impact-text,losspager,moment-tensor,origin,phase-data,shakemap,",
+        "nst": 256,
+        "dmin": 0.654,
+        "rms": 0.6,
         "gap": 31,
         "magType": "mww",
         "type": "earthquake",
-        "title": "M 5.5 - 8 km E of Shinshiro, Japan"
+        "title": "M 5.5 - 9 km E of Shinshiro, Japan"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          137.5969,
-          34.8969,
-          37.07
+          137.6091,
+          34.8997,
+          39.53
         ]
       },
       "id": "us7000twt0"
@@ -293,15 +293,15 @@
       "type": "Feature",
       "properties": {
         "mag": 6,
-        "place": "58 km SSE of Shima, Japan",
-        "time": 1793484902901,
-        "updated": 1794083726043,
+        "place": "64 km SSE of Shima, Japan",
+        "time": 1793484902653,
+        "updated": 1794895098290,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000tuku",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000tuku&format=geojson",
         "felt": 31,
         "cdi": 3.1,
-        "mmi": 2.993,
+        "mmi": 2.941,
         "alert": "green",
         "status": "reviewed",
         "tsunami": 0,
@@ -311,20 +311,20 @@
         "ids": ",us7000tuku,usauto7000tuku,",
         "sources": ",us,usauto,",
         "types": ",dyfi,ground-failure,internal-moment-tensor,losspager,moment-tensor,origin,phase-data,shakemap,",
-        "nst": 116,
-        "dmin": 1.525,
-        "rms": 0.76,
-        "gap": 30,
+        "nst": 159,
+        "dmin": 1.567,
+        "rms": 0.68,
+        "gap": 22,
         "magType": "mww",
         "type": "earthquake",
-        "title": "M 6.0 - 58 km SSE of Shima, Japan"
+        "title": "M 6.0 - 64 km SSE of Shima, Japan"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          136.9854,
-          33.822,
-          352.449
+          137.0372,
+          33.7792,
+          348
         ]
       },
       "id": "us7000tuku"
@@ -568,6 +568,46 @@
         ]
       },
       "id": "us6000u4qq"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 5,
+        "place": "43 km ESE of Hualien City, Taiwan",
+        "time": 1792789081497,
+        "updated": 1794957090040,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u4gs",
+        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000u4gs&format=geojson",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 385,
+        "net": "us",
+        "code": "6000u4gs",
+        "ids": ",us6000u4gs,",
+        "sources": ",us,",
+        "types": ",origin,phase-data,",
+        "nst": 114,
+        "dmin": 0.518,
+        "rms": 0.52,
+        "gap": 35,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 5.0 - 43 km ESE of Hualien City, Taiwan"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.9786,
+          23.7912,
+          10
+        ]
+      },
+      "id": "us6000u4gs"
     },
     {
       "type": "Feature",
@@ -20095,17 +20135,17 @@
         "mag": 7.5,
         "place": "2024 Noto Peninsula, Japan Earthquake",
         "time": 1704093009476,
-        "updated": 1793379675934,
+        "updated": 1794935765547,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000m0xl",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000m0xl&format=geojson",
-        "felt": 424,
+        "felt": 426,
         "cdi": 8.9,
         "mmi": 8.793,
         "alert": "red",
         "status": "reviewed",
         "tsunami": 1,
-        "sig": 2377,
+        "sig": 2379,
         "net": "us",
         "code": "6000m0xl",
         "ids": ",pt24001001,at00s6kml3,us6000m0xl,",
