@@ -1,21 +1,61 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1795235680000,
-    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-21&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
+    "generated": 1795319379000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=1995-01-01&endtime=2026-11-22&minmagnitude=5&minlatitude=20&maxlatitude=50&minlongitude=120&maxlongitude=155",
     "title": "USGS Earthquakes",
     "status": 200,
     "api": "2.8.4",
-    "count": 5799
+    "count": 5800
   },
   "features": [
     {
       "type": "Feature",
       "properties": {
+        "mag": 5.2,
+        "place": "112 km SSE of Tateyama, Japan",
+        "time": 1795255745474,
+        "updated": 1795259856040,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000ucky",
+        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us6000ucky&format=geojson",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 416,
+        "net": "us",
+        "code": "6000ucky",
+        "ids": ",us6000ucky,",
+        "sources": ",us,",
+        "types": ",origin,phase-data,",
+        "nst": 37,
+        "dmin": 2.84,
+        "rms": 1.08,
+        "gap": 117,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 5.2 - 112 km SSE of Tateyama, Japan"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          140.2109,
+          34.0109,
+          10
+        ]
+      },
+      "id": "us6000ucky"
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "mag": 5.3,
-        "place": "7 km N of Tsunagi, Japan",
-        "time": 1795022543552,
-        "updated": 1795112104210,
+        "place": "4 km N of Tsunagi, Japan",
+        "time": 1795022543428,
+        "updated": 1795289602134,
         "tz": null,
         "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000tz1n",
         "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000tz1n&format=geojson",
@@ -30,20 +70,20 @@
         "code": "7000tz1n",
         "ids": ",us7000tz1n,",
         "sources": ",us,",
-        "types": ",dyfi,moment-tensor,origin,phase-data,",
+        "types": ",dyfi,impact-text,moment-tensor,origin,phase-data,",
         "nst": 157,
-        "dmin": 0.796,
-        "rms": 0.6,
+        "dmin": 0.769,
+        "rms": 0.62,
         "gap": 74,
         "magType": "mww",
         "type": "earthquake",
-        "title": "M 5.3 - 7 km N of Tsunagi, Japan"
+        "title": "M 5.3 - 4 km N of Tsunagi, Japan"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          130.4701,
-          32.3069,
+          130.4667,
+          32.2798,
           10
         ]
       },
